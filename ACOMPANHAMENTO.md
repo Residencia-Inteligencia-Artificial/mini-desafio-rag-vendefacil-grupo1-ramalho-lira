@@ -37,6 +37,7 @@
 
 ### Relato individual - Emilly Santos Ramalho
 
+* Leitura do desafio
 * Eu criei a organização no github e adicionei os membros
 * Criei o repositorio do Desafio
 * Clonamos os repositórios em nossa máquina
