@@ -1,9 +1,9 @@
 # Acompanhamento - Mini Desafio RAG VendeFácil
 
-**Integrante 1:** Nome Completo - [@usuario-github](https://github.com/usuario-github)
-**Integrante 2:** Nome Completo - [@usuario-github](https://github.com/usuario-github)
+**Integrante 1:** Janice Lira - [@Janice977](https://github.com/Janice977)
+**Integrante 2:** Emilly Ramalho - [@EmillySRamalho](https://github.com/EmillySRamalho)
 
-**Repositório:** `rag-vendefacil-<sobrenome1>-<sobrenome2>`
+**Repositório:** `mini-desafio-rag-vendefacil-grupo1-ramalho-lira`
 
 ---
 
