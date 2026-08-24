@@ -35,28 +35,58 @@
 
 <!-- Escreva você mesmo, em primeira pessoa. O que implementou, que decisão tomou e por quê, onde travou. -->
 
-### Relato individual - [Nome do Integrante 2]
+### Relato individual - Emilly Santos Ramalho
 
-<!-- Escreva você mesmo, em primeira pessoa. O que implementou, que decisão tomou e por quê, onde travou. -->
+Eu criei a organização no github e adicionei os membros
+Criei o repositorio do Desafio
+Clonamos os repositórios em nossa máquina
+Demos inicio a etapa 1, ainda está sendo revisada e sendo feita algumas alterações.
+
 
 ### Resumo do dia (escrito em conjunto)
 
+Nós decidimos realizar todas as etapas em conjunto, trabalhando em parceria direta durante a sessão no Colab. Clonamos o repositório lado a lado e executamos o pipeline de ingestão desenvolvido para o projeto.
+
+Ao executar o comando `python -m src.ingest`, acompanhamos todo o processamento de **217 documentos provenientes de fontes heterogêneas**, como e-mails, políticas e tickets, que resultou na geração de **251 chunks**.
+
+Durante a execução, discutimos as decisões relacionadas ao tratamento dos dados. Em conjunto, concluímos que manter as tabelas `customers.csv`, `sales.csv` e `system_logs.csv` fora do índice vetorial seria a abordagem mais adequada, considerando que dados estruturados de grande volume e consultas de agregação não se encaixam bem no modelo de busca semântica.
+
+Embora tenhamos utilizado o Claude como apoio para acelerar a criação da estrutura inicial, incluindo os carregadores, a lógica de chunking e a integração com FAISS, realizamos uma análise conjunta e detalhada da implementação. Revisamos linha por linha, principalmente a lógica responsável pela detecção e tratamento de dados sensíveis.
+
+Por fim, realizamos testes manuais em conjunto, utilizando consultas de exemplo para validar o comportamento do sistema. Esses testes permitiram confirmar, na prática, que os filtros baseados em metadados, como `state` e `doc_type`, estavam sendo aplicados corretamente e retornando os documentos esperados.
+
 **Entregamos hoje:**
--
+
+* [ ] Clonagem e configuração do repositório no Colab.
+* [ ] Execução do pipeline de ingestão com sucesso.
+* [ ] Processamento de 217 documentos de fontes heterogêneas.
+* [ ] Geração de 251 chunks.
+* [ ] Definição dos arquivos CSV que permanecerão fora do índice vetorial.
+* [ ] Revisão conjunta da lógica de detecção de dados sensíveis.
+* [ ] Validação dos filtros por metadados (`state` e `doc_type`) por meio de testes manuais.
 
 **Ficou pendente:**
--
+
+* [ ] Continuar a validação do pipeline com outros cenários de consulta.
+* [ ] Avaliar possíveis ajustes na estratégia de chunking e recuperação, caso sejam identificados problemas nos próximos testes.
 
 **Bloqueios em aberto:**
--
+
+* [ ] Nenhum bloqueio técnico identificado até o momento.
 
 **Próximo passo (início do encontro 2):**
--
+
+* [ ] Dar continuidade aos testes do sistema de busca.
+* [ ] Avaliar a qualidade e relevância dos resultados recuperados.
+* [ ] Verificar se os filtros e metadados continuam funcionando corretamente em diferentes cenários.
+* [ ] Avançar para as próximas etapas da implementação do pipeline RAG.
 
 **Uso de assistentes de IA:**
--
 
----
+* Utilizamos o Claude como ferramenta de apoio para acelerar a criação da estrutura inicial do projeto, principalmente nos carregadores, na lógica de chunking e na integração com FAISS.
+* Todo o código gerado com auxílio da IA foi analisado, discutido e revisado em conjunto antes de ser utilizado.
+* A lógica de detecção de dados sensíveis recebeu revisão manual detalhada, garantindo que as decisões técnicas fossem compreendidas e validadas pela equipe.
+
 
 ## Encontro 2 - AAAA-MM-DD
 
