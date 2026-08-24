@@ -1,1 +1,6 @@
-# preencha com as dependencias do seu projeto
+faiss-cpu
+sentence-transformers
+pandas
+python-dotenv
+openai
+rank-bm25
