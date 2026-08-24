@@ -37,10 +37,10 @@
 
 ### Relato individual - Emilly Santos Ramalho
 
-Eu criei a organização no github e adicionei os membros
-Criei o repositorio do Desafio
-Clonamos os repositórios em nossa máquina
-Demos inicio a etapa 1, ainda está sendo revisada e sendo feita algumas alterações.
+* Eu criei a organização no github e adicionei os membros
+* Criei o repositorio do Desafio
+* Clonamos os repositórios em nossa máquina
+* Demos inicio a etapa 1, ainda está sendo revisada e sendo feita algumas alterações.
 
 
 ### Resumo do dia (escrito em conjunto)
