@@ -126,7 +126,7 @@ Minhas principais atividades foram:
 **Ficou pendente:**
 -Foi iniciado a parte dois, mas será comitado somente no proximo encontro.
 
-**Bloqueios em aberto:*
+**Bloqueios em aberto:**
 - Algumas alterações na etapa 1, atrasou um pouco o andamento da etapa 2.
 
 **Próximo passo (início do encontro 3):**
