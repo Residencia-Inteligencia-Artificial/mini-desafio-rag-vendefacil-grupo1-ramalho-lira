@@ -1,11 +1,3 @@
-"""
-Script de teste rápido -- roda algumas buscas de exemplo no índice já
-gerado, para conferir visualmente se a ingestão fez sentido.
-
-Uso:
-    python -m src.testar_busca
-"""
-
 from __future__ import annotations
 from src.vector_store import VectorStore
 from src.embeddings import embed_texto
