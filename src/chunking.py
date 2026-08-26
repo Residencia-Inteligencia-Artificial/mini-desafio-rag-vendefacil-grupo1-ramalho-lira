@@ -1,12 +1,3 @@
-"""
-Chunking de textos longos (políticas, atas de reunião, documentação técnica).
-
-Usa uma estratégia recursiva simples (sem depender do LangChain, para manter
-o starter enxuto): tenta cortar por parágrafo primeiro, depois por linha,
-só recorrendo a corte por caractere como último recurso. Nunca corta uma
-tabela markdown no meio.
-"""
-
 from __future__ import annotations
 import re
 
