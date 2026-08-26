@@ -115,26 +115,25 @@ Minhas principais atividades foram:
 
 ### Resumo do dia (escrito em conjunto)
 
-
-**Entregamos hoje:**
-*Realizamos alteracoes na etapa 1, foi necessário atualizar algumas pastas.
-Houve mudança na quantidade de chucks. Então Recalculamos e reprocessamento da base vetorial local, gerando 5.745 chunks no total (sendo aproximadamente 2.000 chunks do customers.csv + 3.000 do sales.csv)
-Realizamos um sanity check com três perguntas de teste.
-Os embeddings foram indexados utilizando FAISS
-E foram gerados embeddings utilizando o modelo sentence-transformers/all-MiniLM-L6-v2.
-
+* Realizamos algumas alterações na Etapa 1, incluindo a atualização de pastas e arquivos utilizados no processo de ingestão.
+* Devido às mudanças na base, houve uma alteração na quantidade de chunks, então foi necessário recalcular e reprocessar a base vetorial local.
+* Ao final do processamento, foram gerados 5.745 chunks.
+* Geramos os embeddings utilizando o modelo sentence-transformers/all-MiniLM-L6-v2.
+* Indexamos os embeddings utilizando o FAISS e salvamos o índice localmente.
+* Também realizamos uma verificação de sanidade (sanity check) com três perguntas de teste para validar a recuperação dos conteúdos.
+* Por fim, testamos o carregamento do índice já existente, confirmando que ele pode ser reutilizado sem precisar realizar uma nova indexação.
 
 **Ficou pendente:**
 -Foi iniciado a parte dois, mas será comitado somente no proximo encontro.
 
-**Bloqueios em aberto:**
--
+**Bloqueios em aberto:*
+- Algumas alterações na etapa 1, atrasou um pouco o andamento da etapa 2.
 
 **Próximo passo (início do encontro 3):**
-- 
+- Iremos dar continuidade na etapa 2.
 
 **Uso de assistentes de IA:**
--
+- Utilizamos IA como apoio ao longo do desenvolvimento, principalmente para entender erros, discutir soluções e revisar partes do código. As sugestões foram adaptadas ao projeto e testadas pelo grupo durante a execução da Etapa 1.
 
 ---
 
