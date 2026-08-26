@@ -1,9 +1,3 @@
-"""
-Geração de embeddings. Padrão: modelo local e gratuito do Hugging Face
-(mesma escolha das atividades anteriores -- evita depender de créditos
-pagos da API só para rodar o pipeline de ingestão).
-"""
-
 from __future__ import annotations
 import os
 from dotenv import load_dotenv
