@@ -105,6 +105,14 @@ Minhas principais atividades foram:
 
 ### Relato individual - Emilly Santos Ramalho
 
+*  Fizemos a ingestão dos diferentes tipos de arquivos da base.
+*  Aplicamos o chunking adaptativo de acordo com cada tipo de documento.
+*  Organizamos os metadados de cada chunk.
+*  Geramos os embeddings usando all-MiniLM-L6-v2.
+*  Criamos e salvamos o índice vetorial com FAISS.
+*  Testamos a busca com algumas perguntas para verificar os resultados.
+*  Ao final, chegamos a 5.745 chunks indexados.
+
 ### Resumo do dia (escrito em conjunto)
 
 
