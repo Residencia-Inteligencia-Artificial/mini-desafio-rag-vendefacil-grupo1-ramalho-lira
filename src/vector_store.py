@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 import os
 import json
@@ -9,7 +8,7 @@ import faiss
 class VectorStore:
     def __init__(self, dim: int):
         self.dim = dim
-        self.index = faiss.IndexFlatIP(dim)  # Inner Product == cosseno, pois normalizamos os vetores
+        self.index = faiss.IndexFlatIP(dim) 
         self.textos: list[str] = []
         self.metadados: list[dict] = []
 
@@ -33,8 +32,6 @@ class VectorStore:
 
         indices_validos = self._indices_que_passam_no_filtro(filtro)
 
-        # Busca um k maior quando há filtro, pra garantir que sobrem
-        # candidatos suficientes depois de descartar os que não passam.
         k_busca = min(len(self.textos), top_k * 20 if indices_validos is not None else top_k)
         if k_busca == 0:
             return []
