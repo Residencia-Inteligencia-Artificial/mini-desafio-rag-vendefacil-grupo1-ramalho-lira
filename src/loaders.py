@@ -1,11 +1,3 @@
-"""
-Loaders para as fontes de dados heterogêneas da VendeFácil.
-
-Cada loader retorna uma lista de "Document" simples: dicts no formato
-{"text": str, "metadata": dict}. A etapa de chunking e embedding é feita
-depois, em ingest.py -- os loaders só extraem e normalizam o conteúdo.
-"""
-
 from __future__ import annotations
 import os
 import re
@@ -14,10 +6,6 @@ import json
 import glob
 
 
-# ---------------------------------------------------------------------------
-# Padrões usados para detectar informação sensível (apoio à etapa de
-# guardrails da Etapa 3, mas já marcado na ingestão para rastreabilidade).
-# ---------------------------------------------------------------------------
 PADROES_SENSIVEIS = [
     re.compile(r"\bsenha\b", re.IGNORECASE),
     re.compile(r"\bsalary\b|\bsal[aá]rio\b", re.IGNORECASE),
@@ -33,9 +21,6 @@ def contem_informacao_sensivel(texto: str) -> bool:
     return any(p.search(texto) for p in PADROES_SENSIVEIS)
 
 
-# ---------------------------------------------------------------------------
-# Semi-estruturado: tickets.jsonl
-# ---------------------------------------------------------------------------
 def carregar_tickets(caminho: str) -> list[dict]:
     documentos = []
     with open(caminho, "r", encoding="utf-8") as f:
@@ -71,10 +56,6 @@ def carregar_tickets(caminho: str) -> list[dict]:
             })
     return documentos
 
-
-# ---------------------------------------------------------------------------
-# Estruturado (pequeno o suficiente para virar texto buscável): products.json
-# ---------------------------------------------------------------------------
 def carregar_produtos(caminho: str) -> list[dict]:
     with open(caminho, "r", encoding="utf-8") as f:
         dados = json.load(f)
@@ -100,9 +81,6 @@ def carregar_produtos(caminho: str) -> list[dict]:
     return documentos
 
 
-# ---------------------------------------------------------------------------
-# Estruturado: stores.json
-# ---------------------------------------------------------------------------
 def carregar_lojas(caminho: str) -> list[dict]:
     with open(caminho, "r", encoding="utf-8") as f:
         dados = json.load(f)
@@ -129,10 +107,6 @@ def carregar_lojas(caminho: str) -> list[dict]:
         })
     return documentos
 
-
-# ---------------------------------------------------------------------------
-# Estruturado, pequeno mas SENSÍVEL: employees.csv (contém salário)
-# ---------------------------------------------------------------------------
 def carregar_funcionarios(caminho: str) -> list[dict]:
     documentos = []
     with open(caminho, "r", encoding="utf-8-sig", newline="") as f:
@@ -150,19 +124,11 @@ def carregar_funcionarios(caminho: str) -> list[dict]:
                     "source": caminho,
                     "doc_type": "employee_record",
                     "department": linha.get("department"),
-                    # Sempre True por conter salário - guardrail da Etapa 3 deve
-                    # recusar responder perguntas de salário mesmo que o dado
-                    # esteja tecnicamente indexado (necessário para o sistema
-                    # RECONHECER que a pergunta toca em algo sensível).
                     "is_sensitive": True,
                 },
             })
     return documentos
 
-
-# ---------------------------------------------------------------------------
-# Não estruturado: markdown (políticas, documentação, atas de reunião)
-# ---------------------------------------------------------------------------
 def carregar_markdown(caminho: str, doc_type: str, modulo: str | None = None) -> dict:
     with open(caminho, "r", encoding="utf-8") as f:
         texto = f.read()
@@ -189,10 +155,6 @@ def carregar_pasta_markdown(pasta: str, doc_type: str, modulo_por_subpasta: bool
     return documentos
 
 
-# ---------------------------------------------------------------------------
-# Não estruturado: e-mails (.txt), com extração de customer_id pelo nome do
-# arquivo quando aplicável (padrão observado: customer_XXX_assunto.txt)
-# ---------------------------------------------------------------------------
 _PADRAO_CUSTOMER_NO_NOME = re.compile(r"customer_(\d+)", re.IGNORECASE)
 
 
@@ -219,11 +181,6 @@ def carregar_emails(pasta: str) -> list[dict]:
     return documentos
 
 
-# ---------------------------------------------------------------------------
-# Ponto de entrada: carrega TODAS as fontes que serão indexadas no vetorial.
-# customers.csv, sales.csv e system_logs.csv ficam de fora de propósito --
-# veja src/structured_store.py e o README do pipeline para a justificativa.
-# ---------------------------------------------------------------------------
 def carregar_todas_as_fontes_vetorizaveis(data_dir: str) -> list[dict]:
     documentos: list[dict] = []
 
