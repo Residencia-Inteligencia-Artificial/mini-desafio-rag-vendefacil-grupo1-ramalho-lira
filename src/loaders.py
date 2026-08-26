@@ -1,205 +1,623 @@
 from __future__ import annotations
+
+import csv
+import glob
+import json
 import os
 import re
-import csv
-import json
-import glob
 
+from pypdf import PdfReader
+
+PADROES_RESTRITOS = [
+    re.compile(r"\bsenha\b", re.IGNORECASE),
+    re.compile(r"\bapi[_ -]?key\b", re.IGNORECASE),
+    re.compile(r"\bchave de api\b", re.IGNORECASE),
+    re.compile(r"\bsecret\b", re.IGNORECASE),
+    re.compile(r"\btoken\b", re.IGNORECASE),
+]
 
 PADROES_SENSIVEIS = [
-    re.compile(r"\bsenha\b", re.IGNORECASE),
-    re.compile(r"\bsalary\b|\bsal[aá]rio\b", re.IGNORECASE),
-    re.compile(r"\broot\b", re.IGNORECASE),
-    re.compile(r"\bapi[_ -]?key\b|\bchave de api\b", re.IGNORECASE),
+    re.compile(r"\bsal[aá]rio\b", re.IGNORECASE),
     re.compile(r"\bcpf\b", re.IGNORECASE),
-    re.compile(r"\bcart[aã]o\b.{0,20}\bfinal\b", re.IGNORECASE),
     re.compile(r"\bcredencia(is|l)\b", re.IGNORECASE),
 ]
 
+def classificar_sensitivity(texto: str) -> str:
 
-def contem_informacao_sensivel(texto: str) -> bool:
-    return any(p.search(texto) for p in PADROES_SENSIVEIS)
+    if any(p.search(texto) for p in PADROES_RESTRITOS):
+        return "restrito"
 
+    if any(p.search(texto) for p in PADROES_SENSIVEIS):
+        return "interno"
 
-def carregar_tickets(caminho: str) -> list[dict]:
+    return "publico"
+
+def carregar_csv(caminho: str) -> list[dict]:
     documentos = []
-    with open(caminho, "r", encoding="utf-8") as f:
-        for linha in f:
-            linha = linha.strip()
-            if not linha:
-                continue
-            t = json.loads(linha)
+    with open(
+        caminho,
+        "r",
+        encoding="utf-8-sig",
+        newline=""
+    ) as f:
 
-            texto = (
-                f"Chamado {t['ticket_id']} - {t['title']}\n"
-                f"Cliente: {t.get('customer_name', '')} ({t.get('customer_id', '')})\n"
-                f"Categoria: {t.get('category', '')} | Prioridade: {t.get('priority', '')} | "
-                f"Status: {t.get('status', '')}\n"
-                f"Descrição: {t.get('description', '')}\n"
-            )
-            if t.get("resolution"):
-                texto += f"Resolução: {t['resolution']}\n"
-
-            documentos.append({
-                "text": texto.strip(),
-                "metadata": {
-                    "source": caminho,
-                    "doc_type": "ticket",
-                    "ticket_id": t.get("ticket_id"),
-                    "customer_id": t.get("customer_id"),
-                    "state": t.get("state"),
-                    "module": t.get("module"),
-                    "priority": t.get("priority"),
-                    "status": t.get("status"),
-                    "is_sensitive": contem_informacao_sensivel(texto),
-                },
-            })
-    return documentos
-
-def carregar_produtos(caminho: str) -> list[dict]:
-    with open(caminho, "r", encoding="utf-8") as f:
-        dados = json.load(f)
-
-    documentos = []
-    for nome_plano, info in dados.get("pricing_plans", {}).items():
-        texto = (
-            f"Plano {nome_plano} da VendeFácil.\n"
-            f"Mensalidade: R$ {info.get('monthly_fee_brl')}. "
-            f"Terminais inclusos: {info.get('included_terminals')}. "
-            f"Terminal extra: R$ {info.get('extra_terminal_fee_brl')}.\n"
-            f"{info.get('description', '')}"
-        )
-        documentos.append({
-            "text": texto.strip(),
-            "metadata": {
-                "source": caminho,
-                "doc_type": "pricing_plan",
-                "plan": nome_plano,
-                "is_sensitive": False,
-            },
-        })
-    return documentos
-
-
-def carregar_lojas(caminho: str) -> list[dict]:
-    with open(caminho, "r", encoding="utf-8") as f:
-        dados = json.load(f)
-
-    documentos = []
-    for loja in dados.get("network_stores", []):
-        modulos = ", ".join(loja.get("active_modules", []))
-        texto = (
-            f"Loja {loja.get('store_name')} ({loja.get('store_id')}), "
-            f"cliente {loja.get('company_name')} ({loja.get('customer_id')}), "
-            f"localizada em {loja.get('city')}/{loja.get('state')}.\n"
-            f"Terminais de PDV: {loja.get('pos_terminals_count')}. "
-            f"Módulos ativos: {modulos}."
-        )
-        documentos.append({
-            "text": texto.strip(),
-            "metadata": {
-                "source": caminho,
-                "doc_type": "store_profile",
-                "customer_id": loja.get("customer_id"),
-                "state": loja.get("state"),
-                "is_sensitive": False,
-            },
-        })
-    return documentos
-
-def carregar_funcionarios(caminho: str) -> list[dict]:
-    documentos = []
-    with open(caminho, "r", encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
+
         for linha in reader:
-            texto = (
-                f"Funcionário {linha['name']} ({linha['id']}), "
-                f"cargo {linha['role']}, departamento {linha['department']}, "
-                f"admitido em {linha['hire_date']}, status {linha['status']}. "
-                f"Salário: R$ {linha['salary']}."
+
+            texto = ". ".join(
+                f"{chave.replace('_', ' ')}: {valor}"
+                for chave, valor in linha.items()
+                if valor not in (None, "")
             )
+
             documentos.append({
                 "text": texto,
                 "metadata": {
-                    "source": caminho,
-                    "doc_type": "employee_record",
-                    "department": linha.get("department"),
-                    "is_sensitive": True,
-                },
+                    "source_file": os.path.basename(caminho),
+                    "row": linha,
+                }
             })
+
     return documentos
 
-def carregar_markdown(caminho: str, doc_type: str, modulo: str | None = None) -> dict:
-    with open(caminho, "r", encoding="utf-8") as f:
-        texto = f.read()
+def carregar_customers(caminho: str) -> list[dict]:
 
-    return {
-        "text": texto,
-        "metadata": {
-            "source": caminho,
-            "doc_type": doc_type,
-            "module": modulo,
-            "is_sensitive": contem_informacao_sensivel(texto),
-        },
-    }
-
-
-def carregar_pasta_markdown(pasta: str, doc_type: str, modulo_por_subpasta: bool = False) -> list[dict]:
-    """Carrega todos os .md de uma pasta (opcionalmente uma pasta por módulo)."""
     documentos = []
-    for caminho in sorted(glob.glob(os.path.join(pasta, "**", "*.md"), recursive=True)):
-        modulo = None
-        if modulo_por_subpasta:
-            modulo = os.path.basename(os.path.dirname(caminho))
-        documentos.append(carregar_markdown(caminho, doc_type, modulo))
+
+    with open(
+        caminho,
+        "r",
+        encoding="utf-8-sig",
+        newline=""
+    ) as f:
+
+        reader = csv.DictReader(f)
+
+        for linha in reader:
+
+            texto = (
+                f"Cliente {linha.get('customer_id')}: "
+                f"{linha.get('name')}, "
+                f"estado {linha.get('state')}, "
+                f"módulo contratado {linha.get('module')}, "
+                f"cliente desde {linha.get('date')}, "
+                f"situação {linha.get('status')}."
+            )
+
+            documentos.append({
+                "text": texto,
+                "metadata": {
+                    "source_file": os.path.basename(caminho),
+                    "doc_type": "customer",
+                    "customer_id": linha.get("customer_id"),
+                    "state": linha.get("state"),
+                    "module": linha.get("module"),
+                    "date": linha.get("date"),
+                    "status": linha.get("status"),
+                    "sensitivity": classificar_sensitivity(texto),
+                }
+            })
+
     return documentos
 
+def carregar_employees(caminho: str) -> list[dict]:
 
-_PADRAO_CUSTOMER_NO_NOME = re.compile(r"customer_(\d+)", re.IGNORECASE)
-
-
-def carregar_emails(pasta: str) -> list[dict]:
     documentos = []
-    for caminho in sorted(glob.glob(os.path.join(pasta, "*.txt"))):
-        with open(caminho, "r", encoding="utf-8") as f:
-            texto = f.read()
 
-        nome_arquivo = os.path.basename(caminho)
-        match = _PADRAO_CUSTOMER_NO_NOME.search(nome_arquivo)
-        customer_id = f"CUST{match.group(1).zfill(3)}" if match else None
-        tipo_email = "customer_email" if nome_arquivo.startswith("customer_") else "internal_email"
+    with open(
+        caminho,
+        "r",
+        encoding="utf-8-sig",
+        newline=""
+    ) as f:
+
+        reader = csv.DictReader(f)
+
+        for linha in reader:
+
+            texto = (
+                f"Funcionário {linha.get('name')} "
+                f"({linha.get('id')}), "
+                f"cargo {linha.get('role')}, "
+                f"departamento {linha.get('department')}, "
+                f"admitido em {linha.get('hire_date')}, "
+                f"status {linha.get('status')}, "
+                f"salário {linha.get('salary')}."
+            )
+
+            documentos.append({
+                "text": texto,
+                "metadata": {
+                    "source_file": os.path.basename(caminho),
+                    "doc_type": "employee",
+                    "department": linha.get("department"),
+                    "sensitivity": "interno",
+                }
+            })
+
+    return documentos
+
+def carregar_sales(caminho: str) -> list[dict]:
+
+    documentos = []
+
+    with open(
+        caminho,
+        "r",
+        encoding="utf-8-sig",
+        newline=""
+    ) as f:
+
+        reader = csv.DictReader(f)
+
+        for linha in reader:
+
+            texto = ". ".join(
+                f"{chave.replace('_', ' ')}: {valor}"
+                for chave, valor in linha.items()
+                if valor not in (None, "")
+            )
+
+            documentos.append({
+                "text": texto,
+                "metadata": {
+                    "source_file": os.path.basename(caminho),
+                    "doc_type": "sale",
+                    "date": linha.get("date"),
+                    "sensitivity": "interno",
+                }
+            })
+
+    return documentos
+
+def carregar_system_logs(caminho: str) -> list[dict]:
+
+    documentos = []
+
+    with open(
+        caminho,
+        "r",
+        encoding="utf-8-sig",
+        newline=""
+    ) as f:
+
+        reader = csv.DictReader(f)
+
+        for linha in reader:
+
+            texto = ". ".join(
+                f"{chave.replace('_', ' ')}: {valor}"
+                for chave, valor in linha.items()
+                if valor not in (None, "")
+            )
+
+            documentos.append({
+                "text": texto,
+                "metadata": {
+                    "source_file": os.path.basename(caminho),
+                    "doc_type": "log",
+                    "sensitivity": classificar_sensitivity(texto),
+                }
+            })
+
+    return documentos
+
+def carregar_products(caminho: str) -> list[dict]:
+
+    with open(
+        caminho,
+        "r",
+        encoding="utf-8"
+    ) as f:
+
+        dados = json.load(f)
+
+    documentos = []
+
+    for nome_plano, info in dados.get(
+        "pricing_plans",
+        {}
+    ).items():
+
+        texto = (
+            f"Plano {nome_plano} da VendeFácil. "
+            f"Mensalidade: R$ "
+            f"{info.get('monthly_fee_brl')}. "
+            f"Terminais inclusos: "
+            f"{info.get('included_terminals')}. "
+            f"Terminal extra: R$ "
+            f"{info.get('extra_terminal_fee_brl')}. "
+            f"{info.get('description', '')}"
+        )
 
         documentos.append({
             "text": texto,
             "metadata": {
-                "source": caminho,
-                "doc_type": tipo_email,
-                "customer_id": customer_id,
-                "is_sensitive": contem_informacao_sensivel(texto),
-            },
+                "source_file": os.path.basename(caminho),
+                "doc_type": "product",
+                "sensitivity": "publico",
+                "product": nome_plano,
+            }
         })
+
     return documentos
 
+def carregar_stores(caminho: str) -> list[dict]:
 
-def carregar_todas_as_fontes_vetorizaveis(data_dir: str) -> list[dict]:
-    documentos: list[dict] = []
+    with open(
+        caminho,
+        "r",
+        encoding="utf-8"
+    ) as f:
 
-    documentos += carregar_tickets(os.path.join(data_dir, "semi_structured", "tickets.jsonl"))
-    documentos += carregar_produtos(os.path.join(data_dir, "structured", "products.json"))
-    documentos += carregar_lojas(os.path.join(data_dir, "structured", "stores.json"))
-    documentos += carregar_funcionarios(os.path.join(data_dir, "structured", "employees.csv"))
+        dados = json.load(f)
+
+    documentos = []
+
+    for loja in dados.get(
+        "network_stores",
+        []
+    ):
+
+        modulos = ", ".join(
+            loja.get("active_modules", [])
+        )
+
+        texto = (
+            f"Loja {loja.get('store_name')} "
+            f"({loja.get('store_id')}), "
+            f"cliente {loja.get('company_name')} "
+            f"({loja.get('customer_id')}), "
+            f"localizada em "
+            f"{loja.get('city')}/"
+            f"{loja.get('state')}. "
+            f"Terminais de PDV: "
+            f"{loja.get('pos_terminals_count')}. "
+            f"Módulos ativos: {modulos}."
+        )
+
+        documentos.append({
+            "text": texto,
+            "metadata": {
+                "source_file": os.path.basename(caminho),
+                "doc_type": "store",
+                "customer_id": loja.get("customer_id"),
+                "state": loja.get("state"),
+                "module": modulos,
+                "sensitivity": "publico",
+            }
+        })
+
+    return documentos
+
+def carregar_tickets(caminho: str) -> list[dict]:
+
+    documentos = []
+
+    with open(
+        caminho,
+        "r",
+        encoding="utf-8"
+    ) as f:
+
+        for linha in f:
+
+            linha = linha.strip()
+
+            if not linha:
+                continue
+
+            ticket = json.loads(linha)
+
+            texto = (
+                f"Chamado {ticket.get('ticket_id')} - "
+                f"{ticket.get('title')}. "
+                f"Cliente: "
+                f"{ticket.get('customer_name', '')} "
+                f"({ticket.get('customer_id', '')}). "
+                f"Categoria: "
+                f"{ticket.get('category', '')}. "
+                f"Prioridade: "
+                f"{ticket.get('priority', '')}. "
+                f"Status: "
+                f"{ticket.get('status', '')}. "
+                f"Descrição: "
+                f"{ticket.get('description', '')}."
+            )
+
+            if ticket.get("resolution"):
+                texto += (
+                    f" Resolução: "
+                    f"{ticket['resolution']}."
+                )
+
+            documentos.append({
+                "text": texto,
+                "metadata": {
+                    "source_file": os.path.basename(caminho),
+                    "doc_type": "ticket",
+                    "customer_id": ticket.get("customer_id"),
+                    "state": ticket.get("state"),
+                    "module": ticket.get("module"),
+                    "priority": ticket.get("priority"),
+                    "status": ticket.get("status"),
+                    "date": ticket.get("date"),
+                    "ticket_id": ticket.get("ticket_id"),
+                    "sensitivity": classificar_sensitivity(texto),
+                }
+            })
+
+    return documentos
+
+def carregar_markdown(
+    caminho: str,
+    doc_type: str,
+    modulo: str | None = None
+) -> list[dict]:
+
+    with open(
+        caminho,
+        "r",
+        encoding="utf-8"
+    ) as f:
+
+        texto = f.read()
+
+    return [{
+        "text": texto,
+        "metadata": {
+            "source_file": os.path.basename(caminho),
+            "doc_type": doc_type,
+            "module": modulo,
+            "sensitivity": classificar_sensitivity(texto),
+        }
+    }]
+
+
+def carregar_pasta_markdown(
+    pasta: str,
+    doc_type: str,
+    modulo_por_subpasta: bool = False
+) -> list[dict]:
+
+    documentos = []
+
+    arquivos = sorted(
+        glob.glob(
+            os.path.join(
+                pasta,
+                "**",
+                "*.md"
+            ),
+            recursive=True
+        )
+    )
+
+    for caminho in arquivos:
+
+        modulo = None
+
+        if modulo_por_subpasta:
+
+            modulo = os.path.basename(
+                os.path.dirname(caminho)
+            )
+
+        documentos.extend(
+            carregar_markdown(
+                caminho,
+                doc_type,
+                modulo
+            )
+        )
+
+    return documentos
+
+def carregar_pdf(
+    caminho: str,
+    doc_type: str = "policy"
+) -> list[dict]:
+
+    reader = PdfReader(caminho)
+
+    paginas = []
+
+    for page in reader.pages:
+
+        texto = page.extract_text()
+
+        if texto:
+            paginas.append(texto)
+
+    texto_completo = "\n\n".join(paginas)
+
+    return [{
+        "text": texto_completo,
+        "metadata": {
+            "source_file": os.path.basename(caminho),
+            "doc_type": doc_type,
+            "sensitivity": classificar_sensitivity(
+                texto_completo
+            ),
+        }
+    }]
+
+_PADRAO_CUSTOMER = re.compile(
+    r"customer_(\d+)",
+    re.IGNORECASE
+)
+
+
+def carregar_emails(pasta: str) -> list[dict]:
+
+    documentos = []
+
+    arquivos = sorted(
+        glob.glob(
+            os.path.join(
+                pasta,
+                "*.txt"
+            )
+        )
+    )
+
+    for caminho in arquivos:
+
+        with open(
+            caminho,
+            "r",
+            encoding="utf-8"
+        ) as f:
+
+            texto = f.read()
+
+        nome = os.path.basename(caminho)
+
+        match = _PADRAO_CUSTOMER.search(
+            nome
+        )
+
+        customer_id = (
+            f"CUST{match.group(1).zfill(3)}"
+            if match
+            else None
+        )
+
+        doc_type = (
+            "email"
+        )
+
+        documentos.append({
+            "text": texto,
+            "metadata": {
+                "source_file": nome,
+                "doc_type": doc_type,
+                "customer_id": customer_id,
+                "sensitivity": classificar_sensitivity(
+                    texto
+                ),
+            }
+        })
+
+    return documentos
+
+def carregar_todas_as_fontes_vetorizaveis(
+    data_dir: str
+) -> list[dict]:
+
+    documentos = []
+
+    documentos += carregar_customers(
+        os.path.join(
+            data_dir,
+            "structured",
+            "customers.csv"
+        )
+    )
+
+    documentos += carregar_employees(
+        os.path.join(
+            data_dir,
+            "structured",
+            "employees.csv"
+        )
+    )
+
+    documentos += carregar_sales(
+        os.path.join(
+            data_dir,
+            "structured",
+            "sales.csv"
+        )
+    )
+
+    documentos += carregar_system_logs(
+        os.path.join(
+            data_dir,
+            "semi_structured",
+            "system_logs.csv"
+        )
+    )
+
+    documentos += carregar_products(
+        os.path.join(
+            data_dir,
+            "structured",
+            "products.json"
+        )
+    )
+
+    documentos += carregar_stores(
+        os.path.join(
+            data_dir,
+            "structured",
+            "stores.json"
+        )
+    )
+
+    documentos += carregar_tickets(
+        os.path.join(
+            data_dir,
+            "semi_structured",
+            "tickets.jsonl"
+        )
+    )
 
     documentos += carregar_pasta_markdown(
-        os.path.join(data_dir, "unstructured", "policies"), doc_type="policy"
+        os.path.join(
+            data_dir,
+            "unstructured",
+            "documentation"
+        ),
+        doc_type="manual",
+        modulo_por_subpasta=True
     )
+
     documentos += carregar_pasta_markdown(
-        os.path.join(data_dir, "unstructured", "meetings"), doc_type="meeting_notes"
+        os.path.join(
+            data_dir,
+            "unstructured",
+            "meetings"
+        ),
+        doc_type="ata"
     )
+
     documentos += carregar_pasta_markdown(
-        os.path.join(data_dir, "unstructured", "documentation"),
-        doc_type="documentation",
-        modulo_por_subpasta=True,
+        os.path.join(
+            data_dir,
+            "unstructured",
+            "policies"
+        ),
+        doc_type="policy"
     )
-    documentos += carregar_emails(os.path.join(data_dir, "unstructured", "emails"))
+
+    documentos += carregar_emails(
+        os.path.join(
+            data_dir,
+            "unstructured",
+            "emails"
+        )
+    )
+
+    pasta_policies = os.path.join(
+        data_dir,
+        "unstructured",
+        "policies"
+    )
+
+    for caminho in sorted(
+        glob.glob(
+            os.path.join(
+                pasta_policies,
+                "*.pdf"
+            )
+        )
+    ):
+
+        documentos += carregar_pdf(
+            caminho,
+            doc_type="policy"
+        )
 
     return documentos

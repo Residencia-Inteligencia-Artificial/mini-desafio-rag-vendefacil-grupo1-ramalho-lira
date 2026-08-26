@@ -1,77 +1,174 @@
 from __future__ import annotations
+
 import re
 
-
-def _eh_linha_de_tabela(linha: str) -> bool:
-    return linha.strip().startswith("|")
-
-
-def _split_preservando_tabelas(texto: str, separador: str) -> list[str]:
-    blocos = []
-    atual = []
-    dentro_de_tabela = False
-
-    for linha in texto.split("\n"):
-        if _eh_linha_de_tabela(linha):
-            dentro_de_tabela = True
-            atual.append(linha)
-            continue
-        if dentro_de_tabela and not _eh_linha_de_tabela(linha):
-            dentro_de_tabela = False
-        atual.append(linha)
-
-    texto_reconstruido = "\n".join(atual)
-    return texto_reconstruido.split(separador)
-
-
+from langchain_text_splitters import (
+    MarkdownHeaderTextSplitter,
+    RecursiveCharacterTextSplitter,
+)
 def chunk_texto(
     texto: str,
     chunk_size: int = 800,
-    chunk_overlap: int = 100,
+    chunk_overlap: int = 100
 ) -> list[str]:
 
-    texto = texto.strip()
-    if len(texto) <= chunk_size:
-        return [texto] if texto else []
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        separators=[
+            "\n\n",
+            "\n",
+            ". ",
+            " ",
+            ""
+        ]
+    )
 
-    partes = [p for p in _split_preservando_tabelas(texto, "\n\n") if p.strip()]
+    return splitter.split_text(
+        texto.strip()
+    )
 
-    chunks: list[str] = []
-    buffer = ""
+def chunk_markdown(
+    texto: str,
+    chunk_size: int = 800,
+    chunk_overlap: int = 100
+) -> list[dict]:
 
-    for parte in partes:
-        candidato = f"{buffer}\n\n{parte}".strip() if buffer else parte
+    splitter = MarkdownHeaderTextSplitter(
+        headers_to_split_on=[
+            ("#", "section"),
+            ("##", "section"),
+            ("###", "section"),
+        ],
+        strip_headers=False
+    )
 
-        if len(candidato) <= chunk_size:
-            buffer = candidato
-            continue
+    secoes = splitter.split_text(
+        texto
+    )
 
-        if buffer:
-            chunks.append(buffer)
-            buffer = ""
+    resultado = []
 
-        if len(parte) <= chunk_size:
-            buffer = parte
-            continue
+    fallback = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap
+    )
 
-        inicio = 0
-        while inicio < len(parte):
-            fim = min(inicio + chunk_size, len(parte))
-  
-            corte = parte.rfind("\n", inicio, fim)
-            if corte == -1 or corte <= inicio:
-                corte = fim
-            chunks.append(parte[inicio:corte].strip())
-            inicio = max(corte - chunk_overlap, corte) if corte < fim else fim
+    for secao in secoes:
 
-    if buffer:
-        chunks.append(buffer)
+        conteudo = secao.page_content
 
-    if chunk_overlap > 0 and len(chunks) > 1:
-        chunks_com_overlap = [chunks[0]]
-        for i in range(1, len(chunks)):
-            cauda_anterior = chunks[i - 1][-chunk_overlap:]
-            chunks_com_overlap.append(f"{cauda_anterior}\n{chunks[i]}")
-        chunks = chunks_com_overlap
+        if len(conteudo) <= chunk_size:
 
-    return [c.strip() for c in chunks if c.strip()]
+            resultado.append({
+                "text": conteudo,
+                "section": secao.metadata.get(
+                    "section"
+                )
+            })
+
+        else:
+
+            partes = fallback.split_text(
+                conteudo
+            )
+
+            for parte in partes:
+
+                resultado.append({
+                    "text": parte,
+                    "section": secao.metadata.get(
+                        "section"
+                    )
+                })
+
+    return resultado
+
+def chunk_pdf(
+    texto: str,
+    chunk_size: int = 800,
+    chunk_overlap: int = 100
+) -> list[str]:
+
+    paragrafos = [
+        p.strip()
+        for p in re.split(
+            r"\n\s*\n",
+            texto
+        )
+        if p.strip()
+    ]
+
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        separators=[
+            "\n\n",
+            "\n",
+            ". ",
+            " ",
+            ""
+        ]
+    )
+
+    resultado = []
+
+    for paragrafo in paragrafos:
+
+        if len(paragrafo) <= chunk_size:
+
+            resultado.append(
+                paragrafo
+            )
+
+        else:
+
+            resultado.extend(
+                splitter.split_text(
+                    paragrafo
+                )
+            )
+
+    return resultado
+
+def chunk_txt(
+    texto: str,
+    chunk_size: int = 800,
+    chunk_overlap: int = 100
+) -> list[str]:
+
+    mensagens = re.split(
+        r"\n(?:---+|={3,})\n",
+        texto
+    )
+
+    mensagens = [
+        m.strip()
+        for m in mensagens
+        if m.strip()
+    ]
+
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap
+    )
+
+    resultado = []
+
+    for mensagem in mensagens:
+
+        if len(mensagem) <= chunk_size:
+
+            resultado.append(
+                mensagem
+            )
+
+        else:
+
+            resultado.extend(
+                splitter.split_text(
+                    mensagem
+                )
+            )
+
+    return resultado
