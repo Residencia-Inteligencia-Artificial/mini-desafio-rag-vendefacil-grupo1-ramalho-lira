@@ -1,14 +1,3 @@
-"""
-Índice vetorial usando FAISS, com metadados armazenados em paralelo (JSON)
-para permitir filtragem por campos como state, module, customer_id, priority
-e doc_type -- exigido pelo desafio ("busca híbrida + filtragem por
-metadados").
-
-FAISS por si só só sabe fazer busca por similaridade "crua"; a filtragem por
-metadado é feita aqui na camada Python, restringindo o conjunto de
-candidatos ANTES de rankear por similaridade (mais eficiente que buscar
-tudo e filtrar depois, para bases deste tamanho).
-"""
 
 from __future__ import annotations
 import os
