@@ -148,7 +148,13 @@ Documentação Técnica: Registrei detalhadamente o funcionamento da arquitetura
 Organização do Repositório: Padronizei a estrutura do notebook e dos arquivos do projeto, garantindo o correto alinhamento das entregas no GitHub.
 Gestão de Versionamento: Realizei os commits individuais e a sincronização do repositório na branch principal.
 
-### Relato individual - [Nome do Integrante 2]
+### Relato individual - Emilly Santos Ramalho
+
+* Dei continuidade ao desenvolvimento da busca, combinando os resultados do FAISS e do BM25.
+* Ajustei o sistema para conseguir entender melhor as perguntas e identificar automaticamente os filtros necessários.
+* Trabalhei na aplicação dos metadados durante a busca, deixando os resultados mais específicos para cada consulta.
+* Fiz alguns testes com diferentes perguntas e fui ajustando o reconhecimento de termos e sinônimos conforme os resultados.
+* No final, validei a busca com perguntas reais para conferir se os documentos retornados faziam sentido com o que estava sendo solicitado.
 
 ### Resumo do dia (escrito em conjunto)
 *Implementamos a busca híbrida combinando a busca densa (FAISS) e a busca esparsa (BM25) com fusão via RRF.
