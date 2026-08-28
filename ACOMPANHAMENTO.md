@@ -137,7 +137,7 @@ Minhas principais atividades foram:
 
 ---
 
-## Encontro 3 - AAAA-MM-DD
+## Encontro 3 - 2026-08-28
 
 **Etapa:** 3 - Síntese estruturada, evidência e guardrails de LGPD
 
@@ -148,7 +148,13 @@ Minhas principais atividades foram:
 ### Resumo do dia (escrito em conjunto)
 
 **Entregamos hoje:**
--
+
+* Implementamos o Query Analyzer para normalizar as perguntas e identificar os filtros necessários.
+* Adicionamos a busca por embeddings utilizando o índice FAISS.
+* Implementamos a busca esparsa com BM25.
+* Combinamos os resultados das duas buscas utilizando RRF.
+* Ajustamos a filtragem por metadados para restringir os resultados de acordo com a pergunta.
+* Realizamos testes com diferentes perguntas para validar a extração dos filtros e os resultados da busca híbrida.
 
 **Ficou pendente:**
 -
