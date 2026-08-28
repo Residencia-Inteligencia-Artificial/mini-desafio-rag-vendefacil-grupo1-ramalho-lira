@@ -27,11 +27,11 @@
 
 ---
 
-## Encontro 1 - AAAA-MM-DD
+## Encontro 1 - 2026-08-24
 
 **Etapa:** 1 - Ingestão heterogênea, metadados e indexação vetorial
 
-### Relato individual - [Janice lira dos Santos ]
+### Relato individual - Janice lira dos Santos 
 
 * Etapa 1, primeiramente clonei o repositório do projeto no Google Colab para executar os testes do pipeline de ingestão.Depois rodei o comando python -m src.ingest, que processou 217 documentos de fontes variadas (tickets, políticas, e-mails, etc.) e gerou 251 chunks. Depois optei por deixar as tabelas estruturadas (customers.csv, sales.csv e system_logs.csv) fora do índice vetorial, pois a busca semântica não responde bem a perguntas de agregação em tabelas grandes. Em seguida, utilizei o Claude para gerar a estrutura base do código (loaders, chunking, FAISS), mas revisei manualmente a lógica de detecção de dados sensíveis.Enfim, Fiz buscas de teste para validar o comportamento do sistema e confirmar que os filtros por metadados (state e doc_type) estavam funcionando corretamente.
 
@@ -89,30 +89,51 @@ Por fim, realizamos testes manuais em conjunto, utilizando consultas de exemplo 
 * A lógica de detecção de dados sensíveis recebeu revisão manual detalhada, garantindo que as decisões técnicas fossem compreendidas e validadas pela equipe.
 
 
-## Encontro 2 - AAAA-MM-DD
+## Encontro 2 - 2026-08-26
 
 **Etapa:** 2 - Busca híbrida e filtragem por metadados
 
-### Relato individual - [Nome do Integrante 1]
+### Relato individual - Janice Lira dos Santos
+*Atuei na **organização, documentação e versionamento dos entregáveis da Etapa 2**, realizada em trabalhoem dupla.
 
-### Relato individual - [Nome do Integrante 2]
+Minhas principais atividades foram:
+* Criação e atualização do `acompanhamento.md`;
+* Organização e revisão dos arquivos da etapa, incluindo o notebook `etapa_2_rag_vendefacil.ipynb`;
+* Publicação, commit e versionamento dos arquivos no repositório do GitHub.
+
+**Entregáveis sob minha responsabilidade:** documentação da etapa e publicação/versionamento dos arquivos no GitHub.
+
+### Relato individual - Emilly Santos Ramalho
+
+*  Fizemos a ingestão dos diferentes tipos de arquivos da base.
+*  Aplicamos o chunking adaptativo de acordo com cada tipo de documento.
+*  Organizamos os metadados de cada chunk.
+*  Geramos os embeddings usando all-MiniLM-L6-v2.
+*  Criamos e salvamos o índice vetorial com FAISS.
+*  Testamos a busca com algumas perguntas para verificar os resultados.
+*  Ao final, chegamos a 5.745 chunks indexados.
 
 ### Resumo do dia (escrito em conjunto)
 
-**Entregamos hoje:**
--
+* Realizamos algumas alterações na Etapa 1, incluindo a atualização de pastas e arquivos utilizados no processo de ingestão.
+* Devido às mudanças na base, houve uma alteração na quantidade de chunks, então foi necessário recalcular e reprocessar a base vetorial local.
+* Ao final do processamento, foram gerados 5.745 chunks.
+* Geramos os embeddings utilizando o modelo sentence-transformers/all-MiniLM-L6-v2.
+* Indexamos os embeddings utilizando o FAISS e salvamos o índice localmente.
+* Também realizamos uma verificação de sanidade (sanity check) com três perguntas de teste para validar a recuperação dos conteúdos.
+* Por fim, testamos o carregamento do índice já existente, confirmando que ele pode ser reutilizado sem precisar realizar uma nova indexação.
 
 **Ficou pendente:**
--
+-Foi iniciado a parte dois, mas será comitado somente no proximo encontro.
 
 **Bloqueios em aberto:**
--
+- Algumas alterações na etapa 1, atrasou um pouco o andamento da etapa 2.
 
 **Próximo passo (início do encontro 3):**
--
+- Iremos dar continuidade na etapa 2.
 
 **Uso de assistentes de IA:**
--
+- Utilizamos IA como apoio ao longo do desenvolvimento, principalmente para entender erros, discutir soluções e revisar partes do código. As sugestões foram adaptadas ao projeto e testadas pelo grupo durante a execução da Etapa 1.
 
 ---
 
