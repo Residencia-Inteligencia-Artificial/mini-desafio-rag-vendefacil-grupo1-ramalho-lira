@@ -9,7 +9,6 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM
 
 _cache = {}
 
-
 def _hf_model():
     if "hf" not in _cache:
         from sentence_transformers import SentenceTransformer
