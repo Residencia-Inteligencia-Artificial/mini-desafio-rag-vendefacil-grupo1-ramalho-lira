@@ -160,13 +160,13 @@ Minhas principais atividades foram:
 -
 
 **Bloqueios em aberto:**
--
+- 
 
 **Próximo passo (início do encontro 4):**
--
+- Iniciar a etapa 3, já que a segunda foi finalizada.
 
 **Uso de assistentes de IA:**
--
+- Utilizamos IA como apoio ao longo do desenvolvimento, principalmente para entender erros, discutir soluções e revisar partes do código. As sugestões foram adaptadas ao projeto e testadas pelo grupo durante a execução da Etapa 2.
 
 ---
 
