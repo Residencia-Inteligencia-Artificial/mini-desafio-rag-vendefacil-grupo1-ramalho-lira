@@ -141,14 +141,23 @@ Minhas principais atividades foram:
 
 **Etapa:** 3 - Síntese estruturada, evidência e guardrails de LGPD
 
-### Relato individual - [Nome do Integrante 1]
+### Relato individual - Janice Lira dos Santos
+*Nesta etapa desenvolvida em dupla com a Ramalho, atuei ativamente na estruturação do repositório, documentação dos avanços do projeto e no versionamento e sincronização das entregas no GitHub.
+Minhas principais contribuições foram:
+Documentação Técnica: Registrei detalhadamente o funcionamento da arquitetura de busca híbrida no arquivo acompanhamento.md, abrangendo a integração entre FAISS, BM25 e o algoritmo RRF.
+Organização do Repositório: Padronizei a estrutura do notebook e dos arquivos do projeto, garantindo o correto alinhamento das entregas no GitHub.
+Gestão de Versionamento: Realizei os commits individuais e a sincronização do repositório na branch principal.
 
 ### Relato individual - [Nome do Integrante 2]
 
 ### Resumo do dia (escrito em conjunto)
+*Implementamos a busca híbrida combinando a busca densa (FAISS) e a busca esparsa (BM25) com fusão via RRF.
+Ajustamos o Query Analyzer para interpretar diferentes formas de perguntas, aprimorando a identificação de intenções, termos e sinônimos.
+Aplicamos a filtragem por metadados para restringir a busca ao contexto exato da pergunta.
+Realizamos testes práticos com múltiplos cenários de perguntas para validar a extração de filtros e a qualidade da recuperação.
+Atualizamos a documentação individual do grupo e realizamos o versionamento e publicação dos arquivos no GitHub.
 
 **Entregamos hoje:**
-
 * Demos continuidade ao projeto trabalhando na busca híbrida, juntando a busca por embeddings com o BM25.
 * Criamos o Query Analyzer para ajudar o sistema a entender a pergunta, normalizar o texto e identificar informações como tipo de documento, estado e módulo.
 * Ajustamos os filtros para que a busca consiga considerar os metadados dos documentos antes de retornar os resultados.
@@ -157,10 +166,10 @@ Minhas principais atividades foram:
 * Durante os testes, fomos ajustando o reconhecimento de termos como “tickets”, “clientes”, “Minas Gerais” e “estoque”, deixando o analisador mais flexível para diferentes formas de fazer a mesma pergunta.
 
 **Ficou pendente:**
--
+*Consolidação final das métricas de avaliação do pipeline de busca e integração com a camada de geração de respostas do LLM.
 
 **Bloqueios em aberto:**
-- 
+* Nenhum bloqueio no momento.
 
 **Próximo passo (início do encontro 4):**
 - Iniciar a etapa 3, já que a segunda foi finalizada.
