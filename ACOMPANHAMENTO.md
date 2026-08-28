@@ -149,12 +149,12 @@ Minhas principais atividades foram:
 
 **Entregamos hoje:**
 
-* Implementamos o Query Analyzer para normalizar as perguntas e identificar os filtros necessários.
-* Adicionamos a busca por embeddings utilizando o índice FAISS.
-* Implementamos a busca esparsa com BM25.
-* Combinamos os resultados das duas buscas utilizando RRF.
-* Ajustamos a filtragem por metadados para restringir os resultados de acordo com a pergunta.
-* Realizamos testes com diferentes perguntas para validar a extração dos filtros e os resultados da busca híbrida.
+* Demos continuidade ao projeto trabalhando na busca híbrida, juntando a busca por embeddings com o BM25.
+* Criamos o Query Analyzer para ajudar o sistema a entender a pergunta, normalizar o texto e identificar informações como tipo de documento, estado e módulo.
+* Ajustamos os filtros para que a busca consiga considerar os metadados dos documentos antes de retornar os resultados.
+* Implementamos o RRF para combinar os resultados do FAISS e do BM25 em um único ranking.
+* Fizemos alguns testes com perguntas diferentes para verificar se os filtros estavam sendo identificados corretamente e se os resultados retornados realmente correspondiam ao que estava sendo perguntado.
+* Durante os testes, fomos ajustando o reconhecimento de termos como “tickets”, “clientes”, “Minas Gerais” e “estoque”, deixando o analisador mais flexível para diferentes formas de fazer a mesma pergunta.
 
 **Ficou pendente:**
 -
