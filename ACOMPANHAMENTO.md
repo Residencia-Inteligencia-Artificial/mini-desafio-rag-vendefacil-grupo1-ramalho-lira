@@ -185,13 +185,13 @@ Atualizamos a documentação individual do grupo e realizamos o versionamento e 
 
 ---
 
-## Encontro 4 - AAAA-MM-DD
+## Encontro 4 - 2026-08-31
 
 **Etapa:** 4 - Avaliação (RAG Triad), interface e relatório
 
-### Relato individual - [Nome do Integrante 1]
+### Relato individual - Janice Lira Dos Santos 
 
-### Relato individual - [Nome do Integrante 2]
+### Relato individual - Emilly Santos Ramalho
 
 ### Resumo do dia (escrito em conjunto)
 
