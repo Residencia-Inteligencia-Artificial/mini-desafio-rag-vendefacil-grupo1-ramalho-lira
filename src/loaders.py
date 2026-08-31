@@ -8,6 +8,11 @@ import re
 
 from pypdf import PdfReader
 
+
+# ============================================================
+# CLASSIFICAÇÃO DE SENSIBILIDADE
+# ============================================================
+
 PADROES_RESTRITOS = [
     re.compile(r"\bsenha\b", re.IGNORECASE),
     re.compile(r"\bapi[_ -]?key\b", re.IGNORECASE),
@@ -22,8 +27,8 @@ PADROES_SENSIVEIS = [
     re.compile(r"\bcredencia(is|l)\b", re.IGNORECASE),
 ]
 
-def classificar_sensitivity(texto: str) -> str:
 
+def classificar_sensitivity(texto: str) -> str:
     if any(p.search(texto) for p in PADROES_RESTRITOS):
         return "restrito"
 
@@ -32,8 +37,14 @@ def classificar_sensitivity(texto: str) -> str:
 
     return "publico"
 
+
+# ============================================================
+# CSV GENÉRICO
+# ============================================================
+
 def carregar_csv(caminho: str) -> list[dict]:
     documentos = []
+
     with open(
         caminho,
         "r",
@@ -61,8 +72,12 @@ def carregar_csv(caminho: str) -> list[dict]:
 
     return documentos
 
-def carregar_customers(caminho: str) -> list[dict]:
 
+# ============================================================
+# CUSTOMERS
+# ============================================================
+
+def carregar_customers(caminho: str) -> list[dict]:
     documentos = []
 
     with open(
@@ -76,33 +91,77 @@ def carregar_customers(caminho: str) -> list[dict]:
 
         for linha in reader:
 
-            texto = (
-                f"Cliente {linha.get('customer_id')}: "
-                f"{linha.get('name')}, "
-                f"estado {linha.get('state')}, "
-                f"módulo contratado {linha.get('module')}, "
-                f"cliente desde {linha.get('date')}, "
-                f"situação {linha.get('status')}."
+            customer_id = linha.get("customer_id")
+            nome = linha.get("name")
+            estado = linha.get("state")
+            modulo = linha.get("module")
+            data = linha.get("date")
+            status = linha.get("status")
+
+            # Compatibilidade com diferentes nomes de colunas
+            email = (
+                linha.get("email")
+                or linha.get("e_mail")
+                or linha.get("email_address")
+                or ""
             )
+
+            telefone = (
+                linha.get("phone")
+                or linha.get("telefone")
+                or linha.get("telephone")
+                or linha.get("phone_number")
+                or ""
+            )
+
+            texto = (
+                f"Cliente {customer_id}: "
+                f"{nome}, "
+                f"estado {estado}, "
+                f"módulo contratado {modulo}, "
+                f"cliente desde {data}, "
+                f"situação {status}."
+            )
+
+            # IMPORTANTE:
+            # Mantemos e-mail e telefone no documento para que
+            # possam ser recuperados pela busca e posteriormente
+            # mascarados pela camada LGPD.
+            if email:
+                texto += f" E-mail: {email}."
+
+            if telefone:
+                texto += f" Telefone: {telefone}."
 
             documentos.append({
                 "text": texto,
                 "metadata": {
                     "source_file": os.path.basename(caminho),
                     "doc_type": "customer",
-                    "customer_id": linha.get("customer_id"),
-                    "state": linha.get("state"),
-                    "module": linha.get("module"),
-                    "date": linha.get("date"),
-                    "status": linha.get("status"),
+                    "customer_id": customer_id,
+                    "name": nome,
+                    "state": estado,
+                    "module": modulo,
+                    "date": data,
+                    "status": status,
+
+                    # Dados pessoais ficam disponíveis para
+                    # processamento da camada LGPD.
+                    "email": email if email else None,
+                    "phone": telefone if telefone else None,
+
                     "sensitivity": classificar_sensitivity(texto),
                 }
             })
 
     return documentos
 
-def carregar_employees(caminho: str) -> list[dict]:
 
+# ============================================================
+# EMPLOYEES
+# ============================================================
+
+def carregar_employees(caminho: str) -> list[dict]:
     documentos = []
 
     with open(
@@ -138,8 +197,12 @@ def carregar_employees(caminho: str) -> list[dict]:
 
     return documentos
 
-def carregar_sales(caminho: str) -> list[dict]:
 
+# ============================================================
+# SALES
+# ============================================================
+
+def carregar_sales(caminho: str) -> list[dict]:
     documentos = []
 
     with open(
@@ -171,8 +234,12 @@ def carregar_sales(caminho: str) -> list[dict]:
 
     return documentos
 
-def carregar_system_logs(caminho: str) -> list[dict]:
 
+# ============================================================
+# SYSTEM LOGS
+# ============================================================
+
+def carregar_system_logs(caminho: str) -> list[dict]:
     documentos = []
 
     with open(
@@ -202,6 +269,11 @@ def carregar_system_logs(caminho: str) -> list[dict]:
             })
 
     return documentos
+
+
+# ============================================================
+# PRODUCTS
+# ============================================================
 
 def carregar_products(caminho: str) -> list[dict]:
 
@@ -242,6 +314,11 @@ def carregar_products(caminho: str) -> list[dict]:
         })
 
     return documentos
+
+
+# ============================================================
+# STORES
+# ============================================================
 
 def carregar_stores(caminho: str) -> list[dict]:
 
@@ -291,8 +368,12 @@ def carregar_stores(caminho: str) -> list[dict]:
 
     return documentos
 
-def carregar_tickets(caminho: str) -> list[dict]:
 
+# ============================================================
+# TICKETS
+# ============================================================
+
+def carregar_tickets(caminho: str) -> list[dict]:
     documentos = []
 
     with open(
@@ -350,6 +431,11 @@ def carregar_tickets(caminho: str) -> list[dict]:
 
     return documentos
 
+
+# ============================================================
+# MARKDOWN
+# ============================================================
+
 def carregar_markdown(
     caminho: str,
     doc_type: str,
@@ -399,7 +485,6 @@ def carregar_pasta_markdown(
         modulo = None
 
         if modulo_por_subpasta:
-
             modulo = os.path.basename(
                 os.path.dirname(caminho)
             )
@@ -413,6 +498,11 @@ def carregar_pasta_markdown(
         )
 
     return documentos
+
+
+# ============================================================
+# PDF
+# ============================================================
 
 def carregar_pdf(
     caminho: str,
@@ -442,6 +532,11 @@ def carregar_pdf(
             ),
         }
     }]
+
+
+# ============================================================
+# EMAILS
+# ============================================================
 
 _PADRAO_CUSTOMER = re.compile(
     r"customer_(\d+)",
@@ -474,9 +569,7 @@ def carregar_emails(pasta: str) -> list[dict]:
 
         nome = os.path.basename(caminho)
 
-        match = _PADRAO_CUSTOMER.search(
-            nome
-        )
+        match = _PADRAO_CUSTOMER.search(nome)
 
         customer_id = (
             f"CUST{match.group(1).zfill(3)}"
@@ -484,15 +577,11 @@ def carregar_emails(pasta: str) -> list[dict]:
             else None
         )
 
-        doc_type = (
-            "email"
-        )
-
         documentos.append({
             "text": texto,
             "metadata": {
                 "source_file": nome,
-                "doc_type": doc_type,
+                "doc_type": "email",
                 "customer_id": customer_id,
                 "sensitivity": classificar_sensitivity(
                     texto
@@ -502,12 +591,18 @@ def carregar_emails(pasta: str) -> list[dict]:
 
     return documentos
 
+
+# ============================================================
+# CARREGAR TODAS AS FONTES
+# ============================================================
+
 def carregar_todas_as_fontes_vetorizaveis(
     data_dir: str
 ) -> list[dict]:
 
     documentos = []
 
+    # Customers
     documentos += carregar_customers(
         os.path.join(
             data_dir,
@@ -516,6 +611,7 @@ def carregar_todas_as_fontes_vetorizaveis(
         )
     )
 
+    # Employees
     documentos += carregar_employees(
         os.path.join(
             data_dir,
@@ -524,6 +620,7 @@ def carregar_todas_as_fontes_vetorizaveis(
         )
     )
 
+    # Sales
     documentos += carregar_sales(
         os.path.join(
             data_dir,
@@ -532,6 +629,7 @@ def carregar_todas_as_fontes_vetorizaveis(
         )
     )
 
+    # Logs
     documentos += carregar_system_logs(
         os.path.join(
             data_dir,
@@ -540,6 +638,7 @@ def carregar_todas_as_fontes_vetorizaveis(
         )
     )
 
+    # Products
     documentos += carregar_products(
         os.path.join(
             data_dir,
@@ -548,6 +647,7 @@ def carregar_todas_as_fontes_vetorizaveis(
         )
     )
 
+    # Stores
     documentos += carregar_stores(
         os.path.join(
             data_dir,
@@ -556,6 +656,7 @@ def carregar_todas_as_fontes_vetorizaveis(
         )
     )
 
+    # Tickets
     documentos += carregar_tickets(
         os.path.join(
             data_dir,
@@ -564,6 +665,7 @@ def carregar_todas_as_fontes_vetorizaveis(
         )
     )
 
+    # Documentation
     documentos += carregar_pasta_markdown(
         os.path.join(
             data_dir,
@@ -574,6 +676,7 @@ def carregar_todas_as_fontes_vetorizaveis(
         modulo_por_subpasta=True
     )
 
+    # Meetings
     documentos += carregar_pasta_markdown(
         os.path.join(
             data_dir,
@@ -583,6 +686,7 @@ def carregar_todas_as_fontes_vetorizaveis(
         doc_type="ata"
     )
 
+    # Policies Markdown
     documentos += carregar_pasta_markdown(
         os.path.join(
             data_dir,
@@ -592,6 +696,7 @@ def carregar_todas_as_fontes_vetorizaveis(
         doc_type="policy"
     )
 
+    # Emails
     documentos += carregar_emails(
         os.path.join(
             data_dir,
@@ -600,6 +705,7 @@ def carregar_todas_as_fontes_vetorizaveis(
         )
     )
 
+    # Policies PDF
     pasta_policies = os.path.join(
         data_dir,
         "unstructured",
