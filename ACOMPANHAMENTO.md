@@ -190,6 +190,7 @@ Atualizamos a documentação individual do grupo e realizamos o versionamento e 
 **Etapa:** 4 - Avaliação (RAG Triad), interface e relatório
 
 ### Relato individual - Janice Lira Dos Santos 
+*Atuei na coordenação, planejamento e validação técnica da Etapa 3. Analisei os requisitos das estruturas de resposta Pydantic (RAGResponse e SourceEvidence), os critérios de recusa/mascaramento para LGPD e a integração com a busca híbrida (FAISS + BM25 + RRF). Orientei a configuração do ambiente de desenvolvimento no VS Code (.env e chave Groq) e mapeei a ordem de execução dos testes de validação para garantir a integridade da aplicação antes do envio ao GitHub sob a supervisão do instrutor.
 
 ### Relato individual - Emilly Santos Ramalho
 
@@ -201,9 +202,9 @@ Atualizamos a documentação individual do grupo e realizamos o versionamento e 
 * Passei a retornar as evidências utilizadas na resposta, incluindo o chunk_id e o trecho recuperado.
 
 ### Resumo do dia (escrito em conjunto)
+*Finalizamos com sucesso a Etapa 3 do mini-desafio RAG VendeFácil. Padronizamos a geração de respostas com modelos Pydantic (RAGResponse e SourceEvidence), garantindo rastreabilidade por arquivo, chunk_id e trecho exato de suporte. Integrámos a geração à busca híbrida (FAISS + BM25 + RRF) e estabelecemos guardrails para LGPD com ações de responder, recusar ou mascarar. O sistema também foi blindado contra alucinações: perguntas fora do escopo da VendeFácil ou sem evidências suficientes no contexto recuperado são tratadas sem a invenção de informações.
 
 **Entregamos hoje:**
-
 * Criamos os modelos RAGResponse e SourceEvidence com Pydantic, deixando as respostas padronizadas com informações como resposta, nível de confiança, evidências e motivo de recusa.
 * Adicionamos validações para evitar respostas inconsistentes, principalmente nos casos de recusa e nos diferentes níveis de confiança.
 * Integramos a geração com a busca híbrida, utilizando os resultados do FAISS e BM25 combinados pelo RRF.
@@ -224,13 +225,13 @@ Com isso, conseguimos validar o fluxo compl
 - Ainda Falta finalizar a etapa 4.
 
 **Bloqueios em aberto:**
-- 
+- *Nenhuma pendência da Etapa 3.
 
 **Preparação para o Demo Day:**
--
+-*Iniciar a Etapa 4 (conforme o cronograma da Residência IA) ou realizar a entrega e apresentação final da solução RAG.
 
 **Uso de assistentes de IA:**
-
+*Utilizado o ChatGPT e assistentes de IA como suporte técnico no ambiente de desenvolvimento local (VS Code) para auxílio na codificação dos schemas Pydantic, estruturação das regras de LGPD e depuração das chamadas do pipeline RAG.
 ---
 
 *TIC em Trilhas · PUC-Rio · Instituto ECOA · MCTI Futuro · Softex*
