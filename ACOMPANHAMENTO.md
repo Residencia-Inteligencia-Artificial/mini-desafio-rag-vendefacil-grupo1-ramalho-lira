@@ -221,16 +221,16 @@ Atualizamos a documentação individual do grupo e realizamos o versionamento e 
 Com isso, conseguimos validar o fluxo compl
 
 **Ficou pendente:**
--
+- Ainda Falta finalizar a etapa 4.
 
 **Bloqueios em aberto:**
--
+- 
 
 **Preparação para o Demo Day:**
 -
 
 **Uso de assistentes de IA:**
--
+- Utilizamos IA como apoio ao longo do desenvolvimento, principalmente para entender erros, discutir soluções e revisar partes do código. As sugestões foram adaptadas ao projeto e testadas pelo grupo durante a execução da Etapa 3.
 
 ---
 
