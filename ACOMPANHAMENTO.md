@@ -230,7 +230,6 @@ Com isso, conseguimos validar o fluxo compl
 -
 
 **Uso de assistentes de IA:**
-- Utilizamos IA como apoio ao longo do desenvolvimento, principalmente para entender erros, discutir soluções e revisar partes do código. As sugestões foram adaptadas ao projeto e testadas pelo grupo durante a execução da Etapa 3.
 
 ---
 
