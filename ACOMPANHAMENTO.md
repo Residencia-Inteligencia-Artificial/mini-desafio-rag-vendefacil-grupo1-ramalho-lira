@@ -206,8 +206,8 @@ Atualizamos a documentação individual do grupo e realizamos o versionamento e 
 
 **Entregamos hoje:**
 * Criamos os modelos RAGResponse e SourceEvidence com Pydantic, deixando as respostas padronizadas com informações como resposta, nível de confiança, evidências e motivo de recusa.
-* Adicionamos validações para evitar respostas inconsistentes, principalmente nos casos de recusa e nos diferentes níveis de confiança.
-* Integramos a geração com a busca híbrida, utilizando os resultados do FAISS e BM25 combinados pelo RRF.
+*  Adicionamos validações para evitar respostas inconsistentes, principalmente nos casos de recusa e nos diferentes níveis de confiança.
+*  Integramos a geração com a busca híbrida, utilizando os resultados do FAISS e BM25 combinados pelo RRF.
 * Implementamos o tratamento das perguntas relacionadas à LGPD, diferenciando as situações em que o sistema pode responder e aquelas em que precisa recusar.
 * Também tratamos perguntas que estão fora do escopo da base da VendeFácil, evitando que o sistema tente responder assuntos que não estão disponíveis nos documentos.
 * Passamos a retornar as evidências utilizadas nas respostas, incluindo o chunk_id e o trecho recuperado.
@@ -225,10 +225,10 @@ Com isso, conseguimos validar o fluxo compl
 - Ainda Falta finalizar a etapa 4.
 
 **Bloqueios em aberto:**
-- *Nenhuma pendência da Etapa 3.
+- Nenhuma pendência da Etapa 3.
 
 **Preparação para o Demo Day:**
--*Iniciar a Etapa 4 (conforme o cronograma da Residência IA) ou realizar a entrega e apresentação final da solução RAG.
+- Iniciar a Etapa 4 (conforme o cronograma da Residência IA) ou realizar a entrega e apresentação final da solução RAG.
 
 **Uso de assistentes de IA:**
 *Utilizado o ChatGPT e assistentes de IA como suporte técnico no ambiente de desenvolvimento local (VS Code) para auxílio na codificação dos schemas Pydantic, estruturação das regras de LGPD e depuração das chamadas do pipeline RAG.
