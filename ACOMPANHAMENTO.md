@@ -231,7 +231,7 @@ Com isso, conseguimos validar o fluxo compl
 - Iniciar a Etapa 4 (conforme o cronograma da Residência IA) ou realizar a entrega e apresentação final da solução RAG.
 
 **Uso de assistentes de IA:**
-*Utilizado o ChatGPT e assistentes de IA como suporte técnico no ambiente de desenvolvimento local (VS Code) para auxílio na codificação dos schemas Pydantic, estruturação das regras de LGPD e depuração das chamadas do pipeline RAG.
+- Utilizado o ChatGPT e assistentes de IA como suporte técnico no ambiente de desenvolvimento local (VS Code) para auxílio na codificação dos schemas Pydantic, estruturação das regras de LGPD e depuração das chamadas do pipeline RAG.
 ---
 
 *TIC em Trilhas · PUC-Rio · Instituto ECOA · MCTI Futuro · Softex*
