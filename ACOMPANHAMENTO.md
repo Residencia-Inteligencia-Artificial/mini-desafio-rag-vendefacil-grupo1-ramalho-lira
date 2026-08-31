@@ -193,10 +193,32 @@ Atualizamos a documentação individual do grupo e realizamos o versionamento e 
 
 ### Relato individual - Emilly Santos Ramalho
 
+* Criei os modelos RAGResponse e SourceEvidence com Pydantic, deixando as respostas padronizadas com informações como resposta, nível de confiança, evidências, justificativa e motivo de recusa.
+* Adicionei validações para evitar respostas inconsistentes, principalmente nos casos de recusa e nos diferentes níveis de confiança.
+* Integrei a geração com a busca híbrida, utilizando os resultados do FAISS e BM25 combinados pelo RRF.
+* Implementei o tratamento das perguntas relacionadas à LGPD, diferenciando situações em que o sistema pode responder e situações em que precisa recusar.
+* Também tratei perguntas que estão fora do escopo da base da VendeFácil, evitando que o sistema tente responder assuntos que não estão disponíveis nos documentos.
+* Passei a retornar as evidências utilizadas na resposta, incluindo o chunk_id e o trecho recuperado.
+
 ### Resumo do dia (escrito em conjunto)
 
 **Entregamos hoje:**
--
+
+* Criamos os modelos RAGResponse e SourceEvidence com Pydantic, deixando as respostas padronizadas com informações como resposta, nível de confiança, evidências e motivo de recusa.
+* Adicionamos validações para evitar respostas inconsistentes, principalmente nos casos de recusa e nos diferentes níveis de confiança.
+* Integramos a geração com a busca híbrida, utilizando os resultados do FAISS e BM25 combinados pelo RRF.
+* Implementamos o tratamento das perguntas relacionadas à LGPD, diferenciando as situações em que o sistema pode responder e aquelas em que precisa recusar.
+* Também tratamos perguntas que estão fora do escopo da base da VendeFácil, evitando que o sistema tente responder assuntos que não estão disponíveis nos documentos.
+* Passamos a retornar as evidências utilizadas nas respostas, incluindo o chunk_id e o trecho recuperado.
+* No geral, testamos diferentes situações para verificar se todo o fluxo estava funcionando corretamente.
+
+* Fizemos testes de buscas normais, verificando se as respostas e evidências retornadas estavam corretas. ✅
+* Testamos perguntas que envolvem informações protegidas pela LGPD, garantindo que o sistema recusasse quando necessário. ✅
+* Testamos perguntas fora do escopo da base para verificar se o sistema identificava e recusava corretamente. ✅
+* Também testamos situações em que as informações solicitadas não estavam disponíveis nos documentos, evitando que o sistema inventasse dados. ✅
+* Por fim, verificamos se as respostas apresentavam o nível de confiança e as evidências de forma consistente. ✅
+
+Com isso, conseguimos validar o fluxo compl
 
 **Ficou pendente:**
 -
