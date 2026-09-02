@@ -190,6 +190,7 @@ Atualizamos a documentação individual do grupo e realizamos o versionamento e 
 **Etapa:** 4 - Avaliação (RAG Triad), interface e relatório
 
 ### Relato individual - Janice Lira Dos Santos 
+*Atuei na coordenação, planejamento e validação técnica da Etapa 3. Analisei os requisitos das estruturas de resposta Pydantic (RAGResponse e SourceEvidence), os critérios de recusa/mascaramento para LGPD e a integração com a busca híbrida (FAISS + BM25 + RRF). Orientei a configuração do ambiente de desenvolvimento no VS Code (.env e chave Groq) e mapeei a ordem de execução dos testes de validação para garantir a integridade da aplicação antes do envio ao GitHub sob a supervisão do instrutor.
 
 ### Relato individual - Emilly Santos Ramalho
 
@@ -201,12 +202,12 @@ Atualizamos a documentação individual do grupo e realizamos o versionamento e 
 * Passei a retornar as evidências utilizadas na resposta, incluindo o chunk_id e o trecho recuperado.
 
 ### Resumo do dia (escrito em conjunto)
+*Finalizamos com sucesso a Etapa 3 do mini-desafio RAG VendeFácil. Padronizamos a geração de respostas com modelos Pydantic (RAGResponse e SourceEvidence), garantindo rastreabilidade por arquivo, chunk_id e trecho exato de suporte. Integrámos a geração à busca híbrida (FAISS + BM25 + RRF) e estabelecemos guardrails para LGPD com ações de responder, recusar ou mascarar. O sistema também foi blindado contra alucinações: perguntas fora do escopo da VendeFácil ou sem evidências suficientes no contexto recuperado são tratadas sem a invenção de informações.
 
 **Entregamos hoje:**
-
 * Criamos os modelos RAGResponse e SourceEvidence com Pydantic, deixando as respostas padronizadas com informações como resposta, nível de confiança, evidências e motivo de recusa.
-* Adicionamos validações para evitar respostas inconsistentes, principalmente nos casos de recusa e nos diferentes níveis de confiança.
-* Integramos a geração com a busca híbrida, utilizando os resultados do FAISS e BM25 combinados pelo RRF.
+*  Adicionamos validações para evitar respostas inconsistentes, principalmente nos casos de recusa e nos diferentes níveis de confiança.
+*  Integramos a geração com a busca híbrida, utilizando os resultados do FAISS e BM25 combinados pelo RRF.
 * Implementamos o tratamento das perguntas relacionadas à LGPD, diferenciando as situações em que o sistema pode responder e aquelas em que precisa recusar.
 * Também tratamos perguntas que estão fora do escopo da base da VendeFácil, evitando que o sistema tente responder assuntos que não estão disponíveis nos documentos.
 * Passamos a retornar as evidências utilizadas nas respostas, incluindo o chunk_id e o trecho recuperado.
@@ -224,13 +225,48 @@ Com isso, conseguimos validar o fluxo compl
 - Ainda Falta finalizar a etapa 4.
 
 **Bloqueios em aberto:**
-- 
+- Nenhuma pendência da Etapa 3.
+
+## Encontro 5 - 2026-09-02
+
+**Etapa:** 4 - Avaliação (RAG Triad), interface e relatório
+
+### Relato individual - Janice Lira Dos Santos 
+*Fiquei responsável pela estruturação do ambiente para a Etapa 4, organização da pasta benchmark/ com o arquivo questions_and_ground_truth.json e planejamento do script de avaliação (eval/evaluate_benchmark.py). Mapeei a lógica de pontuação por questão (resposta, citação de fonte e coerência de recusa) e estruturei o protótipo da interface de demonstração no Streamlit para exibição das respostas e evidências em tempo real.
+
+### Relato individual - Emilly Santos Ramalho
+
+* Organizei o questions_and_ground_truth.json na pasta benchmark.
+* Executei o benchmark com 24 perguntas.
+* Implementei a avaliação das métricas da RAG Triad.
+* Gerei os relatórios em JSON, CSV e Markdown.
+* Identifiquei falhas na recuperação dos chunks e na geração das respostas.
+* Também identifiquei a necessidade de configurar o LLM Judge para avaliar Answer Relevance e Groundedness.
+
+### Resumo do dia (escrito em conjunto)
+*Iniciamos os trabalhos da Etapa 4 focando na avaliação quantitativa do pipeline RAG e na criação da interface de apresentação. Mapeamos a distribuição do benchmark de 20 perguntas entre os cenários factuais, multi-documento, filtros de metadados, LGPD, mascaramento e fora do escopo. Estruturamos o script de benchmark e a interface interativa, preparando a base necessária para a geração do relatório final de falhas.
+
+**Entregamos hoje:**
+* Criação do diretório benchmark/ e inclusão do arquivo questions_and_ground_truth.json.
+* Estruturação inicial do script de execução do benchmark em eval/evaluate_benchmark.py.
+* Definição da metodologia de cálculo para as métricas da RAG Triad (Context Relevance, Groundedness e Answer Relevance).
+
+**Ficou pendente:**
+*Execução completa das 20 perguntas do benchmark para geração final do results.json.
+
+Consolidação dos números finais e consolidação da tabela resumo de desempenho por categoria.
+
+Redação final do arquivo RELATORIO.md com a análise detalhada das 3 piores falhas e o plano de ação de 4 horas.
+corrigir as falhas e executar o benchmark novamente.
+
+**Bloqueios em aberto:**
+Nenhum bloqueio no momento.
 
 **Preparação para o Demo Day:**
--
+- Concluir a execução do benchmark, consolidar o RELATORIO.md e realizar o ensaio da demonstração ao vivo para a defesa técnica final perante a banca do programa.
 
 **Uso de assistentes de IA:**
-
+- *Utilizado o ChatGPT e assistentes de IA como suporte técnico no ambiente de desenvolvimento local (VS Code) para auxílio na codificação do script de benchmark, depuração do pipeline RAG, apoio na estruturação da interface Streamlit e refinamento do roteiro do Demo Day.
 ---
 
 *TIC em Trilhas · PUC-Rio · Instituto ECOA · MCTI Futuro · Softex*
