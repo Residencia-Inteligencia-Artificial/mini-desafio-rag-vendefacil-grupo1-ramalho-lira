@@ -242,7 +242,6 @@ Com isso, conseguimos validar o fluxo compl
 * Gerei os relatórios em JSON, CSV e Markdown.
 * Identifiquei falhas na recuperação dos chunks e na geração das respostas.
 * Também identifiquei a necessidade de configurar o LLM Judge para avaliar Answer Relevance e Groundedness.
-* Próximo passo: corrigir as falhas e executar o benchmark novamente.
 
 ### Resumo do dia (escrito em conjunto)
 *Iniciamos os trabalhos da Etapa 4 focando na avaliação quantitativa do pipeline RAG e na criação da interface de apresentação. Mapeamos a distribuição do benchmark de 20 perguntas entre os cenários factuais, multi-documento, filtros de metadados, LGPD, mascaramento e fora do escopo. Estruturamos o script de benchmark e a interface interativa, preparando a base necessária para a geração do relatório final de falhas.
