@@ -232,22 +232,25 @@ Com isso, conseguimos validar o fluxo compl
 **Etapa:** 4 - Avaliação (RAG Triad), interface e relatório
 
 ### Relato individual - Janice Lira Dos Santos 
-*Fiquei responsável pela estruturação do ambiente para a Etapa 4, organização da pasta benchmark/ com o arquivo questions_and_ground_truth.json e planejamento do script de avaliação (eval/run_benchmark.py). Mapeei a lógica de pontuação por questão (resposta, citação de fonte e coerência de recusa) e estruturei o protótipo da interface de demonstração no Streamlit para exibição das respostas e evidências em tempo real.
+*Fiquei responsável pela estruturação do ambiente para a Etapa 4, organização da pasta benchmark/ com o arquivo questions_and_ground_truth.json e planejamento do script de avaliação (eval/evaluate_benchmark.py). Mapeei a lógica de pontuação por questão (resposta, citação de fonte e coerência de recusa) e estruturei o protótipo da interface de demonstração no Streamlit para exibição das respostas e evidências em tempo real.
 
 ### Relato individual - Emilly Santos Ramalho
 
+* Organizei o questions_and_ground_truth.json na pasta benchmark.
+* Executei o benchmark com 24 perguntas.
+* Implementei a avaliação das métricas da RAG Triad.
+* Gerei os relatórios em JSON, CSV e Markdown.
+* Identifiquei falhas na recuperação dos chunks e na geração das respostas.
+* Também identifiquei a necessidade de configurar o LLM Judge para avaliar Answer Relevance e Groundedness.
+* Próximo passo: corrigir as falhas e executar o benchmark novamente.
 
 ### Resumo do dia (escrito em conjunto)
 *Iniciamos os trabalhos da Etapa 4 focando na avaliação quantitativa do pipeline RAG e na criação da interface de apresentação. Mapeamos a distribuição do benchmark de 20 perguntas entre os cenários factuais, multi-documento, filtros de metadados, LGPD, mascaramento e fora do escopo. Estruturamos o script de benchmark e a interface interativa, preparando a base necessária para a geração do relatório final de falhas.
 
 **Entregamos hoje:**
-*Criação do diretório benchmark/ e inclusão do arquivo questions_and_ground_truth.json.
-
-Estruturação inicial do script de execução do benchmark em eval/run_benchmark.py.
-
-Protótipo funcional da interface de demonstração (app.py) em Streamlit para teste de perguntas e exibição de evidências (SourceEvidence).
-
-Definição da metodologia de cálculo para as métricas da RAG Triad (Context Relevance, Groundedness e Answer Relevance).
+* Criação do diretório benchmark/ e inclusão do arquivo questions_and_ground_truth.json.
+* Estruturação inicial do script de execução do benchmark em eval/evaluate_benchmark.py.
+* Definição da metodologia de cálculo para as métricas da RAG Triad (Context Relevance, Groundedness e Answer Relevance).
 
 **Ficou pendente:**
 *Execução completa das 20 perguntas do benchmark para geração final do results.json.
@@ -255,6 +258,7 @@ Definição da metodologia de cálculo para as métricas da RAG Triad (Context R
 Consolidação dos números finais e consolidação da tabela resumo de desempenho por categoria.
 
 Redação final do arquivo RELATORIO.md com a análise detalhada das 3 piores falhas e o plano de ação de 4 horas.
+corrigir as falhas e executar o benchmark novamente.
 
 **Bloqueios em aberto:**
 Nenhum bloqueio no momento.
