@@ -227,6 +227,24 @@ Com isso, conseguimos validar o fluxo compl
 **Bloqueios em aberto:**
 - Nenhuma pendência da Etapa 3.
 
+## Encontro 5 - 2026-09-02
+
+**Etapa:** 4 - Avaliação (RAG Triad), interface e relatório
+
+### Relato individual - Janice Lira Dos Santos 
+
+### Relato individual - Emilly Santos Ramalho
+
+
+### Resumo do dia (escrito em conjunto)
+
+
+**Entregamos hoje:**
+
+**Ficou pendente:**
+
+**Bloqueios em aberto:**
+
 **Preparação para o Demo Day:**
 - Iniciar a Etapa 4 (conforme o cronograma da Residência IA) ou realizar a entrega e apresentação final da solução RAG.
 
