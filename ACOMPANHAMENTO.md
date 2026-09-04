@@ -193,7 +193,6 @@ Atualizamos a documentação individual do grupo e realizamos o versionamento e 
 *Atuei na coordenação, planejamento e validação técnica da Etapa 3. Analisei os requisitos das estruturas de resposta Pydantic (RAGResponse e SourceEvidence), os critérios de recusa/mascaramento para LGPD e a integração com a busca híbrida (FAISS + BM25 + RRF). Orientei a configuração do ambiente de desenvolvimento no VS Code (.env e chave Groq) e mapeei a ordem de execução dos testes de validação para garantir a integridade da aplicação antes do envio ao GitHub sob a supervisão do instrutor.
 
 ### Relato individual - Emilly Santos Ramalho
-
 * Criei os modelos RAGResponse e SourceEvidence com Pydantic, deixando as respostas padronizadas com informações como resposta, nível de confiança, evidências, justificativa e motivo de recusa.
 * Adicionei validações para evitar respostas inconsistentes, principalmente nos casos de recusa e nos diferentes níveis de confiança.
 * Integrei a geração com a busca híbrida, utilizando os resultados do FAISS e BM25 combinados pelo RRF.
@@ -268,5 +267,48 @@ Nenhum bloqueio no momento.
 **Uso de assistentes de IA:**
 - *Utilizado o ChatGPT e assistentes de IA como suporte técnico no ambiente de desenvolvimento local (VS Code) para auxílio na codificação do script de benchmark, depuração do pipeline RAG, apoio na estruturação da interface Streamlit e refinamento do roteiro do Demo Day.
 ---
+## Encontro 6 - 2026-09-04
 
+**Etapa:** 4 - Avaliação (RAG Triad), interface e relatório
+
+### Relato individual  - Janice Lira Dos Santos
+*Foquei no desenvolvimento da interface gráfica, análise dos resultados, apoio na apresentação e documentação:Desenvolvi e validei a interface interativa em Streamlit, conectando-a às funções de busca híbrida (src/search_hibrid.py), geração (src/generator.py) e sanitização/proteção de dados (src/lgpd.py).  Analisei os resultados do benchmark de 24 questões e estruturei a análise de causa raiz no relatório de diagnóstico (reports/failure_report.md).  Organizei a estrutura dos slides e a narrativa para a demonstração do sistema no Demo Day.Consolidei os relatórios finais da etapa 4 e organizei a documentação das entregas para encerramento do projeto.
+
+### Relato individual -  Emilly Santos Ramalho
+### Execução e validação do benchmark
+
+* Executei a suíte de testes de benchmark (`eval/evaluate_benchmark.py`) no meu ambiente local.
+* Realizei a avaliação automatizada das 24 perguntas da base de testes (`benchmark/questions_and_ground_truth.json`) utilizando o juiz baseado em LLM (`eval/judge_prompt.py`).
+* Gerei e exportei os resultados e métricas obtidos nos formatos JSON e CSV (`reports/benchmark_results.json` e `reports/benchmark_results.csv`).
+* **Iniciei a verificação** dos resultados, incluindo a análise das respostas, métricas e possíveis falhas identificadas durante os testes.
+* Ainda estou finalizando as verificações, especialmente a validação completa das regras de privacidade e mascaramento de dados implementadas em `src/lgpd.py`, bem como a análise dos resultados do benchmark.
+
+
+### Resumo do dia (escrito em conjunto)
+*Hoje concluímos integralmente a quarta e última etapa do projeto RAG VendeFácil:Avaliação de Desempenho (RAG Triad): Executamos com sucesso a suíte completa de testes de benchmark (eval/evaluate_benchmark.py) cobrindo as 24 questões do gabarito (questions_and_ground_truth.json). Consolidamos as métricas essenciais de Relevância do Contexto, Fidelidade da Resposta (Faithfulness) e Relevância da Resposta.  Análise de Diagnóstico e Métricas: Geramos e auditamos os relatórios finais numéricos (reports/benchmark_results.json e reports/benchmark_results.csv) e documentamos detalhadamente a análise das causas de falha e gargalos do pipeline no relatório reports/failure_report.md.  Interface Gráfica e Validação Final: Finalizamos e testamos a interface interativa em Streamlit, garantindo o funcionamento integrado do pipeline (busca híbrida, geração com citação de fontes e aplicação dos guardrails de LGPD).
+
+**Entregamos hoje:**
+
+Hoje demos continuidade à quarta e última etapa do projeto RAG VendeFácil, dedicada à avaliação de desempenho e à validação final do sistema.
+
+* Avaliação de desempenho (RAG Triad): Executamos a suíte completa de testes de benchmark (eval/evaluate_benchmark.py), contemplando as 24 questões do gabarito (questions_and_ground_truth.json), e iniciamos a consolidação das métricas de Relevância do Contexto, Fidelidade da Resposta (Faithfulness) e Relevância da Resposta.
+* Análise de diagnóstico e métricas: Geramos os relatórios de resultados (reports/benchmark_results.json e reports/benchmark_results.csv) e documentamos as principais falhas, possíveis causas e gargalos identificados no pipeline em reports/failure_report.md. A análise e a validação das métricas ainda estão em processo.
+* Interface gráfica: Finalizamos a implementação da interface interativa em Streamlit e iniciamos os testes de integração com o pipeline, incluindo busca híbrida, geração de respostas com citação das fontes e aplicação dos guardrails de LGPD. Os testes e a validação final da interface ainda estão em processo.
+
+* Dessa forma, a quarta etapa permanece em processo de finalização, com foco na conclusão das verificações das métricas, na análise dos resultados obtidos e na validação completa da interface antes da entrega final do projeto.
+
+**Ficou pendente:**
+Validação de métricas e Interface gráfica.
+
+ **Bloqueios em aberto:** 
+Finalizar a etapa 4.
+
+ **Preparação para o Demo Day:** 
+*Roteiro de demonstração ao vivo validado na interface Streamlit.
+Casos de uso de busca híbrida e proteções de LGPD pré-selecionados para apresentação aos avaliadores.
+Apresentação sintética dos resultados numéricos e aprendizados extraídos da RAG Triad.
+
+  **Uso de assistentes de IA:**
+ *Suporte no refinamento do prompt do LLM Juiz (eval/judge_prompt.py) para otimização da RAG Triad.  Auxílio na análise de inconsistências dos contextos recuperados e escrita do failure_report.md.  Aceleração na construção e estilização dos componentes visuais no Streamlit. 
+ 
 *TIC em Trilhas · PUC-Rio · Instituto ECOA · MCTI Futuro · Softex*
