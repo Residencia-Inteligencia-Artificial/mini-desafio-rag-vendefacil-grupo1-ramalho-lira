@@ -275,22 +275,33 @@ Nenhum bloqueio no momento.
 *Foquei no desenvolvimento da interface gráfica, análise dos resultados, apoio na apresentação e documentação:Desenvolvi e validei a interface interativa em Streamlit, conectando-a às funções de busca híbrida (src/search_hibrid.py), geração (src/generator.py) e sanitização/proteção de dados (src/lgpd.py).  Analisei os resultados do benchmark de 24 questões e estruturei a análise de causa raiz no relatório de diagnóstico (reports/failure_report.md).  Organizei a estrutura dos slides e a narrativa para a demonstração do sistema no Demo Day.Consolidei os relatórios finais da etapa 4 e organizei a documentação das entregas para encerramento do projeto.
 
 ### Relato individual -  Emilly Santos Ramalho
-* No ambiente de execução local, rodando a suíte de testes, aplicando assistentes de IA e validando as métricas:Configurou e executou toda a bateria de testes de benchmark (eval/evaluate_benchmark.py) diretamente em seu computador local.  Processou a avaliação automatizada do juiz baseado em LLM (eval/judge_prompt.py) sobre a base de testes de 24 perguntas (benchmark/questions_and_ground_truth.json).  Utilizou assistentes de IA para otimizar os prompts de avaliação do juiz e agilizar o diagnóstico dos logs de saída.  Extraiu e exportou os arquivos finais de resultados e métricas (reports/benchmark_results.json e reports/benchmark_results.csv).  Validou as regras de mascaramento e privacidade de dados (src/lgpd.py) durante as consultas de teste.  
+### Execução e validação do benchmark
+
+* Executei a suíte de testes de benchmark (`eval/evaluate_benchmark.py`) no meu ambiente local.
+* Realizei a avaliação automatizada das 24 perguntas da base de testes (`benchmark/questions_and_ground_truth.json`) utilizando o juiz baseado em LLM (`eval/judge_prompt.py`).
+* Gerei e exportei os resultados e métricas obtidos nos formatos JSON e CSV (`reports/benchmark_results.json` e `reports/benchmark_results.csv`).
+* **Iniciei a verificação** dos resultados, incluindo a análise das respostas, métricas e possíveis falhas identificadas durante os testes.
+* Ainda estou finalizando as verificações, especialmente a validação completa das regras de privacidade e mascaramento de dados implementadas em `src/lgpd.py`, bem como a análise dos resultados do benchmark.
+
 
 ### Resumo do dia (escrito em conjunto)
 *Hoje concluímos integralmente a quarta e última etapa do projeto RAG VendeFácil:Avaliação de Desempenho (RAG Triad): Executamos com sucesso a suíte completa de testes de benchmark (eval/evaluate_benchmark.py) cobrindo as 24 questões do gabarito (questions_and_ground_truth.json). Consolidamos as métricas essenciais de Relevância do Contexto, Fidelidade da Resposta (Faithfulness) e Relevância da Resposta.  Análise de Diagnóstico e Métricas: Geramos e auditamos os relatórios finais numéricos (reports/benchmark_results.json e reports/benchmark_results.csv) e documentamos detalhadamente a análise das causas de falha e gargalos do pipeline no relatório reports/failure_report.md.  Interface Gráfica e Validação Final: Finalizamos e testamos a interface interativa em Streamlit, garantindo o funcionamento integrado do pipeline (busca híbrida, geração com citação de fontes e aplicação dos guardrails de LGPD).
 
 **Entregamos hoje:**
-*Suíte de benchmark executada para as 24 questões do gabarito oficial.  Arquivos de métricas exportados e consolidados (reports/benchmark_results.json e reports/benchmark_results.csv).  
-Relatório detalhado de falhas e causas raiz (reports/failure_report.md).  Interface em Streamlit testada e 100% funcional integrada aos módulos do pipeline RAG e LGPD.  
-Material de apoio e roteiro definidos para o Demo Day.
-Relato individual de cada membro e resumo conjunto da etapa 4 concluída.
+
+Hoje demos continuidade à quarta e última etapa do projeto RAG VendeFácil, dedicada à avaliação de desempenho e à validação final do sistema.
+
+* Avaliação de desempenho (RAG Triad): Executamos a suíte completa de testes de benchmark (eval/evaluate_benchmark.py), contemplando as 24 questões do gabarito (questions_and_ground_truth.json), e iniciamos a consolidação das métricas de Relevância do Contexto, Fidelidade da Resposta (Faithfulness) e Relevância da Resposta.
+* Análise de diagnóstico e métricas: Geramos os relatórios de resultados (reports/benchmark_results.json e reports/benchmark_results.csv) e documentamos as principais falhas, possíveis causas e gargalos identificados no pipeline em reports/failure_report.md. A análise e a validação das métricas ainda estão em processo.
+* Interface gráfica: Finalizamos a implementação da interface interativa em Streamlit e iniciamos os testes de integração com o pipeline, incluindo busca híbrida, geração de respostas com citação das fontes e aplicação dos guardrails de LGPD. Os testes e a validação final da interface ainda estão em processo.
+
+* Dessa forma, a quarta etapa permanece em processo de finalização, com foco na conclusão das verificações das métricas, na análise dos resultados obtidos e na validação completa da interface antes da entrega final do projeto.
 
 **Ficou pendente:**
-*Nenhum item pendente; todas as tarefas previstas para a Etapa 4 foram finalizadas.
+Validação de métricas e Interface gráfica.
 
  **Bloqueios em aberto:** 
-*Nenhum bloqueio. Projeto, apresentação e documentação da Etapa 4 entregues com sucesso.
+Finalizar a etapa 4.
 
  **Preparação para o Demo Day:** 
 *Roteiro de demonstração ao vivo validado na interface Streamlit.
