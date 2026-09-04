@@ -268,5 +268,26 @@ Nenhum bloqueio no momento.
 **Uso de assistentes de IA:**
 - *Utilizado o ChatGPT e assistentes de IA como suporte técnico no ambiente de desenvolvimento local (VS Code) para auxílio na codificação do script de benchmark, depuração do pipeline RAG, apoio na estruturação da interface Streamlit e refinamento do roteiro do Demo Day.
 ---
+## Encontro 6 - 2026-09-04
 
+**Etapa:** 4 - Avaliação (RAG Triad), interface e relatório
+
+### Relato individual  - Janice Lira Dos Santos
+
+### Relato individual -  Emilly Santos Ramalho
+
+### Resumo do dia (escrito em conjunto)
+
+**Entregamos hoje:**
+
+**Entregamos hoje:**
+
+**Ficou pendente:**
+
+ **Bloqueios em aberto:** 
+ 
+ **Preparação para o Demo Day:** 
+ 
+ **Uso de assistentes de IA:**
+ 
 *TIC em Trilhas · PUC-Rio · Instituto ECOA · MCTI Futuro · Softex*
