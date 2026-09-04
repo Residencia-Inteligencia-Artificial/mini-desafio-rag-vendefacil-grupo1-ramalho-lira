@@ -319,11 +319,53 @@ def extract_expected_chunk_ids(item: dict) -> list[str]:
     return []
 
 
+def extract_expected_sources(item: dict) -> list[str]:
+    """Extrai os arquivos esperados pelo benchmark."""
+    value = first_existing(
+        item,
+        [
+            "expected_sources",
+            "relevant_sources",
+            "source_files",
+            "sources",
+            "ground_truth_sources",
+        ],
+        [],
+    )
+    if value is None:
+        return []
+    if isinstance(value, list):
+        result = []
+        for item_value in value:
+            if isinstance(item_value, dict):
+                filepath = first_existing(item_value, ["filepath", "file_path", "source", "filename", "file"], "")
+                filepath = safe_str(filepath)
+                if filepath:
+                    result.append(filepath)
+            else:
+                value_str = safe_str(item_value)
+                if value_str:
+                    result.append(value_str)
+        return result
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+            if isinstance(parsed, list):
+                return [safe_str(x) for x in parsed if safe_str(x)]
+        except Exception:
+            pass
+        return [value.strip()] if value.strip() else []
+    return []
+
+
 def extract_expected_refusal(
     item: dict,
 ) -> bool | None:
     """
     Identifica se o benchmark espera uma recusa.
+
+    Além dos campos explícitos, o benchmark atual usa
+    expected_metadata.sensitive e expected_metadata.out_of_domain.
     """
 
     value = first_existing(
@@ -337,32 +379,52 @@ def extract_expected_refusal(
         None,
     )
 
-    if value is None:
-        return None
+    if value is not None:
+        if isinstance(value, bool):
+            return value
 
-    if isinstance(value, bool):
-        return value
+        value = normalize_text(safe_str(value))
 
-    value = normalize_text(
-        safe_str(value)
+        return value in {
+            "true",
+            "1",
+            "sim",
+            "yes",
+            "recusar",
+            "recusado",
+        }
+
+    metadata = item.get("expected_metadata", {})
+
+    if isinstance(metadata, dict):
+        if metadata.get("sensitive") is True:
+            return True
+
+        if metadata.get("out_of_domain") is True:
+            return True
+
+    reference_answer = normalize_text(
+        extract_reference_answer(item)
     )
 
-    return value in {
-        "true",
-        "1",
-        "sim",
-        "yes",
-        "recusar",
-        "recusado",
-    }
+    refusal_markers = [
+        "recusa de resposta",
+        "fora do escopo da base de conhecimento",
+    ]
+
+    if any(
+        marker in reference_answer
+        for marker in refusal_markers
+    ):
+        return True
+
+    return None
 
 
 def extract_expected_refusal_reason(
     item: dict,
 ) -> str | None:
-    """
-    Extrai o motivo esperado da recusa.
-    """
+    """Extrai o motivo esperado da recusa."""
 
     value = first_existing(
         item,
@@ -375,10 +437,29 @@ def extract_expected_refusal_reason(
         None,
     )
 
-    if value is None:
-        return None
+    if value is not None:
+        return safe_str(value)
 
-    return safe_str(value)
+    metadata = item.get("expected_metadata", {})
+
+    if isinstance(metadata, dict):
+        if metadata.get("sensitive") is True:
+            return "lgpd"
+
+        if metadata.get("out_of_domain") is True:
+            return "fora_de_escopo"
+
+    reference_answer = normalize_text(
+        extract_reference_answer(item)
+    )
+
+    if "fora do escopo" in reference_answer:
+        return "fora_de_escopo"
+
+    if "recusa de resposta" in reference_answer:
+        return "lgpd"
+
+    return None
 
 
 # ============================================================
@@ -566,98 +647,94 @@ def extract_refusal_reason(
 # CONTEXT RELEVANCE
 # ============================================================
 
+def _source_matches(expected: str, retrieved: str) -> bool:
+    expected_norm = normalize_text(expected).replace("\\", "/")
+    retrieved_norm = normalize_text(retrieved).replace("\\", "/")
+    if not expected_norm or not retrieved_norm:
+        return False
+    return (
+        expected_norm == retrieved_norm
+        or retrieved_norm.endswith("/" + expected_norm)
+        or expected_norm.endswith("/" + retrieved_norm)
+    )
+
+
 def calculate_context_relevance(
     expected_chunk_ids: list[str],
     retrieved_chunk_ids: list[str],
+    expected_sources: list[str] | None = None,
+    retrieved_sources: list[str] | None = None,
 ) -> float:
-    """
-    Mede Context Relevance comparando chunk_ids.
+    """Calcula relevância por chunk; se não houver chunks, por arquivo."""
+    expected_chunks = {safe_str(x) for x in expected_chunk_ids if safe_str(x)}
+    retrieved_chunks = {safe_str(x) for x in retrieved_chunk_ids if safe_str(x)}
 
-    Fórmula usada:
+    if expected_chunks:
+        return round(len(expected_chunks & retrieved_chunks) / len(expected_chunks), 4)
 
-        chunks esperados encontrados
-        ----------------------------
-        chunks esperados
+    expected_files = [safe_str(x) for x in (expected_sources or []) if safe_str(x)]
+    retrieved_files = [safe_str(x) for x in (retrieved_sources or []) if safe_str(x)]
 
-    Se não houver chunk_ids esperados, retorna 1.0 quando
-    não há contexto esperado ou 0.0 quando existem resultados
-    inesperados.
-    """
+    if expected_files:
+        matched = sum(
+            1 for expected in expected_files
+            if any(_source_matches(expected, retrieved) for retrieved in retrieved_files)
+        )
+        return round(matched / len(expected_files), 4)
 
-    expected = {
-        safe_str(x)
-        for x in expected_chunk_ids
-        if safe_str(x)
-    }
-
-    retrieved = {
-        safe_str(x)
-        for x in retrieved_chunk_ids
-        if safe_str(x)
-    }
-
-    if not expected:
-
-        if not retrieved:
-            return 1.0
-
-        return 0.0
-
-    intersection = expected & retrieved
-
-    return round(
-        len(intersection)
-        / len(expected),
-        4,
-    )
+    return 1.0 if not retrieved_files and not retrieved_chunks else 0.0
 
 
 # ============================================================
 # CORREÇÃO DA RESPOSTA
 # ============================================================
 
+def extract_key_points(item: dict) -> list[str]:
+    """Extrai os pontos essenciais definidos no benchmark."""
+    value = first_existing(item, ["key_points_for_evaluation", "key_points", "evaluation_points"], [])
+    if isinstance(value, list):
+        return [safe_str(x) for x in value if safe_str(x)]
+    return []
+
+
 def calculate_correctness(
     answer: str,
     reference_answer: str,
     is_refusal: bool,
     expected_refusal: bool | None,
+    key_points: list[str] | None = None,
 ) -> float:
-    """
-    Estimativa determinística simples de correção.
-
-    A avaliação semântica mais importante será feita pelo LLM Judge.
-
-    Esta função cuida especialmente das recusas.
-    """
-
+    """Avalia recusas por decisão e respostas normais por pontos-chave."""
     if expected_refusal is not None:
-
-        if is_refusal == expected_refusal:
-            return 1.0
-
+        return 1.0 if is_refusal == expected_refusal else 0.0
+    if not answer:
         return 0.0
+    normalized_answer = normalize_text(answer)
+
+    if key_points:
+        matched = 0
+        for point in key_points:
+            normalized_point = normalize_text(point)
+            if not normalized_point:
+                continue
+            if normalized_point in normalized_answer:
+                matched += 1
+                continue
+            words = [w for w in normalized_point.split() if len(w) > 3]
+            if words and sum(1 for w in words if w in normalized_answer) / len(words) >= 0.5:
+                matched += 1
+        return round(matched / len(key_points), 4)
 
     if not reference_answer:
-        return 1.0 if answer else 0.0
-
-    normalized_answer = normalize_text(
-        answer
-    )
-
-    normalized_reference = normalize_text(
-        reference_answer
-    )
-
-    if not normalized_answer:
-        return 0.0
-
-    if (
-        normalized_answer
-        == normalized_reference
-    ):
         return 1.0
-
-    return 0.0
+    normalized_reference = normalize_text(reference_answer)
+    if normalized_answer == normalized_reference:
+        return 1.0
+    reference_words = [w for w in normalized_reference.split() if len(w) > 4]
+    if not reference_words:
+        return 0.0
+    matches = sum(1 for w in reference_words if w in normalized_answer)
+    return round(min(matches / len(reference_words), 1.0), 4)
 
 
 # ============================================================
@@ -1147,6 +1224,14 @@ def evaluate_question(
         )
     )
 
+    expected_sources = extract_expected_sources(
+        item
+    )
+
+    key_points = extract_key_points(
+        item
+    )
+
     expected_refusal = (
         extract_expected_refusal(
             item
@@ -1236,6 +1321,12 @@ def evaluate_question(
         if source.get("chunk_id")
     ]
 
+    retrieved_sources = [
+        source.get("filepath", "")
+        for source in sources
+        if source.get("filepath")
+    ]
+
     is_refusal = extract_is_refusal(
         response
     )
@@ -1256,11 +1347,11 @@ def evaluate_question(
     # CONTEXT RELEVANCE
     # --------------------------------------------------------
 
-    context_relevance = (
-        calculate_context_relevance(
-            expected_chunk_ids,
-            retrieved_chunk_ids,
-        )
+    context_relevance = calculate_context_relevance(
+        expected_chunk_ids=expected_chunk_ids,
+        retrieved_chunk_ids=retrieved_chunk_ids,
+        expected_sources=expected_sources,
+        retrieved_sources=retrieved_sources,
     )
 
     # --------------------------------------------------------
@@ -1273,6 +1364,7 @@ def evaluate_question(
             reference_answer=reference_answer,
             is_refusal=is_refusal,
             expected_refusal=expected_refusal,
+            key_points=key_points,
         )
     )
 
@@ -1339,20 +1431,14 @@ def evaluate_question(
     # PONTUAÇÃO DO DESAFIO
     # --------------------------------------------------------
 
-    # 0.5 resposta correta
-    points_correctness = (
-        0.5 * correctness
-    )
-
-    # 0.3 fonte correta
-    points_citation = (
-        0.3 * context_relevance
-    )
-
-    # 0.2 coerência
-    points_coherence = (
-        0.2 * coherence
-    )
+    if expected_refusal is True:
+        points_correctness = 0.7 * correctness
+        points_citation = 0.0
+        points_coherence = 0.3 * coherence
+    else:
+        points_correctness = 0.5 * correctness
+        points_citation = 0.3 * context_relevance
+        points_coherence = 0.2 * coherence
 
     total_score = (
         points_correctness
@@ -1428,6 +1514,12 @@ def evaluate_question(
         "question": question,
 
         "reference_answer": reference_answer,
+
+        "key_points": key_points,
+
+        "expected_sources": expected_sources,
+
+        "retrieved_sources": retrieved_sources,
 
         "answer": answer,
 
@@ -2121,14 +2213,14 @@ def main():
         f"{len(questions)}"
     )
 
-    if len(questions) != 20:
+    if len(questions) != 24:
 
         print(
             "\n[AVISO]"
         )
 
         print(
-            "O desafio espera 20 perguntas, "
+            "O benchmark configurado espera 24 perguntas, "
             f"mas foram encontradas {len(questions)}."
         )
 

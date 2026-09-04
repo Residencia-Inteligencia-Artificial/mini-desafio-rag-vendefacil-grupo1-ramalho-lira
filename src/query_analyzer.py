@@ -4,69 +4,24 @@ import re
 import unicodedata
 
 
-# ============================================================
-# NORMALIZAÇÃO
-# ============================================================
-
-def normalize(text: str) -> str:
-    """
-    Normaliza o texto para facilitar a comparação.
-
-    - Converte para minúsculas
-    - Remove acentos
-    - Remove espaços duplicados
-    - Remove espaços no início e no final
-    """
-
-    text = str(text).lower().strip()
-
-    text = unicodedata.normalize("NFD", text)
-
-    text = "".join(
-        char
-        for char in text
-        if unicodedata.category(char) != "Mn"
-    )
-
-    text = re.sub(r"\s+", " ", text)
-
-    return text
-
-
-# ============================================================
-# VALORES VÁLIDOS ENCONTRADOS NO ÍNDICE
-# ============================================================
-
 VALID_DOC_TYPES = {
-    "ata",
     "customer",
-    "email",
     "employee",
+    "product",
+    "store",
+    "sale",
+    "ticket",
     "log",
     "manual",
     "policy",
-    "product",
-    "sale",
-    "store",
-    "ticket",
+    "email",
+    "ata",
 }
-
 
 VALID_STATES = {
-    "BA",
-    "CE",
-    "DF",
-    "ES",
-    "GO",
-    "MG",
-    "PE",
-    "PR",
-    "RJ",
-    "RS",
-    "SC",
-    "SP",
+    "BA", "CE", "DF", "ES", "GO", "MG",
+    "PE", "PR", "RJ", "RS", "SC", "SP"
 }
-
 
 VALID_MODULES = {
     "estoque",
@@ -79,29 +34,57 @@ VALID_MODULES = {
 
 
 VALID_PRIORITIES = {
-    "Alta": "alta",
-    "Baixa": "baixa",
-    "Crítica": "critica",
-    "Média": "media",
+    "alta": "alta",
+    "baixa": "baixa",
+    "critica": "critica",
+    "média": "media",
+    "media": "media",
 }
-
 
 VALID_STATUSES = {
-    "Aberto": "aberto",
-    "Ativo": "ativo",
-    "Cancelado": "cancelado",
-    "Em Andamento": "em andamento",
-    "Inativo": "inativo",
-    "Resolvido": "resolvido",
+    "aberto": "aberto",
+    "ativo": "ativo",
+    "cancelado": "cancelado",
+    "em andamento": "em andamento",
+    "inativo": "inativo",
+    "resolvido": "resolvido",
 }
 
 
-# ============================================================
-# SINÔNIMOS DE TIPOS DE DOCUMENTO
-# ============================================================
+STATE_NAMES = {
+    "bahia": "BA",
+    "ceara": "CE",
+    "ceará": "CE",
+    "distrito federal": "DF",
+    "espirito santo": "ES",
+    "espírito santo": "ES",
+    "goias": "GO",
+    "goiás": "GO",
+    "minas gerais": "MG",
+    "pernambuco": "PE",
+    "parana": "PR",
+    "paraná": "PR",
+    "rio de janeiro": "RJ",
+    "rio grande do sul": "RS",
+    "santa catarina": "SC",
+    "sao paulo": "SP",
+    "são paulo": "SP",
+}
 
+
+# IMPORTANTE:
+# Aqui só entram palavras que realmente indicam
+# o TIPO DA FONTE/documento.
+#
+# Não colocamos:
+# cliente -> customer
+# funcionário -> employee
+# produto -> product
+# loja -> store
+#
+# porque essas palavras podem representar entidades,
+# e não necessariamente o tipo do documento que contém a resposta.
 DOC_TYPE_SYNONYMS = {
-
     "ticket": [
         "ticket",
         "tickets",
@@ -109,58 +92,11 @@ DOC_TYPE_SYNONYMS = {
         "chamados",
     ],
 
-    "customer": [
-        "customer",
-        "customers",
-        "cliente",
-        "clientes",
-    ],
-
-    "employee": [
-        "employee",
-        "employees",
-        "funcionario",
-        "funcionarios",
-        "colaborador",
-        "colaboradores",
-    ],
-
-    "product": [
-        "product",
-        "products",
-        "produto",
-        "produtos",
-    ],
-
-    "store": [
-        "store",
-        "stores",
-        "loja",
-        "lojas",
-    ],
-
-    "sale": [
-        "sale",
-        "sales",
-        "venda",
-        "vendas",
-    ],
-
     "log": [
         "log",
         "logs",
-    ],
-
-    "manual": [
-        "manual",
-        "manuais",
-    ],
-
-    "policy": [
-        "policy",
-        "policies",
-        "politica",
-        "politicas",
+        "registro de log",
+        "registros de log",
     ],
 
     "email": [
@@ -173,292 +109,361 @@ DOC_TYPE_SYNONYMS = {
     "ata": [
         "ata",
         "atas",
+        "reuniao",
+        "reunião",
+        "reunioes",
+        "reuniões",
+    ],
+
+    "policy": [
+        "politica",
+        "política",
+        "politicas",
+        "políticas",
+    ],
+
+    "manual": [
+        "manual",
+        "manuais",
+    ],
+
+    "store": [
+        "filial",
+        "filiais",
+        "unidade",
+        "unidades",
+        "store",
+        "stores",
+    ],
+
+    "sale": [
+        "venda",
+        "vendas",
     ],
 }
 
 
-# ============================================================
-# SINÔNIMOS DE ESTADO
-# ============================================================
-
-STATE_SYNONYMS = {
-
-    "bahia": "BA",
-
-    "ceara": "CE",
-
-    "distrito federal": "DF",
-
-    "espirito santo": "ES",
-
-    "goias": "GO",
-
-    "minas gerais": "MG",
-
-    "pernambuco": "PE",
-
-    "parana": "PR",
-
-    "rio de janeiro": "RJ",
-
-    "rio grande do sul": "RS",
-
-    "santa catarina": "SC",
-
-    "sao paulo": "SP",
-}
-
-
-# ============================================================
-# SINÔNIMOS DE MÓDULO
-# ============================================================
-
 MODULE_SYNONYMS = {
+    "estoque": [
+        "estoque",
+        "inventario",
+        "inventário",
+    ],
 
-    "estoque": "estoque",
-    "estoques": "estoque",
+    "pay": [
+        "pay",
+        "pagamento",
+        "pagamentos",
+    ],
 
-    "vende facil estoque": "estoque",
+    "pdv": [
+        "pdv",
+        "ponto de venda",
+    ],
 
-    "pay": "pay",
-    "pagamento": "pay",
-    "pagamentos": "pay",
+    "analytics": [
+        "analytics",
+    ],
 
-    "vende facil pay": "pay",
+    "ecommerce": [
+        "ecommerce",
+        "e-commerce",
+    ],
 
-    "pdv": "pdv",
-
-    "ponto de venda": "pdv",
-
-    "pontos de venda": "pdv",
-
-    "vende facil pdv": "pdv",
-
-    "analytics": "analytics",
-
-    "analise": "analytics",
-
-    "analises": "analytics",
-
-    "vende facil analytics": "analytics",
-
-    "ecommerce": "ecommerce",
-
-    "e commerce": "ecommerce",
-
-    "loja": "loja",
-
-    "lojas": "loja",
-
-    "vende facil loja": "loja",
+    "loja": [
+        "vendefacil loja",
+    ],
 }
 
 
-# ============================================================
-# QUERY ANALYZER
-# ============================================================
+def normalize(text: str) -> str:
+    """
+    Normaliza o texto:
+    - lowercase
+    - remove acentos
+    - normaliza espaços
+    """
 
-def analyze_query(query: str) -> dict:
+    text = text.lower()
 
-    normalized_query = normalize(query)
+    text = unicodedata.normalize(
+        "NFKD",
+        text
+    ).encode(
+        "ascii",
+        "ignore"
+    ).decode(
+        "ascii"
+    )
 
-    filters = {}
+    text = re.sub(r"\s+", " ", text)
 
-    # ========================================================
-    # 1. TIPO DE DOCUMENTO
-    # ========================================================
+    return text.strip()
+
+
+def extract_customer_id(text: str):
+    match = re.search(
+        r"\bCUST\d+\b",
+        text,
+        flags=re.IGNORECASE
+    )
+
+    if match:
+        return match.group(0).upper()
+
+    return None
+
+
+def extract_ticket_id(text: str):
+    match = re.search(
+        r"\bTCK-\d+\b",
+        text,
+        flags=re.IGNORECASE
+    )
+
+    if match:
+        return match.group(0).upper()
+
+    return None
+
+
+def extract_doc_types(text: str):
+    """
+    Detecta os tipos de documentos explicitamente
+    mencionados na pergunta.
+    """
+
+    normalized = normalize(text)
+
+    detected = []
 
     for doc_type, synonyms in DOC_TYPE_SYNONYMS.items():
 
         for synonym in synonyms:
 
-            if re.search(
-                rf"\b{re.escape(synonym)}\b",
-                normalized_query
-            ):
-
-                # Garante que o valor extraído
-                # existe no índice.
-                if doc_type in VALID_DOC_TYPES:
-
-                    filters["doc_type"] = doc_type
-
-                break
-
-        if "doc_type" in filters:
-            break
-
-    # ========================================================
-    # 2. ESTADO
-    # ========================================================
-
-    # Primeiro procura nomes completos.
-    # Exemplo:
-    # "Minas Gerais" -> "MG"
-
-    for state_name, state_code in STATE_SYNONYMS.items():
-
-        if state_name in normalized_query:
-
-            if state_code in VALID_STATES:
-
-                filters["state"] = state_code
-
-            break
-
-    # Caso não tenha encontrado o nome,
-    # procura diretamente pela sigla.
-
-    if "state" not in filters:
-
-        for state_code in VALID_STATES:
+            synonym_normalized = normalize(synonym)
 
             if re.search(
-                rf"\b{state_code.lower()}\b",
-                normalized_query
+                rf"\b{re.escape(synonym_normalized)}\b",
+                normalized
             ):
-
-                filters["state"] = state_code
-
+                detected.append(doc_type)
                 break
 
-    # ========================================================
-    # 3. MÓDULO
-    # ========================================================
+    return detected
 
-    # Ordenamos pelo tamanho para testar primeiro
-    # expressões maiores.
+
+def extract_state(text: str):
+    normalized = normalize(text)
+
+    # Primeiro tenta nomes completos
+    for name, code in STATE_NAMES.items():
+
+        name_normalized = normalize(name)
+
+        if re.search(
+            rf"\b{re.escape(name_normalized)}\b",
+            normalized
+        ):
+            return code
+
+    # Depois tenta siglas
+    for state in VALID_STATES:
+
+        if re.search(
+            rf"\b{state.lower()}\b",
+            normalized
+        ):
+            return state
+
+    return None
+
+
+def extract_city(text: str):
+    normalized = normalize(text)
+
+    cities = {
+        "belo horizonte": "Belo Horizonte",
+        "bh": "Belo Horizonte",
+        "sao paulo": "São Paulo",
+        "rio de janeiro": "Rio de Janeiro",
+        "curitiba": "Curitiba",
+        "recife": "Recife",
+        "salvador": "Salvador",
+    }
+
+    for city, canonical in cities.items():
+
+        if re.search(
+            rf"\b{re.escape(city)}\b",
+            normalized
+        ):
+            return canonical
+
+    return None
+
+
+def extract_module(text: str):
+    normalized = normalize(text)
+
+    for module, synonyms in MODULE_SYNONYMS.items():
+
+        for synonym in synonyms:
+
+            synonym_normalized = normalize(synonym)
+
+            if re.search(
+                rf"\b{re.escape(synonym_normalized)}\b",
+                normalized
+            ):
+                return module
+
+    return None
+
+
+def extract_priority(text: str):
+    normalized = normalize(text)
+
+    priorities = {
+        "alta": "alta",
+        "baixa": "baixa",
+        "critica": "critica",
+        "media": "media",
+    }
+
+    for value, canonical in priorities.items():
+
+        if re.search(
+            rf"\b{re.escape(value)}\b",
+            normalized
+        ):
+            return canonical
+
+    return None
+
+
+def extract_status(text: str):
+    normalized = normalize(text)
+
+    statuses = [
+        "aberto",
+        "ativo",
+        "cancelado",
+        "em andamento",
+        "inativo",
+        "resolvido",
+    ]
+
+    for status in statuses:
+
+        if re.search(
+            rf"\b{re.escape(status)}\b",
+            normalized
+        ):
+            return status
+
+    return None
+
+
+def analyze_query(query: str):
+
+    normalized_query = normalize(query)
+
+    doc_types = extract_doc_types(query)
+
+    customer_id = extract_customer_id(query)
+
+    ticket_id = extract_ticket_id(query)
+
+    state = extract_state(query)
+
+    city = extract_city(query)
+
+    module = extract_module(query)
+
+    priority = extract_priority(query)
+
+    status = extract_status(query)
+
+    filters = {}
+
+    # Só usamos doc_type como filtro quando existe
+    # UM ÚNICO tipo de documento explicitamente pedido.
     #
     # Exemplo:
-    # "vende facil estoque"
-    # antes de simplesmente "estoque".
+    # "listar os tickets..." -> ticket
+    #
+    # Mas:
+    # "e-mails, tickets e reuniões" -> não filtra
+    # porque precisamos buscar em várias fontes.
+    if len(doc_types) == 1:
+        filters["doc_type"] = doc_types[0]
 
-    module_names = sorted(
-        MODULE_SYNONYMS.keys(),
-        key=len,
-        reverse=True
-    )
+    if customer_id:
+        filters["customer_id"] = customer_id
 
-    for module_name in module_names:
+    if ticket_id:
+        filters["ticket_id"] = ticket_id
 
-        if re.search(
-            rf"\b{re.escape(module_name)}\b",
-            normalized_query
-        ):
+    if state:
+        filters["state"] = state
 
-            module = MODULE_SYNONYMS[
-                module_name
-            ]
+    if city:
+        filters["city"] = city
 
-            # Valida contra os valores permitidos.
-            if module in VALID_MODULES:
+    if module:
+        filters["module"] = module
 
-                filters["module"] = module
+    if priority:
+        filters["priority"] = priority
 
-            break
-
-    # ========================================================
-    # 4. PRIORIDADE
-    # ========================================================
-
-    for priority, normalized_priority in VALID_PRIORITIES.items():
-
-        normalized_priority = normalize(
-            normalized_priority
-        )
-
-        if re.search(
-            rf"\b{re.escape(normalized_priority)}\b",
-            normalized_query
-        ):
-
-            # Recupera a capitalização usada
-            # no índice.
-            filters["priority"] = priority
-
-            break
-
-    # ========================================================
-    # 5. STATUS
-    # ========================================================
-
-    status_items = sorted(
-        VALID_STATUSES.items(),
-        key=lambda item: len(item[0]),
-        reverse=True
-    )
-
-    for status, normalized_status in status_items:
-
-        normalized_status = normalize(
-            normalized_status
-        )
-
-        if re.search(
-            rf"\b{re.escape(normalized_status)}\b",
-            normalized_query
-        ):
-
-            filters["status"] = status
-
-            break
-
-    # ========================================================
-    # RESULTADO
-    # ========================================================
+    if status:
+        filters["status"] = status
 
     return {
         "original_query": query,
         "normalized_query": normalized_query,
         "filters": filters,
+        "doc_types_detected": doc_types,
     }
 
 
-# ============================================================
-# TESTES
-# ============================================================
-
 if __name__ == "__main__":
 
-    perguntas = [
+    test_queries = [
 
-        # Teste principal do desafio
         "Quais tickets de clientes de Minas Gerais estão relacionados ao módulo de estoque?",
 
-        # Estado por sigla
-        "Quais clientes estão localizados em MG?",
+        "Quem é o responsável técnico (Tech Lead) e a gerente de produto (PM) do VendeFácil Estoque?",
 
-        # Status
-        "Quais tickets de clientes de São Paulo estão abertos?",
+        "Qual é a política de home office para os funcionários da equipe de Engenharia?",
 
-        # Prioridade + módulo
-        "Quais tickets de prioridade alta estão relacionados ao VendeFácil Pay?",
+        "Listar os logs de erro registrados para o cliente CUST008 no serviço de pagamento (pay).",
 
-        # Venda
-        "Quais vendas foram realizadas em Minas Gerais?",
+        "O cliente Supermercado Boa Compra está reclamando de falha de sincronização. Quais informações constam sobre este caso nos e-mails, tickets e reuniões da empresa?",
 
-        # Produto
-        "Quais produtos estão relacionados ao PDV?",
+        "A cliente Ótica Visão Clara pediu cancelamento de contrato. Analise o e-mail enviado.",
+
+        "Por que o PDV exibe a mensagem Timeout de confirmação TEF no cliente CUST008?",
+
+        "Quais são as filiais cadastradas para o cliente CUST001 em Belo Horizonte?",
+
+        "Qual é a regra de Safety Stock configurável no VendeFácil Loja?",
     ]
 
-    for pergunta in perguntas:
+    for query in test_queries:
 
-        resultado = analyze_query(
-            pergunta
-        )
+        result = analyze_query(query)
 
-        print("\n" + "=" * 70)
-
+        print("=" * 70)
         print("PERGUNTA:")
-        print(pergunta)
+        print(query)
 
-        print("\nPERGUNTA NORMALIZADA:")
-        print(
-            resultado["normalized_query"]
-        )
+        print("\nNORMALIZADA:")
+        print(result["normalized_query"])
 
-        print("\nFILTROS EXTRAÍDOS:")
+        print("\nTIPOS DE DOCUMENTO DETECTADOS:")
+        print(result["doc_types_detected"])
 
-        print(
-            resultado["filters"]
-        )
+        print("\nFILTROS:")
+        print(result["filters"])

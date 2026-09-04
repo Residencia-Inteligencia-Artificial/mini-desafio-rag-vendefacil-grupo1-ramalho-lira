@@ -1,11 +1,15 @@
+from __future__ import annotations
+
 from collections import Counter
 
 from src.ingest import rodar_ingestao
 from src.embeddings import embed_textos
 from src.vector_store import VectorStore
 
+
 DATA_DIR = "data"
 INDEX_DIR = "index_store"
+
 
 def main():
 
@@ -13,11 +17,19 @@ def main():
     print("ETAPA 1 - INGESTÃO E INDEXAÇÃO")
     print("=" * 60)
 
+    # ----------------------------------------------------------
+    # INGESTÃO
+    # ----------------------------------------------------------
+
     chunks = rodar_ingestao(
         data_dir=DATA_DIR,
         chunk_size=800,
-        chunk_overlap=100
+        chunk_overlap=100,
     )
+
+    # ----------------------------------------------------------
+    # DISTRIBUIÇÃO
+    # ----------------------------------------------------------
 
     distribuicao = Counter(
         chunk["metadata"]["doc_type"]
@@ -30,10 +42,32 @@ def main():
     for doc_type, quantidade in sorted(
         distribuicao.items()
     ):
-
         print(
             f"  {doc_type}: {quantidade}"
         )
+
+    # ----------------------------------------------------------
+    # VALIDAÇÃO EXTRA
+    # ----------------------------------------------------------
+
+    chunk_ids = [
+        chunk["metadata"]["chunk_id"]
+        for chunk in chunks
+    ]
+
+    if len(chunk_ids) != len(set(chunk_ids)):
+        raise ValueError(
+            "Foram encontrados chunk_ids duplicados."
+        )
+
+    print()
+    print(
+        f"Chunk IDs únicos: {len(chunk_ids)}"
+    )
+
+    # ----------------------------------------------------------
+    # EMBEDDINGS
+    # ----------------------------------------------------------
 
     print()
     print("Gerando embeddings...")
@@ -52,6 +86,10 @@ def main():
         f"{vetores.shape[1]}"
     )
 
+    # ----------------------------------------------------------
+    # FAISS
+    # ----------------------------------------------------------
+
     print()
     print("Criando índice FAISS...")
 
@@ -65,8 +103,12 @@ def main():
         [
             chunk["metadata"]
             for chunk in chunks
-        ]
+        ],
     )
+
+    # ----------------------------------------------------------
+    # SALVAR
+    # ----------------------------------------------------------
 
     store.salvar(
         INDEX_DIR

@@ -4,16 +4,15 @@ import re
 
 from rank_bm25 import BM25Okapi
 
+from src.query_analyzer import normalize
+
 
 class BM25Search:
     """
     Busca esparsa utilizando BM25.
 
-    Recebe os textos e metadados que já estão armazenados
-    no VectorStore.
-
-    Permite aplicar filtros de metadados antes de retornar
-    os resultados.
+    Recebe os textos e metadados armazenados no VectorStore
+    e permite aplicar filtros de metadados.
     """
 
     def __init__(
@@ -29,7 +28,9 @@ class BM25Search:
             for texto in textos
         ]
 
-        self.bm25 = BM25Okapi(self.tokens)
+        self.bm25 = BM25Okapi(
+            self.tokens
+        )
 
     # ==========================================================
     # TOKENIZAÇÃO
@@ -38,12 +39,22 @@ class BM25Search:
     @staticmethod
     def _tokenizar(texto: str) -> list[str]:
         """
-        Divide o texto em tokens simples para o BM25.
+        Normaliza e tokeniza o texto.
+
+        A mesma normalização usada pelo Query Analyzer
+        é aplicada aqui para evitar diferenças entre:
+            São Paulo
+            sao paulo
+            SÃO PAULO
         """
+
+        texto = normalize(
+            texto
+        )
 
         return re.findall(
             r"\b\w+\b",
-            texto.lower(),
+            texto,
         )
 
     # ==========================================================
@@ -56,24 +67,6 @@ class BM25Search:
         chave: str,
         valor: object,
     ) -> bool:
-        """
-        Verifica se um documento atende a um filtro.
-
-        O comportamento é semelhante ao VectorStore.
-
-        Para 'module', aceita situações como:
-
-            estoque
-
-        ou:
-
-            VendeFácil Estoque
-
-        ou:
-
-            VendeFácil Analytics, VendeFácil Loja,
-            VendeFácil Estoque
-        """
 
         atual = str(
             meta.get(chave, "")
@@ -88,6 +81,7 @@ class BM25Search:
         # ------------------------------------------------------
 
         if chave == "module":
+
             modulos = [
                 item.strip().lower()
                 for item in atual.split(",")
@@ -117,29 +111,9 @@ class BM25Search:
         top_k: int = 10,
         filtro: dict | None = None,
     ) -> list[dict]:
-        """
-        Executa busca BM25.
-
-        Args:
-            consulta:
-                Texto da pergunta.
-
-            top_k:
-                Quantidade máxima de resultados.
-
-            filtro:
-                Filtros de metadados extraídos pelo Query Analyzer.
-
-        Returns:
-            Lista de resultados contendo:
-
-                text
-                metadata
-                score
-        """
 
         # ------------------------------------------------------
-        # 1. IDENTIFICAR DOCUMENTOS VÁLIDOS
+        # 1. DOCUMENTOS VÁLIDOS
         # ------------------------------------------------------
 
         indices_validos = []
@@ -147,6 +121,7 @@ class BM25Search:
         for i, meta in enumerate(
             self.metadados
         ):
+
             if not filtro:
                 indices_validos.append(i)
                 continue
@@ -154,6 +129,7 @@ class BM25Search:
             passou = True
 
             for chave, valor in filtro.items():
+
                 if not self._valor_atende_filtro(
                     meta,
                     chave,
@@ -166,7 +142,7 @@ class BM25Search:
                 indices_validos.append(i)
 
         # ------------------------------------------------------
-        # Nenhum documento atende aos filtros
+        # NENHUM DOCUMENTO
         # ------------------------------------------------------
 
         if not indices_validos:
@@ -184,7 +160,7 @@ class BM25Search:
             return []
 
         # ------------------------------------------------------
-        # 3. CALCULAR SCORES BM25
+        # 3. SCORES BM25
         # ------------------------------------------------------
 
         scores = self.bm25.get_scores(
@@ -192,7 +168,7 @@ class BM25Search:
         )
 
         # ------------------------------------------------------
-        # 4. ORDENAR SOMENTE DOCUMENTOS VÁLIDOS
+        # 4. RANKING
         # ------------------------------------------------------
 
         ranking = sorted(
@@ -202,12 +178,13 @@ class BM25Search:
         )
 
         # ------------------------------------------------------
-        # 5. MONTAR RESULTADOS
+        # 5. RESULTADOS
         # ------------------------------------------------------
 
         resultados = []
 
         for i in ranking[:top_k]:
+
             resultados.append(
                 {
                     "text": self.textos[i],

@@ -196,6 +196,13 @@ def mask_sensitive_data(text: str) -> str:
 # ============================================================
 
 def classify_lgpd(question: str) -> str:
+    """
+    Classifica a consulta quanto a dados protegidos.
+
+    Importante: mencionar "e-mail" como fonte documental
+    (ex.: "informações nos e-mails") não significa solicitar
+    o endereço de e-mail de uma pessoa.
+    """
 
     normalized = normalize_text(question)
 
@@ -204,26 +211,63 @@ def classify_lgpd(question: str) -> str:
     # --------------------------------------------------------
 
     refusal_terms = [
-
+        # Dados pessoais / sensíveis
         "salario",
         "remuneracao",
         "quanto ganha",
         "quanto recebe",
-
         "cpf",
         "documento pessoal",
-
         "dados bancarios",
         "conta bancaria",
         "chave pix",
         "pix",
 
+        # Credenciais
         "senha",
         "senhas",
-        "token",
+        "password",
+        "passcode",
         "credencial",
         "credenciais",
+        "login de administrador",
+        "login admin",
+        "usuario administrador",
 
+        # Tokens e segredos
+        "token",
+        "access token",
+        "refresh token",
+        "bearer token",
+        "api key",
+        "api_key",
+        "chave de api",
+        "chave secreta",
+        "secret key",
+        "secret",
+        "segredo",
+        "chave privada",
+        "private key",
+
+        # JWT / serviços
+        "jwt",
+        "segredo jwt",
+        "jwt secret",
+        "jwt_secret",
+        "stripe",
+        "chave de producao",
+        "api de producao",
+
+        # Banco de dados
+        "senha do banco",
+        "senha do postgresql",
+        "postgresql",
+        "database password",
+        "db password",
+        "credencial de banco",
+        "credenciais de banco",
+
+        # Saúde
         "doenca",
         "doencas",
         "diagnostico",
@@ -231,27 +275,39 @@ def classify_lgpd(question: str) -> str:
         "historico medico",
     ]
 
-    for term in refusal_terms:
-        if term in normalized:
-            return "recusar"
+    if any(term in normalized for term in refusal_terms):
+        return "recusar"
 
     # --------------------------------------------------------
     # MASCARAR
     # --------------------------------------------------------
+    # Aqui tratamos somente solicitações de dados pessoais.
+    # Não usamos simplesmente "email" ou "e-mail", pois isso
+    # quebraria consultas que pedem informações contidas em
+    # documentos de e-mail.
 
-    masking_terms = [
-        "email",
-        "e-mail",
-        "telefone",
-        "celular",
-        "endereco residencial",
-        "numero do cartao",
-        "cartao de credito",
+    masking_patterns = [
+        r"\bqual(?: e| é) o email\b",
+        r"\bqual(?: e| é) o e-mail\b",
+        r"\bme passe o email\b",
+        r"\bme passe o e-mail\b",
+        r"\bme informe o email\b",
+        r"\bme informe o e-mail\b",
+        r"\bendereco de email\b",
+        r"\bendereco de e-mail\b",
+        r"\bqual(?: e| é) o telefone\b",
+        r"\bme passe o telefone\b",
+        r"\bme informe o telefone\b",
+        r"\bqual(?: e| é) o celular\b",
+        r"\bendereco residencial\b",
+        r"\bendereco de residencia\b",
+        r"\bnumero do cartao\b",
+        r"\bnumero do cartao de credito\b",
+        r"\bdados do cartao\b",
     ]
 
-    for term in masking_terms:
-        if term in normalized:
-            return "mascarar"
+    if any(re.search(pattern, normalized) for pattern in masking_patterns):
+        return "mascarar"
 
     return "responder"
 
@@ -261,10 +317,17 @@ def classify_lgpd(question: str) -> str:
 # ============================================================
 
 def is_out_of_scope(question: str) -> bool:
+    """
+    Identifica consultas claramente fora do domínio VendeFácil.
+
+    A regra combina exemplos explícitos com sinais de domínio
+    externo. O objetivo é evitar overfitting a uma única pergunta
+    do benchmark.
+    """
 
     normalized = normalize_text(question)
 
-    out_of_scope_terms = [
+    explicit_terms = [
         "quem descobriu o brasil",
         "segunda guerra mundial",
         "primeira guerra mundial",
@@ -277,10 +340,57 @@ def is_out_of_scope(question: str) -> bool:
         "como fazer bolo",
     ]
 
-    return any(
+    if any(term in normalized for term in explicit_terms):
+        return True
+
+    # --------------------------------------------------------
+    # SINAIS DE DOMÍNIO EXTERNO
+    # --------------------------------------------------------
+
+    external_terms = [
+        "petroleo",
+        "arabia saudita",
+        "guerra",
+        "presidente",
+        "eleicao",
+        "futebol",
+    ]
+
+    vendefacil_terms = [
+        "vendefacil",
+        "pdv",
+        "estoque",
+        "ticket",
+        "tickets",
+        "cliente",
+        "clientes",
+        "loja",
+        "pay",
+        "tef",
+        "ecommerce",
+        "produto",
+        "produtos",
+        "venda",
+        "vendas",
+        "funcionario",
+        "funcionarios",
+        "politica",
+        "politicas",
+        "reembolso",
+    ]
+
+    has_external = any(
         term in normalized
-        for term in out_of_scope_terms
+        for term in external_terms
     )
+
+    has_vendefacil_context = any(
+        term in normalized
+        for term in vendefacil_terms
+    )
+
+    return has_external and not has_vendefacil_context
+
 
 # ============================================================
 # GERADOR
@@ -323,7 +433,7 @@ class RAGGenerator:
         )
 
         self.search = HybridSearch(
-            INDEX_DIR
+            self.vector_store
         )
 
         # ----------------------------------------------------
