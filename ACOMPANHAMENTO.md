@@ -280,8 +280,6 @@ Nenhum bloqueio no momento.
 
 **Entregamos hoje:**
 
-**Entregamos hoje:**
-
 **Ficou pendente:**
 
  **Bloqueios em aberto:** 
