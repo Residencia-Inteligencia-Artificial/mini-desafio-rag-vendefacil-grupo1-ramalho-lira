@@ -193,7 +193,6 @@ Atualizamos a documentação individual do grupo e realizamos o versionamento e 
 *Atuei na coordenação, planejamento e validação técnica da Etapa 3. Analisei os requisitos das estruturas de resposta Pydantic (RAGResponse e SourceEvidence), os critérios de recusa/mascaramento para LGPD e a integração com a busca híbrida (FAISS + BM25 + RRF). Orientei a configuração do ambiente de desenvolvimento no VS Code (.env e chave Groq) e mapeei a ordem de execução dos testes de validação para garantir a integridade da aplicação antes do envio ao GitHub sob a supervisão do instrutor.
 
 ### Relato individual - Emilly Santos Ramalho
-
 * Criei os modelos RAGResponse e SourceEvidence com Pydantic, deixando as respostas padronizadas com informações como resposta, nível de confiança, evidências, justificativa e motivo de recusa.
 * Adicionei validações para evitar respostas inconsistentes, principalmente nos casos de recusa e nos diferentes níveis de confiança.
 * Integrei a geração com a busca híbrida, utilizando os resultados do FAISS e BM25 combinados pelo RRF.
@@ -276,13 +275,16 @@ Nenhum bloqueio no momento.
 *Foquei no desenvolvimento da interface gráfica, análise dos resultados, apoio na apresentação e documentação:Desenvolvi e validei a interface interativa em Streamlit, conectando-a às funções de busca híbrida (src/search_hibrid.py), geração (src/generator.py) e sanitização/proteção de dados (src/lgpd.py).  Analisei os resultados do benchmark de 24 questões e estruturei a análise de causa raiz no relatório de diagnóstico (reports/failure_report.md).  Organizei a estrutura dos slides e a narrativa para a demonstração do sistema no Demo Day.Consolidei os relatórios finais da etapa 4 e organizei a documentação das entregas para encerramento do projeto.
 
 ### Relato individual -  Emilly Santos Ramalho
-
+* No ambiente de execução local, rodando a suíte de testes, aplicando assistentes de IA e validando as métricas:Configurou e executou toda a bateria de testes de benchmark (eval/evaluate_benchmark.py) diretamente em seu computador local.  Processou a avaliação automatizada do juiz baseado em LLM (eval/judge_prompt.py) sobre a base de testes de 24 perguntas (benchmark/questions_and_ground_truth.json).  Utilizou assistentes de IA para otimizar os prompts de avaliação do juiz e agilizar o diagnóstico dos logs de saída.  Extraiu e exportou os arquivos finais de resultados e métricas (reports/benchmark_results.json e reports/benchmark_results.csv).  Validou as regras de mascaramento e privacidade de dados (src/lgpd.py) durante as consultas de teste.  
 
 ### Resumo do dia (escrito em conjunto)
 *Hoje concluímos integralmente a quarta e última etapa do projeto RAG VendeFácil:Avaliação de Desempenho (RAG Triad): Executamos com sucesso a suíte completa de testes de benchmark (eval/evaluate_benchmark.py) cobrindo as 24 questões do gabarito (questions_and_ground_truth.json). Consolidamos as métricas essenciais de Relevância do Contexto, Fidelidade da Resposta (Faithfulness) e Relevância da Resposta.  Análise de Diagnóstico e Métricas: Geramos e auditamos os relatórios finais numéricos (reports/benchmark_results.json e reports/benchmark_results.csv) e documentamos detalhadamente a análise das causas de falha e gargalos do pipeline no relatório reports/failure_report.md.  Interface Gráfica e Validação Final: Finalizamos e testamos a interface interativa em Streamlit, garantindo o funcionamento integrado do pipeline (busca híbrida, geração com citação de fontes e aplicação dos guardrails de LGPD).
 
 **Entregamos hoje:**
-*Suíte de benchmark executada para as 24 questões do gabarito oficial.  Arquivos de métricas exportados e consolidados (reports/benchmark_results.json e reports/benchmark_results.csv).  Relatório detalhado de falhas e causas raiz (reports/failure_report.md).  Interface em Streamlit testada e 100% funcional integrada aos módulos do pipeline RAG e LGPD.  Material de apoio e roteiro definidos para o Demo Day.Relato individual de cada membro e resumo conjunto da etapa 4 concluída.
+*Suíte de benchmark executada para as 24 questões do gabarito oficial.  Arquivos de métricas exportados e consolidados (reports/benchmark_results.json e reports/benchmark_results.csv).  
+Relatório detalhado de falhas e causas raiz (reports/failure_report.md).  Interface em Streamlit testada e 100% funcional integrada aos módulos do pipeline RAG e LGPD.  
+Material de apoio e roteiro definidos para o Demo Day.
+Relato individual de cada membro e resumo conjunto da etapa 4 concluída.
 
 **Ficou pendente:**
 *Nenhum item pendente; todas as tarefas previstas para a Etapa 4 foram finalizadas.
