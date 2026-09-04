@@ -273,19 +273,28 @@ Nenhum bloqueio no momento.
 **Etapa:** 4 - Avaliação (RAG Triad), interface e relatório
 
 ### Relato individual  - Janice Lira Dos Santos
+*Foquei no desenvolvimento da interface gráfica, análise dos resultados, apoio na apresentação e documentação:Desenvolvi e validei a interface interativa em Streamlit, conectando-a às funções de busca híbrida (src/search_hibrid.py), geração (src/generator.py) e sanitização/proteção de dados (src/lgpd.py).  Analisei os resultados do benchmark de 24 questões e estruturei a análise de causa raiz no relatório de diagnóstico (reports/failure_report.md).  Organizei a estrutura dos slides e a narrativa para a demonstração do sistema no Demo Day.Consolidei os relatórios finais da etapa 4 e organizei a documentação das entregas para encerramento do projeto.
 
 ### Relato individual -  Emilly Santos Ramalho
 
-### Resumo do dia (escrito em conjunto)
 
+### Resumo do dia (escrito em conjunto)
+*Hoje concluímos integralmente a quarta e última etapa do projeto RAG VendeFácil:Avaliação de Desempenho (RAG Triad): Executamos com sucesso a suíte completa de testes de benchmark (eval/evaluate_benchmark.py) cobrindo as 24 questões do gabarito (questions_and_ground_truth.json). Consolidamos as métricas essenciais de Relevância do Contexto, Fidelidade da Resposta (Faithfulness) e Relevância da Resposta.  Análise de Diagnóstico e Métricas: Geramos e auditamos os relatórios finais numéricos (reports/benchmark_results.json e reports/benchmark_results.csv) e documentamos detalhadamente a análise das causas de falha e gargalos do pipeline no relatório reports/failure_report.md.  Interface Gráfica e Validação Final: Finalizamos e testamos a interface interativa em Streamlit, garantindo o funcionamento integrado do pipeline (busca híbrida, geração com citação de fontes e aplicação dos guardrails de LGPD).
 **Entregamos hoje:**
+*Suíte de benchmark executada para as 24 questões do gabarito oficial.  Arquivos de métricas exportados e consolidados (reports/benchmark_results.json e reports/benchmark_results.csv).  Relatório detalhado de falhas e causas raiz (reports/failure_report.md).  Interface em Streamlit testada e 100% funcional integrada aos módulos do pipeline RAG e LGPD.  Material de apoio e roteiro definidos para o Demo Day.Relato individual de cada membro e resumo conjunto da etapa 4 concluída.
 
 **Ficou pendente:**
+*Nenhum item pendente; todas as tarefas previstas para a Etapa 4 foram finalizadas.
 
  **Bloqueios em aberto:** 
- 
+*Nenhum bloqueio. Projeto, apresentação e documentação da Etapa 4 entregues com sucesso.
+
  **Preparação para o Demo Day:** 
- 
- **Uso de assistentes de IA:**
+*Roteiro de demonstração ao vivo validado na interface Streamlit.
+Casos de uso de busca híbrida e proteções de LGPD pré-selecionados para apresentação aos avaliadores.
+Apresentação sintética dos resultados numéricos e aprendizados extraídos da RAG Triad.
+
+  **Uso de assistentes de IA:**
+ *Suporte no refinamento do prompt do LLM Juiz (eval/judge_prompt.py) para otimização da RAG Triad.  Auxílio na análise de inconsistências dos contextos recuperados e escrita do failure_report.md.  Aceleração na construção e estilização dos componentes visuais no Streamlit. 
  
 *TIC em Trilhas · PUC-Rio · Instituto ECOA · MCTI Futuro · Softex*
