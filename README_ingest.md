@@ -34,16 +34,16 @@ linha errada por "parecenca" textual.
 
 ## O que entra no indice vetorial, e por que
 
-| Fonte | doc_type | Vira quantos chunks? |
-|---|---|---|
-| `tickets.jsonl` | `ticket` | 1 chamado = 1 chunk (curto, sintoma+solucao juntos) |
-| `products.json` | `pricing_plan` | 1 chunk por plano |
-| `stores.json` | `store_profile` | 1 chunk por loja |
-| `employees.csv` | `employee_record` | 1 chunk por funcionario (sensivel, ver abaixo) |
-| `policies/*.md` | `policy` | Dividido por chunking recursivo |
-| `meetings/*.md` | `meeting_notes` | Dividido por chunking recursivo |
-| `documentation/<modulo>/*.md` | `documentation` | Dividido, com `module` extraido da subpasta |
-| `emails/*.txt` | `customer_email` / `internal_email` | Dividido; `customer_id` extraido do nome do arquivo quando presente |
+| Fonte                         | doc_type                            | Vira quantos chunks?                                                |
+| ----------------------------- | ----------------------------------- | ------------------------------------------------------------------- |
+| `tickets.jsonl`               | `ticket`                            | 1 chamado = 1 chunk (curto, sintoma+solucao juntos)                 |
+| `products.json`               | `pricing_plan`                      | 1 chunk por plano                                                   |
+| `stores.json`                 | `store_profile`                     | 1 chunk por loja                                                    |
+| `employees.csv`               | `employee_record`                   | 1 chunk por funcionario (sensivel, ver abaixo)                      |
+| `policies/*.md`               | `policy`                            | Dividido por chunking recursivo                                     |
+| `meetings/*.md`               | `meeting_notes`                     | Dividido por chunking recursivo                                     |
+| `documentation/<modulo>/*.md` | `documentation`                     | Dividido, com `module` extraido da subpasta                         |
+| `emails/*.txt`                | `customer_email` / `internal_email` | Dividido; `customer_id` extraido do nome do arquivo quando presente |
 
 ## Metadados extraidos (para filtro na busca)
 

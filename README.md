@@ -18,8 +18,6 @@ A VendeFácil é uma empresa brasileira de tecnologia que fornece sistemas de ge
 
 ---
 
-
-
 ## O Desafio
 
 O objetivo das duplas é **construir um Assistente de Inteligência Artificial para a Knowledge Base da VendeFácil**, capaz de:
@@ -31,8 +29,6 @@ O objetivo das duplas é **construir um Assistente de Inteligência Artificial p
 - Avaliar o desempenho do sistema através do benchmark fornecido utilizando as métricas da **RAG Triad** (Relevância do Contexto, Relevância da Resposta e Groundedness).
 
 ---
-
-
 
 ## Estrutura do Repositório
 
@@ -54,10 +50,7 @@ esperadas
 
 ---
 
-
-
 ## Cronograma do Desafio
-
 
 | Aula        | Carga Horária | Tópico Principal                                | Entregável da Aula                                                                      |
 | ----------- | ------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------- |
@@ -66,21 +59,14 @@ esperadas
 | **Etapa 3** | 4h            | **Síntese Estruturada e Guardrails / LGPD**     | Pipeline LLM com saída Pydantic, citação de evidências e bloqueio de dados sensíveis.   |
 | **Etapa 4** | 4h            | **Avaliação (RAG Triad), UI e Defesa Técnica**  | Execução do benchmark, relatório de métricas e apresentação da dupla para a turma.      |
 
-
 ---
 
-
-
 ## Início Rápido
-
-
 
 ### 1. Pré-requisitos
 
 - Python 3.10+
 - Chave de API de LLM (OpenAI, Groq, OpenRouter ou ambiente Ollama local)
-
-
 
 ### 2. Instalação das Dependências
 
@@ -95,7 +81,6 @@ source venv/bin/activate  # No Windows: venv\Scripts\activate
 # Instale as dependências
 pip install -r starter/requirements.txt
 ```
-
 
 ### 3. Executar o sistema
 
@@ -127,9 +112,6 @@ Para abrir a interface web:
 streamlit run streamlit_app.py
 ```
 
-
-
 ### 4. Consultar o Guia Didático
 
 - [Guia Didático - Mini Desafio RAG VendeFácil](https://app.notion.com/p/IA-Generativa-RAG-3b3185f9f7ed806b8820ee5292611ee4)
-

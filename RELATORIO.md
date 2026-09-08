@@ -12,13 +12,13 @@ Execução com **20 perguntas** do benchmark.
 
 ## Resultado por tipo
 
-| Tipo | Questões | Acerto | Nota média | Contexto |
-| --- | ---: | ---: | ---: | ---: |
-| Fácil (RAG Básico) | 5 | 60.0% | 0.90 | 1.00 |
-| Filtragem por Metadados | 4 | 0.0% | 0.77 | 1.00 |
-| Múltiplas Fontes (Multi-hop) | 3 | 33.3% | 0.86 | 0.89 |
-| Razão & Solução de Problemas | 4 | 50.0% | 0.92 | 1.00 |
-| Guardrails & LGPD | 4 | 75.0% | 0.81 | 0.50 |
+| Tipo                         | Questões | Acerto | Nota média | Contexto |
+| ---------------------------- | -------: | -----: | ---------: | -------: |
+| Fácil (RAG Básico)           |        5 |  60.0% |       0.90 |     1.00 |
+| Filtragem por Metadados      |        4 |   0.0% |       0.77 |     1.00 |
+| Múltiplas Fontes (Multi-hop) |        3 |  33.3% |       0.86 |     0.89 |
+| Razão & Solução de Problemas |        4 |  50.0% |       0.92 |     1.00 |
+| Guardrails & LGPD            |        4 |  75.0% |       0.81 |     0.50 |
 
 ## 3 piores falhas
 
