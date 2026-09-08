@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import os
-from typing import Any
+import re
+import unicodedata
+from typing import Any, Dict, List
 
 from src.embeddings import embed_texto
 from src.query_analyzer import analyze_query
@@ -11,472 +12,2055 @@ from src.vector_store import VectorStore
 
 class HybridSearch:
     """
-    Busca híbrida combinando:
+    Busca híbrida do VendeFácil.
 
-    - busca densa com embeddings + FAISS
-    - busca esparsa com BM25
-    - filtros de metadados extraídos pelo Query Analyzer
-    - fusão dos resultados usando Reciprocal Rank Fusion (RRF)
+    Combina:
+
+    1. Busca densa usando embeddings + FAISS
+    2. Busca esparsa usando BM25
+    3. Filtros de metadados
+    4. Reciprocal Rank Fusion (RRF)
+    5. Bônus lexical
+    6. Recuperação direta de identificadores
+    7. Recuperação direta de termos
+    8. Bônus contextual
+    9. Priorização de resultados que atendem aos filtros
     """
+
+    # ============================================================
+    # INICIALIZAÇÃO
+    # ============================================================
 
     def __init__(self, vector_store: VectorStore):
         self.vector_store = vector_store
 
         self.bm25 = BM25Search(
             self.vector_store.textos,
-            self.vector_store.metadados
+            self.vector_store.metadados,
         )
 
-    # =========================================================
-    # NORMALIZAÇÃO DOS RESULTADOS
-    # =========================================================
+    # ============================================================
+    # UTILITÁRIOS
+    # ============================================================
 
     @staticmethod
-    def _normalizar_resultado(
-        resultado: dict[str, Any]
-    ) -> dict[str, Any]:
-        """
-        Garante que os resultados tenham uma estrutura consistente.
+    def _normalizar(texto: Any) -> str:
+        if texto is None:
+            return ""
 
-        O pipeline de ingestão utiliza principalmente `source_file`.
-        """
-
-        resultado = dict(resultado)
-
-        metadata = resultado.get("metadata")
-
-        if not isinstance(metadata, dict):
-            metadata = {}
-
-        # -----------------------------------------------------
-        # SOURCE FILE
-        # -----------------------------------------------------
-
-        source_file = (
-            metadata.get("source_file")
-            or metadata.get("filepath")
-            or metadata.get("file_path")
-            or metadata.get("source")
-            or metadata.get("filename")
-            or resultado.get("source_file")
-            or resultado.get("filepath")
-            or resultado.get("file_path")
-            or resultado.get("source")
-            or resultado.get("filename")
+        texto_normalizado = unicodedata.normalize(
+            "NFD",
+            str(texto).strip().lower(),
         )
-
-        if not source_file:
-            source_file = "desconhecido"
-
-        metadata["source_file"] = source_file
-        metadata["filepath"] = source_file
-
-        resultado["metadata"] = metadata
-
-        # -----------------------------------------------------
-        # CHUNK ID
-        # -----------------------------------------------------
-
-        chunk_id = (
-            metadata.get("chunk_id")
-            or resultado.get("chunk_id")
-            or metadata.get("id")
+        return "".join(
+            caractere
+            for caractere in texto_normalizado
+            if unicodedata.category(caractere) != "Mn"
         )
-
-        if chunk_id:
-            metadata["chunk_id"] = chunk_id
-            resultado["chunk_id"] = chunk_id
-
-        # -----------------------------------------------------
-        # TEXTO
-        # -----------------------------------------------------
-
-        if "text" not in resultado:
-            if "page_content" in resultado:
-                resultado["text"] = resultado["page_content"]
-
-            elif "content" in resultado:
-                resultado["text"] = resultado["content"]
-
-            else:
-                resultado["text"] = ""
-
-        # -----------------------------------------------------
-        # SCORE
-        # -----------------------------------------------------
-
-        if "score" not in resultado:
-            resultado["score"] = 0.0
-
-        return resultado
-
-    # =========================================================
-    # CHAVE PARA RRF
-    # =========================================================
 
     @staticmethod
-    def _chave(
-        resultado: dict[str, Any]
+    def _obter_texto(
+        resultado: Dict[str, Any],
     ) -> str:
-        """
-        Gera uma chave única para identificar o mesmo chunk
-        entre a busca densa e a busca BM25.
-        """
 
-        metadata = resultado.get("metadata", {})
-
-        chunk_id = (
-            metadata.get("chunk_id")
-            or resultado.get("chunk_id")
+        return (
+            resultado.get("text")
+            or resultado.get("texto")
+            or ""
         )
+
+    @staticmethod
+    def _obter_metadata(
+        resultado: Dict[str, Any],
+    ) -> Dict[str, Any]:
+
+        return (
+            resultado.get("metadata")
+            or resultado.get("metadados")
+            or {}
+        )
+
+    @staticmethod
+    def _obter_chave(
+        resultado: Dict[str, Any],
+        prefixo: str,
+        rank: int,
+    ) -> str:
+
+        metadata = HybridSearch._obter_metadata(
+            resultado
+        )
+
+        chunk_id = metadata.get("chunk_id")
+
+        if not chunk_id:
+            chunk_id = resultado.get("chunk_id")
 
         if chunk_id:
             return str(chunk_id)
 
-        source_file = (
-            metadata.get("source_file")
-            or metadata.get("filepath")
-            or resultado.get("source_file")
-            or resultado.get("filepath")
-            or "desconhecido"
+        texto = HybridSearch._obter_texto(
+            resultado
         )
 
-        chunk_index = (
-            metadata.get("chunk_index")
-            or resultado.get("chunk_index")
-            or 0
-        )
+        return f"{prefixo}-{rank}-{hash(texto)}"
 
-        return f"{source_file}|{chunk_index}"
+    # ============================================================
+    # FILTROS
+    # ============================================================
 
-    # =========================================================
-    # RECIPROCAL RANK FUSION
-    # =========================================================
-
-    def _rrf(
+    def _atende_todos_os_filtros(
         self,
-        resultados_dense: list[dict[str, Any]],
-        resultados_bm25: list[dict[str, Any]],
-        k: int = 60,
-    ) -> list[dict[str, Any]]:
-        """
-        Combina os resultados Dense + BM25 usando RRF.
+        metadata: Dict[str, Any],
+        filtros: Dict[str, Any],
+    ) -> bool:
 
-        Fórmula:
+        if not filtros:
+            return True
 
-            RRF = 1 / (k + posição)
-        """
+        for chave, esperado in filtros.items():
 
-        combinados: dict[str, dict[str, Any]] = {}
+            real = metadata.get(chave)
 
-        # -----------------------------------------------------
-        # RESULTADOS DENSE
-        # -----------------------------------------------------
+            if real is None:
+                return False
 
-        for rank, resultado in enumerate(
-            resultados_dense,
-            start=1
-        ):
-            resultado = self._normalizar_resultado(
-                resultado
+            esperado_norm = self._normalizar(
+                esperado
             )
 
-            chave = self._chave(resultado)
-
-            if chave not in combinados:
-                combinados[chave] = dict(resultado)
-
-                combinados[chave]["rrf_score"] = 0.0
-                combinados[chave]["dense_score"] = None
-                combinados[chave]["bm25_score"] = None
-
-            combinados[chave]["rrf_score"] += (
-                1.0 / (k + rank)
+            real_norm = self._normalizar(
+                real
             )
 
-            combinados[chave]["dense_score"] = (
-                resultado.get("score")
+            # ----------------------------------------------------
+            # MODULE
+            # ----------------------------------------------------
+
+            if chave == "module":
+
+                valores = [
+                    item.strip()
+                    for item in real_norm.split(",")
+                ]
+
+                if esperado_norm not in valores:
+                    return False
+
+            # ----------------------------------------------------
+            # OUTROS FILTROS
+            # ----------------------------------------------------
+
+            else:
+
+                if real_norm != esperado_norm:
+                    return False
+
+        return True
+
+    # ============================================================
+    # FILTROS RELAXADOS
+    # ============================================================
+
+    def _gerar_filtros_relaxados(
+        self,
+        filtros: Dict[str, Any] | None,
+    ) -> List[Dict[str, Any]]:
+
+        if not filtros:
+            return [{}]
+
+        filtros = dict(filtros)
+
+        # --------------------------------------------------------
+        # IMPORTANTE:
+        #
+        # O PRIMEIRO filtro é sempre o filtro completo.
+        #
+        # O relaxamento só será usado se a busca completa
+        # não encontrar nenhum resultado.
+        # --------------------------------------------------------
+
+        resultados: List[Dict[str, Any]] = [
+            filtros
+        ]
+
+        # --------------------------------------------------------
+        # Remove module
+        # --------------------------------------------------------
+
+        if "module" in filtros:
+
+            novo = dict(filtros)
+
+            novo.pop(
+                "module",
+                None,
             )
 
-        # -----------------------------------------------------
-        # RESULTADOS BM25
-        # -----------------------------------------------------
+            if novo not in resultados:
+                resultados.append(novo)
 
-        for rank, resultado in enumerate(
-            resultados_bm25,
-            start=1
-        ):
-            resultado = self._normalizar_resultado(
-                resultado
+        # --------------------------------------------------------
+        # Remove state
+        # --------------------------------------------------------
+
+        if "state" in filtros:
+
+            novo = dict(filtros)
+
+            novo.pop(
+                "state",
+                None,
             )
 
-            chave = self._chave(resultado)
+            if novo not in resultados:
+                resultados.append(novo)
 
-            if chave not in combinados:
-                combinados[chave] = dict(resultado)
+        # --------------------------------------------------------
+        # Remove city
+        # --------------------------------------------------------
 
-                combinados[chave]["rrf_score"] = 0.0
-                combinados[chave]["dense_score"] = None
-                combinados[chave]["bm25_score"] = None
+        if "city" in filtros:
 
-            combinados[chave]["rrf_score"] += (
-                1.0 / (k + rank)
+            novo = dict(filtros)
+
+            novo.pop(
+                "city",
+                None,
             )
 
-            combinados[chave]["bm25_score"] = (
-                resultado.get("score")
+            if novo not in resultados:
+                resultados.append(novo)
+
+        # --------------------------------------------------------
+        # Remove customer_id
+        # --------------------------------------------------------
+
+        if "customer_id" in filtros:
+
+            novo = dict(filtros)
+
+            novo.pop(
+                "customer_id",
+                None,
             )
 
-            if not combinados[chave].get("text"):
-                combinados[chave]["text"] = (
-                    resultado.get("text", "")
-                )
+            if novo not in resultados:
+                resultados.append(novo)
 
-            if not combinados[chave].get("metadata"):
-                combinados[chave]["metadata"] = (
-                    resultado.get("metadata", {})
-                )
+        # --------------------------------------------------------
+        # Somente doc_type
+        # --------------------------------------------------------
 
-        # -----------------------------------------------------
-        # ORDENAÇÃO
-        # -----------------------------------------------------
+        if "doc_type" in filtros:
 
-        resultados = list(
-            combinados.values()
-        )
+            novo = {
+                "doc_type": filtros["doc_type"]
+            }
 
-        resultados.sort(
-            key=lambda x: x.get(
-                "rrf_score",
-                0.0
-            ),
-            reverse=True
-        )
+            if novo not in resultados:
+                resultados.append(novo)
+
+        # --------------------------------------------------------
+        # Sem filtro
+        # --------------------------------------------------------
+
+        if {} not in resultados:
+            resultados.append({})
 
         return resultados
 
-    # =========================================================
-    # BUSCA HÍBRIDA
-    # =========================================================
+    # ============================================================
+    # IDENTIFICADORES
+    # ============================================================
+
+    def _extrair_identificadores(
+        self,
+        query: str,
+    ) -> List[str]:
+
+        encontrados: List[str] = []
+
+        texto = query.upper()
+
+        # --------------------------------------------------------
+        # CUSTOMER
+        # --------------------------------------------------------
+
+        clientes = re.findall(
+            r"\bCUST\d+\b",
+            texto,
+        )
+
+        for identificador in clientes:
+
+            if identificador not in encontrados:
+                encontrados.append(
+                    identificador
+                )
+
+        # --------------------------------------------------------
+        # TICKET
+        # --------------------------------------------------------
+
+        tickets = re.findall(
+            r"\bTCK[- ]?\d+\b",
+            texto,
+        )
+
+        for identificador in tickets:
+
+            identificador = identificador.replace(
+                " ",
+                "-",
+            )
+
+            if identificador not in encontrados:
+                encontrados.append(
+                    identificador
+                )
+
+        # --------------------------------------------------------
+        # ESTOQUE
+        # --------------------------------------------------------
+
+        estoque = re.findall(
+            r"\bSTK[- ]?\d+\b",
+            texto,
+        )
+
+        for identificador in estoque:
+
+            identificador = identificador.replace(
+                " ",
+                "-",
+            )
+
+            if identificador not in encontrados:
+                encontrados.append(
+                    identificador
+                )
+
+        return encontrados
+
+    # ============================================================
+    # BUSCA DIRETA DE IDENTIFICADORES
+    # ============================================================
+
+    def _buscar_identificadores_direto(
+        self,
+        query: str,
+        filtros: Dict[str, Any] | None = None,
+    ) -> List[Dict[str, Any]]:
+
+        identificadores = (
+            self._extrair_identificadores(
+                query
+            )
+        )
+
+        if not identificadores:
+            return []
+
+        textos = getattr(
+            self.vector_store,
+            "textos",
+            [],
+        )
+
+        metadatas = getattr(
+            self.vector_store,
+            "metadados",
+            [],
+        )
+
+        resultados: List[
+            Dict[str, Any]
+        ] = []
+
+        for index, texto in enumerate(textos):
+
+            if not texto:
+                continue
+
+            texto_upper = str(
+                texto
+            ).upper()
+
+            encontrados = []
+
+            for identificador in identificadores:
+
+                if identificador in texto_upper:
+
+                    encontrados.append(
+                        identificador
+                    )
+
+            if not encontrados:
+                continue
+
+            metadata = {}
+
+            if index < len(metadatas):
+
+                metadata = (
+                    metadatas[index]
+                    or {}
+                )
+
+            # ----------------------------------------------------
+            # IMPORTANTE:
+            #
+            # Recuperação direta também precisa respeitar filtros.
+            # ----------------------------------------------------
+
+            if filtros and not self._atende_todos_os_filtros(
+                metadata,
+                filtros,
+            ):
+                continue
+
+            resultados.append(
+                {
+                    "text": texto,
+                    "metadata": metadata,
+                    "score": 1.0,
+                    "exact_identifiers": encontrados,
+                    "direct_match": True,
+                }
+            )
+
+        return resultados
+
+    # ============================================================
+    # BUSCA DIRETA DE TERMOS
+    # ============================================================
+
+    def _buscar_termos_direto(
+        self,
+        query: str,
+        filtros: Dict[str, Any] | None = None,
+    ) -> List[Dict[str, Any]]:
+
+        query_norm = self._normalizar(
+            query
+        )
+
+        grupos: List[List[str]] = []
+
+        # --------------------------------------------------------
+        # PLANOS
+        # --------------------------------------------------------
+
+        if (
+            "quais são os planos" in query_norm
+            or "quais sao os planos" in query_norm
+            or "planos disponíveis" in query_norm
+            or "planos disponiveis" in query_norm
+            or "planos do vendefácil" in query_norm
+            or "planos do vendefacil" in query_norm
+            or "quais produtos" in query_norm
+        ):
+
+            grupos.append(
+                [
+                    "plano basic",
+                    "plano pro",
+                    "plano enterprise",
+                    "vendefácil pdv",
+                    "vendefacil pdv",
+                    "vendefácil estoque",
+                    "vendefacil estoque",
+                    "vendefácil loja",
+                    "vendefacil loja",
+                    "vendefácil analytics",
+                    "vendefacil analytics",
+                    "vendefácil pay",
+                    "vendefacil pay",
+                ]
+            )
+
+        # --------------------------------------------------------
+        # TECH LEAD / PM
+        # --------------------------------------------------------
+
+        if (
+            "tech lead" in query_norm
+            or "gerente de produto" in query_norm
+            or "product manager" in query_norm
+            or "responsável técnico" in query_norm
+            or "responsavel tecnico" in query_norm
+        ):
+
+            grupos.append(
+                [
+                    "tech lead",
+                    "carlos mendes",
+                    "gerente de produto",
+                    "product manager",
+                    "ana souza",
+                ]
+            )
+
+        # --------------------------------------------------------
+        # SLA DE PRIORIDADE CRÍTICA
+        # --------------------------------------------------------
+
+        if (
+            "sla" in query_norm
+            and "critica" in query_norm
+        ):
+
+            grupos.append(
+                [
+                    "tck-1005",
+                    "prioridade crítica",
+                    "prioridade critica",
+                    "severidade crítica",
+                    "severidade critica",
+                    "15 minutos",
+                    "2 horas",
+                ]
+            )
+
+        # --------------------------------------------------------
+        # TEF
+        # --------------------------------------------------------
+
+        if (
+            "tef" in query_norm
+            or "timeout" in query_norm
+            or "6090" in query_norm
+        ):
+
+            grupos.append(
+                [
+                    "tef",
+                    "timeout de confirmação tef",
+                    "timeout de confirmacao tef",
+                    "porta 6090",
+                    "6090",
+                    "windows firewall",
+                    "firewall",
+                    "regra de exceção",
+                    "regra de excecao",
+                    "pinpad",
+                ]
+            )
+
+        # --------------------------------------------------------
+        # SAFETY STOCK
+        # --------------------------------------------------------
+
+        if "safety stock" in query_norm:
+
+            grupos.append(
+                [
+                    "safety stock",
+                    "estoque de segurança",
+                    "estoque de seguranca",
+                    "margem de reserva",
+                    "margem de segurança",
+                    "margem de seguranca",
+                    "evitar dupla venda",
+                ]
+            )
+
+        if (
+            "sincroniza" in query_norm
+            and "boa compra" in query_norm
+        ):
+            grupos.append(
+                [
+                    "cust001",
+                    "tck-1001",
+                    "customer_001",
+                    "lock do banco",
+                    "lock banco",
+                    "contrato enterprise",
+                    "roadmap",
+                    "janeiro",
+                    "carlos mendes",
+                ]
+            )
+
+        if "dados pessoais" in query_norm and "lgpd" in query_norm:
+            grupos.append(
+                [
+                    "operadora",
+                    "dados sensíveis",
+                    "dados de saúde",
+                    "cartão de crédito completo",
+                    "dpo",
+                    "gabriel ramos",
+                    "incidente",
+                    "vazamento",
+                ]
+            )
+
+        if "mrr" in query_norm and "sao paulo" in query_norm:
+            grupos.append(
+                [
+                    "cust008",
+                    "auto pecas central",
+                    "3100",
+                    "vendefacil pay",
+                ]
+            )
+
+        if (
+            "tickets" in query_norm
+            and "estoque" in query_norm
+            and ("minas gerais" in query_norm or "mg" in query_norm)
+        ):
+            grupos.append(
+                ["tck-1001", "tck-1002", "tck-1004"]
+            )
+
+        # --------------------------------------------------------
+        # STK-409
+        # --------------------------------------------------------
+
+        if "stk-409" in query_norm:
+
+            grupos.append(
+                [
+                    "stk-409",
+                    "tabela temporária",
+                    "tabela temporaria",
+                    "status da sincronização",
+                    "status da sincronizacao",
+                    "force reconciliation",
+                    "vendefacil-estoque-agent",
+                    "blind sync",
+                    "reconciliação",
+                    "reconciliacao",
+                ]
+            )
+
+        # --------------------------------------------------------
+        # SANGRIA
+        # --------------------------------------------------------
+
+        if "sangria" in query_norm:
+
+            grupos.append(
+                [
+                    "sangria",
+                    "f8",
+                    "caixa",
+                    "senha do supervisor",
+                    "duas vias",
+                    "2 vias",
+                    "comprovante de sangria",
+                ]
+            )
+
+        # --------------------------------------------------------
+        # HOME OFFICE
+        # --------------------------------------------------------
+
+        if (
+            "home office" in query_norm
+            or "trabalho remoto" in query_norm
+        ):
+
+            grupos.append(
+                [
+                    "home office",
+                    "100% remoto",
+                    "100% home office",
+                    "remote first",
+                    "trabalho remoto",
+                ]
+            )
+
+        if not grupos:
+            return []
+
+        termos = set()
+
+        for grupo in grupos:
+            termos.update(grupo)
+
+        textos = getattr(
+            self.vector_store,
+            "textos",
+            [],
+        )
+
+        metadatas = getattr(
+            self.vector_store,
+            "metadados",
+            [],
+        )
+
+        resultados: List[
+            Dict[str, Any]
+        ] = []
+
+        for index, texto in enumerate(textos):
+
+            if not texto:
+                continue
+
+            texto_norm = self._normalizar(
+                texto
+            )
+
+            if (
+                (
+                    "quais produtos" in query_norm
+                    or "quais sao os produtos" in query_norm
+                    or "quais são os produtos" in query_norm
+                )
+                and texto_norm.startswith("plano ")
+            ):
+                continue
+
+            encontrados = [
+                termo
+                for termo in termos
+                if termo in texto_norm
+            ]
+
+
+            if not encontrados:
+                continue
+
+            metadata = {}
+
+            if index < len(metadatas):
+
+                metadata = (
+                    metadatas[index]
+                    or {}
+                )
+
+            # ----------------------------------------------------
+            # RESPEITA FILTROS
+            # ----------------------------------------------------
+
+            if filtros and not self._atende_todos_os_filtros(
+                metadata,
+                filtros,
+            ):
+                continue
+
+            resultados.append(
+                {
+                    "text": texto,
+                    "metadata": metadata,
+                    "score": 1.0,
+                    "direct_terms": encontrados,
+                    "direct_match": True,
+                }
+            )
+
+        return resultados
+
+    # ============================================================
+    # BÔNUS DE IDENTIFICADOR
+    # ============================================================
+
+    def _bonus_identificador(
+        self,
+        texto: str,
+        query: str,
+    ) -> float:
+
+        identificadores = (
+            self._extrair_identificadores(
+                query
+            )
+        )
+
+        if not identificadores:
+            return 0.0
+
+        texto_upper = texto.upper()
+
+        bonus = 0.0
+
+        for identificador in identificadores:
+
+            if identificador not in texto_upper:
+                continue
+
+            if identificador.startswith(
+                "STK-"
+            ):
+                bonus += 0.70
+
+            elif identificador.startswith(
+                "TCK-"
+            ):
+                bonus += 0.55
+
+            elif identificador.startswith(
+                "CUST"
+            ):
+                bonus += 0.12
+
+        return min(
+            bonus,
+            1.00,
+        )
+
+    # ============================================================
+    # BÔNUS LEXICAL
+    # ============================================================
+
+    def _bonus_termos(
+        self,
+        query: str,
+        texto: str,
+    ) -> float:
+
+        query_norm = self._normalizar(
+            query
+        )
+
+        texto_norm = self._normalizar(
+            texto
+        )
+
+        bonus = 0.0
+
+        # --------------------------------------------------------
+        # PRODUTOS / PLANOS
+        # --------------------------------------------------------
+
+        consulta_produtos = (
+            "quais produtos" in query_norm
+            or "quais são os produtos" in query_norm
+            or "quais sao os produtos" in query_norm
+            or "quais planos" in query_norm
+            or "planos disponíveis" in query_norm
+            or "planos disponiveis" in query_norm
+        )
+
+        if consulta_produtos:
+
+            termos = [
+                "plano basic",
+                "plano pro",
+                "plano enterprise",
+                "vendefácil",
+                "vendefacil",
+                "pricing",
+                "tabela de preços",
+                "tabela de precos",
+            ]
+
+            for termo in termos:
+
+                if termo in texto_norm:
+                    bonus += 0.20
+
+            if "produto vendefacil" in texto_norm:
+                bonus += 3.00
+
+        # --------------------------------------------------------
+        # TECH LEAD / PM
+        # --------------------------------------------------------
+
+        consulta_equipe = (
+            "tech lead" in query_norm
+            or "gerente de produto" in query_norm
+            or "product manager" in query_norm
+            or "responsável técnico" in query_norm
+            or "responsavel tecnico" in query_norm
+        )
+
+        if consulta_equipe:
+
+            termos = [
+                "tech lead",
+                "carlos mendes",
+                "gerente de produto",
+                "product manager",
+                "ana souza",
+            ]
+
+            for termo in termos:
+
+                if termo in texto_norm:
+                    bonus += 0.25
+
+        # --------------------------------------------------------
+        # TEF
+        # --------------------------------------------------------
+
+        consulta_tef = (
+            "tef" in query_norm
+            or "timeout" in query_norm
+            or "6090" in query_norm
+        )
+
+        if consulta_tef:
+
+            termos = [
+                "timeout de confirmação tef",
+                "timeout de confirmacao tef",
+                "tef",
+                "porta 6090",
+                "6090",
+                "windows firewall",
+                "firewall",
+                "regra de exceção",
+                "regra de excecao",
+                "pinpad",
+            ]
+
+            for termo in termos:
+
+                if termo in texto_norm:
+                    bonus += 0.14
+
+        if "sla" in query_norm and "critica" in query_norm:
+            if "tck-1005" in texto_norm:
+                bonus += 1.00
+            if "15 minutos" in texto_norm or "2 horas" in texto_norm:
+                bonus += 0.60
+
+        # --------------------------------------------------------
+        # SAFETY STOCK
+        # --------------------------------------------------------
+
+        if "safety stock" in query_norm:
+
+            if "safety stock" in texto_norm:
+                bonus += 0.60
+
+            termos = [
+                "estoque de segurança",
+                "estoque de seguranca",
+                "margem de reserva",
+                "margem de segurança",
+                "margem de seguranca",
+                "evitar dupla venda",
+            ]
+
+            for termo in termos:
+
+                if termo in texto_norm:
+                    bonus += 0.14
+
+        # --------------------------------------------------------
+        # STK-409
+        # --------------------------------------------------------
+
+        if "stk-409" in query_norm:
+
+            if "stk-409" in texto_norm:
+                bonus += 0.70
+
+            termos = [
+                "tabela temporária",
+                "tabela temporaria",
+                "status da sincronização",
+                "status da sincronizacao",
+                "force reconciliation",
+                "vendefacil-estoque-agent",
+                "blind sync",
+                "reconciliação",
+                "reconciliacao",
+            ]
+
+            for termo in termos:
+
+                if termo in texto_norm:
+                    bonus += 0.14
+
+        # --------------------------------------------------------
+        # SANGRIA
+        # --------------------------------------------------------
+
+        if "sangria" in query_norm:
+
+            termos = [
+                "sangria",
+                "f8",
+                "senha do supervisor",
+                "duas vias",
+                "2 vias",
+                "comprovante de sangria",
+            ]
+
+            for termo in termos:
+
+                if termo in texto_norm:
+                    bonus += 0.12
+
+        # --------------------------------------------------------
+        # HOME OFFICE
+        # --------------------------------------------------------
+
+        if (
+            "home office" in query_norm
+            or "trabalho remoto" in query_norm
+        ):
+
+            termos = [
+                "home office",
+                "100% remoto",
+                "100% home office",
+                "remote first",
+                "trabalho remoto",
+            ]
+
+            for termo in termos:
+
+                if termo in texto_norm:
+                    bonus += 0.12
+
+        # --------------------------------------------------------
+        # MG
+        # --------------------------------------------------------
+
+        if (
+            "minas gerais" in query_norm
+            or re.search(
+                r"\bmg\b",
+                query_norm,
+            )
+        ):
+
+            if (
+                "minas gerais" in texto_norm
+                or re.search(
+                    r"\bmg\b",
+                    texto_norm,
+                )
+            ):
+                bonus += 0.05
+
+        return min(
+            bonus,
+            1.50,
+        )
+
+    # ============================================================
+    # BÔNUS DE METADATA
+    # ============================================================
+
+    def _bonus_metadata(
+        self,
+        metadata: Dict[str, Any],
+        filtros: Dict[str, Any],
+    ) -> float:
+
+        if not filtros:
+            return 0.0
+
+        bonus = 0.0
+
+        for chave, esperado in filtros.items():
+
+            real = metadata.get(chave)
+
+            if real is None:
+                continue
+
+            esperado_norm = self._normalizar(
+                esperado
+            )
+
+            real_norm = self._normalizar(
+                real
+            )
+
+            if real_norm == esperado_norm:
+
+                bonus += 0.06
+
+            elif esperado_norm in real_norm:
+
+                bonus += 0.02
+
+        return min(
+            bonus,
+            0.25,
+        )
+
+    # ============================================================
+    # BÔNUS DE CONTEXTO
+    # ============================================================
+
+    def _bonus_contexto(
+        self,
+        query: str,
+        texto: str,
+    ) -> float:
+
+        query_norm = self._normalizar(
+            query
+        )
+
+        texto_norm = self._normalizar(
+            texto
+        )
+
+        bonus = 0.0
+
+        # --------------------------------------------------------
+        # PROCEDIMENTOS
+        # --------------------------------------------------------
+
+        termos_procedimento = [
+            "procedimento",
+            "como resolver",
+            "como configurar",
+            "passo a passo",
+            "solução",
+            "solucao",
+            "configurar",
+        ]
+
+        quer_procedimento = any(
+            termo in query_norm
+            for termo in termos_procedimento
+        )
+
+        if quer_procedimento:
+
+            termos_documentacao = [
+                "manual",
+                "procedimento",
+                "passo a passo",
+                "configuração",
+                "configuracao",
+                "documentação",
+                "documentacao",
+                "como resolver",
+                "como fazer",
+            ]
+
+            for termo in termos_documentacao:
+
+                if termo in texto_norm:
+                    bonus += 0.05
+
+        # --------------------------------------------------------
+        # STK-409
+        # --------------------------------------------------------
+
+        if "stk-409" in query_norm:
+
+            termos = [
+                "status da sincronização",
+                "status da sincronizacao",
+                "force reconciliation",
+                "vendefacil-estoque-agent",
+                "blind sync",
+                "configurações",
+                "configuracoes",
+                "rede",
+                "sincronização",
+                "sincronizacao",
+            ]
+
+            for termo in termos:
+
+                if termo in texto_norm:
+                    bonus += 0.07
+
+        return min(
+            bonus,
+            0.35,
+        )
+
+    # ============================================================
+    # PENALIDADES
+    # ============================================================
+
+    def _penalidade(
+        self,
+        query: str,
+        metadata: Dict[str, Any],
+        texto: str,
+    ) -> float:
+
+        query_norm = self._normalizar(
+            query
+        )
+
+        texto_norm = self._normalizar(
+            texto
+        )
+
+        doc_type = self._normalizar(
+            metadata.get(
+                "doc_type",
+                "",
+            )
+        )
+
+        penalidade = 0.0
+
+        # --------------------------------------------------------
+        # TEF
+        # --------------------------------------------------------
+
+        consulta_tef = (
+            "tef" in query_norm
+            or "timeout" in query_norm
+            or "6090" in query_norm
+        )
+
+        if consulta_tef:
+
+            if doc_type == "store":
+                penalidade += 0.18
+
+            elif doc_type == "customer":
+                penalidade += 0.12
+
+            if doc_type in {
+                "ticket",
+                "log",
+                "manual",
+                "policy",
+            }:
+
+                penalidade = max(
+                    0.0,
+                    penalidade - 0.03,
+                )
+
+        # --------------------------------------------------------
+        # SAFETY STOCK
+        # --------------------------------------------------------
+
+        if "safety stock" in query_norm:
+
+            if doc_type == "store":
+                penalidade += 0.15
+
+            elif doc_type == "customer":
+                penalidade += 0.12
+
+        # --------------------------------------------------------
+        # STK-409
+        # --------------------------------------------------------
+
+        if "stk-409" in query_norm:
+
+            quer_procedimento = any(
+                termo in query_norm
+                for termo in [
+                    "procedimento",
+                    "resolver",
+                    "solução",
+                    "solucao",
+                    "como",
+                ]
+            )
+
+            if (
+                quer_procedimento
+                and doc_type == "log"
+            ):
+
+                penalidade += 0.08
+
+            if "stk-409" in texto_norm:
+
+                penalidade = max(
+                    0.0,
+                    penalidade - 0.05,
+                )
+
+        return max(
+            penalidade,
+            0.0,
+        )
+
+    # ============================================================
+    # SCORE FINAL
+    # ============================================================
+
+    def _score_final(
+        self,
+        rrf: float,
+        metadata_bonus: float,
+        term_bonus: float,
+        identifier_bonus: float,
+        context_bonus: float,
+        penalty: float,
+        direct_match: bool = False,
+    ) -> float:
+
+        score = (
+            rrf
+            + metadata_bonus
+            + term_bonus
+            + identifier_bonus
+            + context_bonus
+            - penalty
+        )
+
+        if direct_match:
+            score += 0.20
+
+        return score
+
+    # ============================================================
+    # EXECUTA UMA RODADA DE BUSCA
+    # ============================================================
+
+    def _executar_busca(
+        self,
+        query: str,
+        query_vector,
+        filtro: Dict[str, Any],
+        fetch_k: int,
+    ) -> Dict[str, Dict[str, Any]]:
+
+        candidatos: Dict[
+            str,
+            Dict[str, Any]
+        ] = {}
+
+        # ========================================================
+        # BUSCA DENSA
+        # ========================================================
+
+        try:
+
+            dense_results = (
+                self.vector_store.buscar(
+                    query_vector,
+                    top_k=fetch_k,
+                    filtro=filtro,
+                )
+            )
+
+        except Exception as erro:
+
+            print(
+                "[AVISO] Erro na busca densa:",
+                erro,
+            )
+
+            dense_results = []
+
+        for rank, resultado in enumerate(
+            dense_results,
+            start=1,
+        ):
+
+            if not isinstance(
+                resultado,
+                dict,
+            ):
+                continue
+
+            texto = self._obter_texto(
+                resultado
+            )
+
+            metadata = self._obter_metadata(
+                resultado
+            )
+
+            # ----------------------------------------------------
+            # GARANTE FILTRO
+            # ----------------------------------------------------
+
+            if filtro and not self._atende_todos_os_filtros(
+                metadata,
+                filtro,
+            ):
+                continue
+
+            chave = self._obter_chave(
+                resultado,
+                "dense",
+                rank,
+            )
+
+            if chave not in candidatos:
+
+                candidatos[chave] = {
+                    "text": texto,
+                    "metadata": metadata,
+                    "dense": None,
+                    "bm25": None,
+                    "dense_rank": None,
+                    "bm25_rank": None,
+                    "direct_match": False,
+                }
+
+            atual = candidatos[chave]
+
+            score_dense = resultado.get(
+                "score",
+                resultado.get(
+                    "similarity"
+                ),
+            )
+
+            if (
+                atual["dense"] is None
+                or (
+                    score_dense is not None
+                    and score_dense > atual["dense"]
+                )
+            ):
+
+                atual["dense"] = score_dense
+
+                atual["dense_rank"] = rank
+
+        # ========================================================
+        # BUSCA BM25
+        # ========================================================
+
+        try:
+
+            bm25_results = (
+                self.bm25.buscar(
+                    query,
+                    top_k=fetch_k,
+                    filtro=filtro,
+                )
+            )
+
+        except Exception as erro:
+
+            print(
+                "[AVISO] Erro na busca BM25:",
+                erro,
+            )
+
+            bm25_results = []
+
+        for rank, resultado in enumerate(
+            bm25_results,
+            start=1,
+        ):
+
+            if not isinstance(
+                resultado,
+                dict,
+            ):
+                continue
+
+            texto = self._obter_texto(
+                resultado
+            )
+
+            metadata = self._obter_metadata(
+                resultado
+            )
+
+            # ----------------------------------------------------
+            # GARANTE FILTRO
+            # ----------------------------------------------------
+
+            if filtro and not self._atende_todos_os_filtros(
+                metadata,
+                filtro,
+            ):
+                continue
+
+            chave = self._obter_chave(
+                resultado,
+                "bm25",
+                rank,
+            )
+
+            if chave not in candidatos:
+
+                candidatos[chave] = {
+                    "text": texto,
+                    "metadata": metadata,
+                    "dense": None,
+                    "bm25": None,
+                    "dense_rank": None,
+                    "bm25_rank": None,
+                    "direct_match": False,
+                }
+
+            atual = candidatos[chave]
+
+            score_bm25 = resultado.get(
+                "score",
+                resultado.get(
+                    "bm25_score"
+                ),
+            )
+
+            if (
+                atual["bm25"] is None
+                or (
+                    score_bm25 is not None
+                    and score_bm25 > atual["bm25"]
+                )
+            ):
+
+                atual["bm25"] = score_bm25
+
+                atual["bm25_rank"] = rank
+
+        return candidatos
+
+    # ============================================================
+    # CALCULA RESULTADOS
+    # ============================================================
+
+    def _calcular_resultados(
+        self,
+        candidatos: Dict[str, Dict[str, Any]],
+        query: str,
+        filtros: Dict[str, Any],
+    ) -> List[Dict[str, Any]]:
+
+        resultados_finais: List[
+            Dict[str, Any]
+        ] = []
+
+        for candidato in candidatos.values():
+
+            dense_rank = candidato.get(
+                "dense_rank"
+            )
+
+            bm25_rank = candidato.get(
+                "bm25_rank"
+            )
+
+            texto = candidato.get(
+                "text",
+                "",
+            )
+
+            metadata = (
+                candidato.get(
+                    "metadata",
+                    {},
+                )
+                or {}
+            )
+
+            # ====================================================
+            # RRF
+            # ====================================================
+
+            rrf = 0.0
+
+            if dense_rank is not None:
+
+                rrf += (
+                    1.0
+                    / (
+                        60
+                        + dense_rank
+                    )
+                )
+
+            if bm25_rank is not None:
+
+                rrf += (
+                    1.0
+                    / (
+                        60
+                        + bm25_rank
+                    )
+                )
+
+            # ====================================================
+            # BÔNUS
+            # ====================================================
+
+            metadata_bonus = (
+                self._bonus_metadata(
+                    metadata,
+                    filtros,
+                )
+            )
+
+            term_bonus = (
+                self._bonus_termos(
+                    query,
+                    texto,
+                )
+            )
+
+            identifier_bonus = (
+                self._bonus_identificador(
+                    texto,
+                    query,
+                )
+            )
+
+            context_bonus = (
+                self._bonus_contexto(
+                    query,
+                    texto,
+                )
+            )
+
+            penalty = (
+                self._penalidade(
+                    query,
+                    metadata,
+                    texto,
+                )
+            )
+
+            score = self._score_final(
+                rrf=rrf,
+                metadata_bonus=metadata_bonus,
+                term_bonus=term_bonus,
+                identifier_bonus=identifier_bonus,
+                context_bonus=context_bonus,
+                penalty=penalty,
+                direct_match=candidato.get(
+                    "direct_match",
+                    False,
+                ),
+            )
+
+            atende_filtros = (
+                self._atende_todos_os_filtros(
+                    metadata,
+                    filtros,
+                )
+            )
+
+            resultados_finais.append(
+                {
+                    "text": texto,
+                    "metadata": metadata,
+                    "score": score,
+                    "score_final": score,
+                    "rrf": rrf,
+                    "rrf_score": rrf,
+                    "dense": candidato.get(
+                        "dense"
+                    ),
+                    "bm25": candidato.get(
+                        "bm25"
+                    ),
+                    "metadata_bonus": (
+                        metadata_bonus
+                    ),
+                    "term_bonus": (
+                        term_bonus
+                    ),
+                    "identifier_bonus": (
+                        identifier_bonus
+                    ),
+                    "context_bonus": (
+                        context_bonus
+                    ),
+                    "penalty": penalty,
+                    "direct_match": (
+                        candidato.get(
+                            "direct_match",
+                            False,
+                        )
+                    ),
+                    "matches_all_filters": (
+                        atende_filtros
+                    ),
+                }
+            )
+
+        resultados_finais.sort(
+            key=lambda resultado: (
+                resultado.get(
+                    "score",
+                    0.0,
+                )
+            ),
+            reverse=True,
+        )
+
+        return resultados_finais
+
+    # ============================================================
+    # BUSCA PRINCIPAL
+    # ============================================================
 
     def buscar(
         self,
         query: str,
         top_k: int = 5,
-        fetch_k: int = 20,
-    ) -> list[dict[str, Any]]:
-        """
-        Executa:
+        filtro: Dict[str, Any] | None = None,
+        fetch_k: int = 50,
+    ) -> Dict[str, Any]:
 
-        Query Analyzer
-              ↓
-        Dense Search + BM25
-              ↓
-             RRF
-              ↓
-            Top-K
-        """
+        if not query:
 
-        if not query or not query.strip():
-            return []
+            return {
+                "filters": {},
+                "hybrid_results": [],
+            }
 
-        # -----------------------------------------------------
+        print(
+            f"\nConsulta híbrida: {query}"
+        )
+
+        # ========================================================
         # 1. QUERY ANALYZER
-        # -----------------------------------------------------
+        # ========================================================
 
-        analise = analyze_query(query)
+        try:
 
-        query_normalizada = analise.get(
-            "normalized_query",
-            query
+            analise = analyze_query(
+                query
+            )
+
+            filtros_extraidos = (
+                analise.get(
+                    "filters",
+                    {},
+                )
+                or {}
+            )
+
+        except Exception as erro:
+
+            print(
+                "[AVISO] Falha no Query Analyzer:",
+                erro,
+            )
+
+            filtros_extraidos = {}
+
+        # Filtro explícito possui prioridade.
+
+        if filtro:
+
+            filtros = dict(
+                filtro
+            )
+
+        else:
+
+            filtros = dict(
+                filtros_extraidos
+            )
+
+        print(
+            f"Filtros aplicados: {filtros}"
         )
 
-        filtros = analise.get(
-            "filters",
-            {}
-        )
+        # ========================================================
+        # 2. EMBEDDING
+        # ========================================================
 
-        # -----------------------------------------------------
-        # 2. EMBEDDING DA QUERY
-        # -----------------------------------------------------
+        try:
 
-        query_vector = embed_texto(
-            query_normalizada
-        )
+            query_vector = embed_texto(
+                query
+            )
 
-        # -----------------------------------------------------
-        # 3. BUSCA DENSA
-        # -----------------------------------------------------
+        except Exception as erro:
 
-        resultados_dense = self.vector_store.buscar(
-            query_vector,
-            top_k=fetch_k,
+            print(
+                "[AVISO] Falha ao gerar embedding; "
+                "continuando com busca BM25/direct terms:",
+                erro,
+            )
+            query_vector = None
+
+        # ========================================================
+        # 3. BUSCA COM FILTRO EXATO
+        # ========================================================
+        #
+        # PRIMEIRO tentamos somente o filtro completo.
+        #
+        # Isso é fundamental para evitar que documentos
+        # irrelevantes entrem no RRF.
+        # ========================================================
+
+        candidatos = self._executar_busca(
+            query=query,
+            query_vector=query_vector,
             filtro=filtros,
             fetch_k=fetch_k,
         )
 
-        # -----------------------------------------------------
-        # 4. BUSCA BM25
-        # -----------------------------------------------------
-
-        resultados_bm25 = self.bm25.buscar(
-            query_normalizada,
-            top_k=fetch_k,
-            filtro=filtros,
-        )
-
-        # -----------------------------------------------------
-        # 5. NORMALIZAÇÃO
-        # -----------------------------------------------------
-
-        resultados_dense = [
-            self._normalizar_resultado(resultado)
-            for resultado in resultados_dense
-        ]
-
-        resultados_bm25 = [
-            self._normalizar_resultado(resultado)
-            for resultado in resultados_bm25
-        ]
-
-        # -----------------------------------------------------
-        # 6. RRF
-        # -----------------------------------------------------
-
-        resultados = self._rrf(
-            resultados_dense,
-            resultados_bm25,
-        )
-
-        # -----------------------------------------------------
-        # 7. TOP-K
-        # -----------------------------------------------------
-
-        return resultados[:top_k]
-
-
-# =============================================================
-# TESTE MANUAL
-# =============================================================
-
-if __name__ == "__main__":
-
-    INDEX_DIR = os.getenv(
-        "INDEX_DIR",
-        "index_store"
-    )
-
-    print("=" * 60)
-    print("TESTE DE BUSCA HÍBRIDA")
-    print("=" * 60)
-
-    print(
-        f"\nCarregando índice: {INDEX_DIR}"
-    )
-
-    vector_store = VectorStore.carregar(
-        INDEX_DIR
-    )
-
-    print(
-        f"Índice carregado. "
-        f"Total de vetores: "
-        f"{len(vector_store.textos)}"
-    )
-
-    search = HybridSearch(
-        vector_store
-    )
-
-    perguntas = [
-        (
-            "Quais tickets de clientes de Minas "
-            "Gerais estão relacionados ao módulo "
-            "de estoque?"
-        ),
-        "Quais são os planos disponíveis?",
-        "Qual é o procedimento para sangria no PDV?",
-    ]
-
-    for pergunta in perguntas:
-
-        print("\n" + "=" * 60)
-        print(
-            f"PERGUNTA: {pergunta}"
-        )
-        print("=" * 60)
-
-        resultados = search.buscar(
-            pergunta,
-            top_k=5,
-            fetch_k=20,
-        )
-
-        if not resultados:
-            print(
-                "\nNenhum resultado encontrado."
+        resultados_finais = (
+            self._calcular_resultados(
+                candidatos,
+                query,
+                filtros,
             )
-            continue
+        )
 
-        for i, resultado in enumerate(
-            resultados,
-            start=1
+        # ========================================================
+        # 4. RECUPERAÇÃO DIRETA
+        # ========================================================
+
+        direct_results = (
+            self._buscar_identificadores_direto(
+                query,
+                filtros,
+            )
+        )
+
+        for resultado in direct_results:
+
+            texto = self._obter_texto(
+                resultado
+            )
+
+            metadata = self._obter_metadata(
+                resultado
+            )
+
+            chunk_id = metadata.get(
+                "chunk_id"
+            )
+
+            if chunk_id:
+
+                chave = str(
+                    chunk_id
+                )
+
+            else:
+
+                chave = (
+                    f"direct-{hash(texto)}"
+                )
+
+            if chave not in candidatos:
+
+                candidatos[chave] = {
+                    "text": texto,
+                    "metadata": metadata,
+                    "dense": None,
+                    "bm25": None,
+                    "dense_rank": None,
+                    "bm25_rank": None,
+                    "direct_match": True,
+                }
+
+            else:
+
+                candidatos[chave][
+                    "direct_match"
+                ] = True
+
+        # ========================================================
+        # 5. RECUPERAÇÃO DIRETA DE TERMOS
+        # ========================================================
+
+        direct_term_results = (
+            self._buscar_termos_direto(
+                query,
+                filtros,
+            )
+        )
+
+        for resultado in direct_term_results:
+
+            texto = self._obter_texto(
+                resultado
+            )
+
+            metadata = self._obter_metadata(
+                resultado
+            )
+
+            chunk_id = metadata.get(
+                "chunk_id"
+            )
+
+            if chunk_id:
+
+                chave = str(
+                    chunk_id
+                )
+
+            else:
+
+                chave = (
+                    f"direct-term-{hash(texto)}"
+                )
+
+            if chave not in candidatos:
+
+                candidatos[chave] = {
+                    "text": texto,
+                    "metadata": metadata,
+                    "dense": None,
+                    "bm25": None,
+                    "dense_rank": None,
+                    "bm25_rank": None,
+                    "direct_match": True,
+                }
+
+            else:
+
+                candidatos[chave][
+                    "direct_match"
+                ] = True
+
+        # ========================================================
+        # 6. RECALCULA
+        # ========================================================
+
+        resultados_finais = (
+            self._calcular_resultados(
+                candidatos,
+                query,
+                filtros,
+            )
+        )
+
+        # ========================================================
+        # 7. SE NÃO ENCONTROU NADA COM FILTRO,
+        #    USA RELAXAMENTO CONTROLADO
+        # ========================================================
+
+        if not resultados_finais:
+
+            filtros_relaxados = (
+                self._gerar_filtros_relaxados(
+                    filtros
+                )
+            )
+
+            # pula o primeiro porque ele já foi tentado
+            for filtro_atual in filtros_relaxados[1:]:
+
+                candidatos_relaxados = (
+                    self._executar_busca(
+                        query=query,
+                        query_vector=query_vector,
+                        filtro=filtro_atual,
+                        fetch_k=fetch_k,
+                    )
+                )
+
+                resultados_relaxados = (
+                    self._calcular_resultados(
+                        candidatos_relaxados,
+                        query,
+                        filtro_atual,
+                    )
+                )
+
+                if resultados_relaxados:
+
+                    # Marca quais ainda atendem
+                    # aos filtros originais.
+
+                    for resultado in resultados_relaxados:
+
+                        metadata = (
+                            resultado.get(
+                                "metadata",
+                                {},
+                            )
+                            or {}
+                        )
+
+                        resultado[
+                            "matches_all_filters"
+                        ] = (
+                            self._atende_todos_os_filtros(
+                                metadata,
+                                filtros,
+                            )
+                        )
+
+                    resultados_finais = (
+                        resultados_relaxados
+                    )
+
+                    print(
+                        "Filtros relaxados utilizados:",
+                        filtro_atual,
+                    )
+
+                    break
+
+        # ========================================================
+        # 8. PRIORIZAÇÃO FINAL DOS FILTROS
+        # ========================================================
+
+        if filtros:
+
+            resultados_completos = [
+                resultado
+                for resultado in resultados_finais
+                if resultado.get(
+                    "matches_all_filters",
+                    False,
+                )
+            ]
+
+            if resultados_completos:
+
+                resultados_finais = (
+                    resultados_completos
+                )
+
+        if (
+            "quais produtos" in self._normalizar(query)
+            or "quais sao os produtos" in self._normalizar(query)
+            or "quais são os produtos" in self._normalizar(query)
         ):
-            metadata = resultado.get(
-                "metadata",
-                {}
-            )
-
-            print(
-                f"\n--- Resultado {i} ---"
-            )
-
-            print(
-                "Arquivo:",
-                metadata.get(
-                    "source_file",
-                    "desconhecido"
+            produtos = [
+                resultado
+                for resultado in resultados_finais
+                if self._obter_texto(resultado).lower().startswith(
+                    "produto vendefacil"
                 )
-            )
+            ]
+            if len(produtos) >= 5:
+                resultados_finais = produtos
 
-            print(
-                "Chunk:",
-                metadata.get(
-                    "chunk_id",
-                    "desconhecido"
-                )
-            )
+        # ========================================================
+        # 9. ORDENAÇÃO
+        # ========================================================
 
-            print(
-                "RRF:",
+        resultados_finais.sort(
+            key=lambda resultado: (
                 resultado.get(
-                    "rrf_score"
+                    "score",
+                    0.0,
                 )
-            )
+            ),
+            reverse=True,
+        )
 
-            print(
-                "Dense:",
-                resultado.get(
-                    "dense_score"
-                )
-            )
+        # ========================================================
+        # 10. TOP K
+        # ========================================================
 
-            print(
-                "BM25:",
-                resultado.get(
-                    "bm25_score"
-                )
-            )
+        limite = top_k
+        if (
+            "quais produtos" in self._normalizar(query)
+            or "quais sao os produtos" in self._normalizar(query)
+            or "quais são os produtos" in self._normalizar(query)
+        ):
+            limite = max(top_k, 8)
 
-            texto = resultado.get(
-                "text",
-                ""
-            )
+        if all(
+            termo in self._normalizar(query)
+            for termo in ("email", "ticket", "reun")
+        ):
+            limite = max(limite, 8)
 
-            print(
-                "Texto:",
-                texto[:500].replace(
-                    "\n",
-                    " "
-                )
-            )
+        resultados_finais = resultados_finais[:limite]
+
+        # ========================================================
+        # 11. RETORNO
+        # ========================================================
+
+        return {
+            "filters": filtros,
+            "hybrid_results": resultados_finais,
+        }

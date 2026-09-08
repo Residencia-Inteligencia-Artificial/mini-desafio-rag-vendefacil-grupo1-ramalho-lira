@@ -36,6 +36,8 @@ RESULTS_JSON = (
     REPORTS_DIR / "benchmark_results.json"
 )
 
+RESULTS_JSON_ALIAS = REPORTS_DIR / "results.json"
+
 RESULTS_CSV = (
     REPORTS_DIR / "benchmark_results.csv"
 )
@@ -43,6 +45,9 @@ RESULTS_CSV = (
 FAILURE_REPORT = (
     REPORTS_DIR / "failure_report.md"
 )
+
+FINAL_REPORT = ROOT_DIR / "RELATORIO.md"
+EXPECTED_QUESTION_IDS = [f"Q{number:02d}" for number in range(1, 21)]
 
 
 # ============================================================
@@ -174,6 +179,26 @@ def load_benchmark() -> list[dict]:
         raise ValueError(
             "A lista de perguntas do benchmark não é válida."
         )
+
+    # O arquivo recebido contém quatro questões extras (Q21-Q24). O desafio
+    # define o benchmark oficial como Q01-Q20.
+    questions_by_id = {
+        safe_str(question.get("id")): question
+        for question in questions
+        if isinstance(question, dict)
+    }
+    missing_ids = [
+        question_id
+        for question_id in EXPECTED_QUESTION_IDS
+        if question_id not in questions_by_id
+    ]
+    if missing_ids:
+        raise ValueError(
+            "Benchmark incompleto; faltam as questões: "
+            + ", ".join(missing_ids)
+        )
+
+    questions = [questions_by_id[question_id] for question_id in EXPECTED_QUESTION_IDS]
 
     return questions
 
@@ -1244,6 +1269,9 @@ def evaluate_question(
         )
     )
 
+    question_id = safe_str(item.get("id", f"Q{number:02d}"))
+    category = safe_str(item.get("category", "Sem categoria"))
+
     print(
         "\n"
         + "=" * 70
@@ -1431,14 +1459,9 @@ def evaluate_question(
     # PONTUAÇÃO DO DESAFIO
     # --------------------------------------------------------
 
-    if expected_refusal is True:
-        points_correctness = 0.7 * correctness
-        points_citation = 0.0
-        points_coherence = 0.3 * coherence
-    else:
-        points_correctness = 0.5 * correctness
-        points_citation = 0.3 * context_relevance
-        points_coherence = 0.2 * coherence
+    points_correctness = 0.5 * correctness
+    points_citation = 0.3 * context_relevance
+    points_coherence = 0.2 * coherence
 
     total_score = (
         points_correctness
@@ -1510,6 +1533,8 @@ def evaluate_question(
     # --------------------------------------------------------
 
     result = {
+        "id": question_id,
+        "category": category,
         "question_number": number,
         "question": question,
 
@@ -1723,6 +1748,18 @@ def save_json(
             indent=2,
         )
 
+    with open(
+        RESULTS_JSON_ALIAS,
+        "w",
+        encoding="utf-8",
+    ) as file:
+        json.dump(
+            data,
+            file,
+            ensure_ascii=False,
+            indent=2,
+        )
+
     print(
         f"\nJSON salvo em:\n"
         f"{RESULTS_JSON}"
@@ -1905,6 +1942,29 @@ def calculate_summary(
                 + 1
             )
 
+    by_category = {}
+    for result in results:
+        category = result.get("category", "Sem categoria")
+        bucket = by_category.setdefault(category, [])
+        bucket.append(result)
+
+    category_summary = {}
+    for category, category_results in by_category.items():
+        category_summary[category] = {
+            "total_questions": len(category_results),
+            "answer_accuracy": round(
+                sum(r.get("correctness", 0.0) == 1.0 for r in category_results)
+                / len(category_results),
+                4,
+            ),
+            "average_score": average(
+                [r.get("total_score", 0.0) for r in category_results]
+            ),
+            "context_relevance": average(
+                [r.get("context_relevance", 0.0) for r in category_results]
+            ),
+        }
+
     return {
         "total_questions": total,
 
@@ -1959,6 +2019,7 @@ def calculate_summary(
         ),
 
         "failure_counts": failures,
+        "by_category": category_summary,
     }
 
 
@@ -2047,9 +2108,16 @@ def save_failure_report(
 
     else:
 
-        lines.append(
-            "## Questões com falha"
-        )
+        lines.append("## 3 piores falhas")
+        lines.append("")
+        for result in sorted(failed, key=lambda item: item.get("total_score", 0.0))[:3]:
+            lines.append(
+                f"- **{result.get('id', 'N/A')}** ({result.get('category', 'Sem categoria')}): "
+                f"{result.get('total_score', 0.0):.2f}/1.00; "
+                f"diagnóstico: {', '.join(result.get('failures', []))}."
+            )
+        lines.append("")
+        lines.append("## Questões com falha")
 
         lines.append("")
 
@@ -2064,7 +2132,7 @@ def save_failure_report(
             ]
 
             lines.append(
-                f"### Questão {number}"
+                f"### {result.get('id', f'Questão {number}')} — Questão {number}"
             )
 
             lines.append("")
@@ -2179,6 +2247,59 @@ def save_failure_report(
     )
 
 
+def save_final_report(results: list[dict]) -> None:
+    """Salva o relatório executivo exigido pelo desafio."""
+    summary = calculate_summary(results)
+    failed = sorted(results, key=lambda item: item.get("total_score", 0.0))
+    lines = [
+        "# Relatório de Avaliação RAG",
+        "",
+        f"Execução com **{summary['total_questions']} perguntas** do benchmark.",
+        "",
+        "## Resultado geral",
+        "",
+        f"- Taxa de acerto: **{summary['answer_accuracy'] * 100:.2f}%**",
+        f"- Pontuação final: **{summary['score_percent']:.2f}%**",
+        f"- Context Relevance: **{format_score(summary.get('context_relevance'))}**",
+        f"- Answer Relevance: **{format_score(summary.get('answer_relevance'))}**",
+        f"- Groundedness: **{format_score(summary.get('groundedness'))}**",
+        "",
+        "## Resultado por tipo",
+        "",
+        "| Tipo | Questões | Acerto | Nota média | Contexto |",
+        "| --- | ---: | ---: | ---: | ---: |",
+    ]
+    for category, values in summary.get("by_category", {}).items():
+        lines.append(
+            f"| {category} | {values['total_questions']} | "
+            f"{values['answer_accuracy'] * 100:.1f}% | "
+            f"{values['average_score']:.2f} | "
+            f"{values['context_relevance']:.2f} |"
+        )
+    lines.extend(["", "## 3 piores falhas", ""])
+    for result in failed[:3]:
+        lines.extend([
+            f"### {result.get('id', 'N/A')} — {result.get('question', '')}",
+            "",
+            f"- Pontuação: **{result.get('total_score', 0.0):.2f}/1.00**",
+            f"- Falhas: `{', '.join(result.get('failures', [])) or 'nenhuma'}`",
+            f"- Diagnóstico: {'recuperação (Etapa 1/2)' if 'recuperacao' in result.get('failures', []) else 'geração, guardrail ou avaliação (Etapa 3/4)' }.",
+            "",
+        ])
+    lines.extend([
+        "## Próximas 4 horas",
+        "",
+        "1. Corrigir filtros e aumentar o top-k para as questões com Context Relevance baixa.",
+        "2. Criar testes de regressão para LGPD, mascaramento e perguntas fora de escopo.",
+        "3. Melhorar a fusão de evidências estruturadas e não estruturadas nas questões cross-source.",
+        "4. Reexecutar o benchmark com um judge fixo e revisar manualmente as três piores respostas.",
+        "",
+        "Arquivos detalhados: `reports/benchmark_results.json`, `reports/benchmark_results.csv` e `reports/failure_report.md`.",
+    ])
+    FINAL_REPORT.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"Relatório executivo salvo em:\n{FINAL_REPORT}")
+
+
 # ============================================================
 # EXECUÇÃO PRINCIPAL
 # ============================================================
@@ -2213,14 +2334,14 @@ def main():
         f"{len(questions)}"
     )
 
-    if len(questions) != 24:
+    if len(questions) != 20:
 
         print(
             "\n[AVISO]"
         )
 
         print(
-            "O benchmark configurado espera 24 perguntas, "
+            "O benchmark configurado espera 20 perguntas, "
             f"mas foram encontradas {len(questions)}."
         )
 
@@ -2298,6 +2419,8 @@ def main():
                 pass
 
             result = {
+                "id": safe_str(item.get("id", f"Q{index:02d}")),
+                "category": safe_str(item.get("category", "Sem categoria")),
                 "question_number": index,
                 "question": question,
                 "reference_answer": "",
@@ -2364,6 +2487,10 @@ def main():
     )
 
     save_failure_report(
+        results
+    )
+
+    save_final_report(
         results
     )
 

@@ -97,8 +97,39 @@ pip install -r starter/requirements.txt
 ```
 
 
+### 3. Executar o sistema
 
-### 3. Consultar o Guia Didático
+Reconstrua o índice quando os dados forem alterados:
+
+```bash
+python -m src.build_index
+```
+
+Execute o benchmark oficial com as 20 perguntas Q01-Q20:
+
+```bash
+python -m eval.run_benchmark
+```
+
+Os resultados são gerados em `reports/benchmark_results.json`,
+`reports/results.json`, `reports/benchmark_results.csv`,
+`reports/failure_report.md` e `RELATORIO.md`.
+
+Para demonstrar o assistente pelo terminal:
+
+```bash
+python -m src.demo_cli
+```
+
+Para abrir a interface web:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+
+
+### 4. Consultar o Guia Didático
 
 - [Guia Didático - Mini Desafio RAG VendeFácil](https://app.notion.com/p/IA-Generativa-RAG-3b3185f9f7ed806b8820ee5292611ee4)
 

@@ -92,11 +92,14 @@ def carregar_customers(caminho: str) -> list[dict]:
         for linha in reader:
 
             customer_id = linha.get("customer_id")
-            nome = linha.get("name")
+            nome = linha.get("name") or linha.get("company_name")
             estado = linha.get("state")
-            modulo = linha.get("module")
-            data = linha.get("date")
+            modulo = linha.get("module") or linha.get("main_product")
+            data = linha.get("date") or linha.get("created_at")
             status = linha.get("status")
+            mrr = linha.get("mrr") or ""
+            plano = linha.get("plan") or ""
+            cidade = linha.get("city") or ""
 
             # Compatibilidade com diferentes nomes de colunas
             email = (
@@ -119,6 +122,7 @@ def carregar_customers(caminho: str) -> list[dict]:
                 f"{nome}, "
                 f"estado {estado}, "
                 f"módulo contratado {modulo}, "
+                f"MRR R$ {mrr}, plano {plano}, cidade {cidade}, "
                 f"cliente desde {data}, "
                 f"situação {status}."
             )
@@ -191,6 +195,7 @@ def carregar_employees(caminho: str) -> list[dict]:
                     "source_file": os.path.basename(caminho),
                     "doc_type": "employee",
                     "department": linha.get("department"),
+                    "module": _employee_modules(linha.get("role", "")),
                     "sensitivity": "interno",
                 }
             })
@@ -264,6 +269,10 @@ def carregar_system_logs(caminho: str) -> list[dict]:
                 "metadata": {
                     "source_file": os.path.basename(caminho),
                     "doc_type": "log",
+                    "customer_id": linha.get("customer_id"),
+                    "module": linha.get("module"),
+                    "service": linha.get("service"),
+                    "error_code": linha.get("error_code"),
                     "sensitivity": classificar_sensitivity(texto),
                 }
             })
@@ -310,6 +319,38 @@ def carregar_products(caminho: str) -> list[dict]:
                 "doc_type": "product",
                 "sensitivity": "publico",
                 "product": nome_plano,
+            }
+        })
+
+    for produto in dados.get("products", []):
+        features = ", ".join(produto.get("features", []))
+        module_by_product = {
+            "PROD-PDV": "pdv",
+            "PROD-ESTOQUE": "estoque",
+            "PROD-LOJA": "loja",
+            "PROD-ANALYTICS": "analytics",
+            "PROD-PAY": "pay",
+        }
+        texto = (
+            f"Produto {produto.get('name')}. "
+            f"Categoria: {produto.get('category')}. "
+            f"Descrição: {produto.get('description')}. "
+            f"Tech Lead: {produto.get('tech_lead')}. "
+            f"Product Manager: {produto.get('product_manager')}. "
+            f"Funcionalidades: {features}."
+        )
+
+        documentos.append({
+            "text": texto,
+            "metadata": {
+                "source_file": os.path.basename(caminho),
+                "doc_type": "product",
+                "sensitivity": "publico",
+                "product": produto.get("name"),
+                "module": module_by_product.get(
+                    produto.get("product_id"),
+                    produto.get("name"),
+                ),
             }
         })
 
@@ -727,3 +768,12 @@ def carregar_todas_as_fontes_vetorizaveis(
         )
 
     return documentos
+
+
+def _employee_modules(role: str) -> str:
+    normalized_role = str(role).lower()
+    modules = []
+    for module in ("estoque", "pdv", "pay", "loja", "ecommerce", "analytics"):
+        if module in normalized_role:
+            modules.append(module)
+    return ", ".join(modules)

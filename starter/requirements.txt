@@ -4,3 +4,4 @@ pandas
 python-dotenv
 openai
 rank-bm25
+streamlit

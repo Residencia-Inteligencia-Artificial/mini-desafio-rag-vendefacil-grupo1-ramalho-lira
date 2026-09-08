@@ -21,9 +21,8 @@ Fontes heterogêneas (JSONL, JSON, CSV, Markdown, TXT)
 ## Decisao de arquitetura mais importante: nem tudo vira embedding
 
 `customers.csv` (2.000 linhas), `sales.csv` (3.000 linhas) e
-`system_logs.csv` (450 linhas) **nao entram no indice vetorial**. Ficam
-disponiveis via `src/structured_store.py`, que carrega cada um como um
-DataFrame do pandas para consulta exata/agregada.
+`system_logs.csv` (450 linhas) sao carregados pelo pipeline atual com
+metadados estruturados para filtragem e recuperacao hibrida.
 
 **Por que**: perguntas como "quanto vendemos em MG este mes" ou "qual
 cliente tem mais chamados" sao perguntas de **contagem/soma/agregacao**.
@@ -48,7 +47,7 @@ linha errada por "parecenca" textual.
 
 ## Metadados extraidos (para filtro na busca)
 
-Seguindo o schema de `starter/schema.py` (`QueryMetadataFilter`): `state`,
+Seguindo o contrato de metadados do pipeline: `state`,
 `module`, `customer_id`, `priority` sao extraidos diretamente dos campos ja
 estruturados de `tickets.jsonl` (nao precisou de LLM para isso, o dado ja
 vem certo). Alem disso, todo chunk recebe:
@@ -66,8 +65,10 @@ vem certo). Alem disso, todo chunk recebe:
 ```bash
 pip install -r requirements.txt
 python -m src.ingest --data-dir data --saida index_store
-python -m src.testar_busca
 ```
+
+Para testar o sistema completo, use `python -m src.demo_cli` ou
+`streamlit run streamlit_app.py`.
 
 Por padrao usa embeddings locais e gratuitos (`sentence-transformers`) --
 nao precisa de nenhuma chave de API. Se quiser trocar para a OpenAI, copie
