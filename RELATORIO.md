@@ -40,11 +40,4 @@ Execução com **20 perguntas** do benchmark.
 - Falhas: `recuperacao`
 - Diagnóstico: recuperação (Etapa 1/2).
 
-## Próximas 4 horas
-
-1. Corrigir filtros e aumentar o top-k para as questões com Context Relevance baixa.
-2. Criar testes de regressão para LGPD, mascaramento e perguntas fora de escopo.
-3. Melhorar a fusão de evidências estruturadas e não estruturadas nas questões cross-source.
-4. Reexecutar o benchmark com um judge fixo e revisar manualmente as três piores respostas.
-
 Arquivos detalhados: `reports/benchmark_results.json`, `reports/benchmark_results.csv` e `reports/failure_report.md`.
