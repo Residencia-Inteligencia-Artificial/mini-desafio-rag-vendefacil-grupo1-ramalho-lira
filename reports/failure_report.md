@@ -1,7 +1,7 @@
 # Relatório de Falhas — Benchmark RAG
 
 Total de questões: 20
-Questões com falha: 13
+Questões com falha: 11
 
 ## Diagnóstico
 
@@ -16,9 +16,9 @@ As falhas são classificadas em:
 
 ## 3 piores falhas
 
+- **Q05** (Filtragem por Metadados): 0.50/1.00; diagnóstico: resposta_incorreta, groundedness.
 - **Q15** (Guardrails & LGPD): 0.70/1.00; diagnóstico: recuperacao.
 - **Q16** (Guardrails & LGPD): 0.70/1.00; diagnóstico: recuperacao.
-- **Q09** (Múltiplas Fontes (Multi-hop)): 0.73/1.00; diagnóstico: resposta_incorreta, recuperacao.
 
 ## Questões com falha
 
@@ -50,43 +50,15 @@ nenhum
 
 **Pergunta:** Quais tickets de suporte foram abertos por clientes do estado de Minas Gerais (MG) para o módulo de estoque?
 
-**Falhas:** resposta_incorreta, answer_relevance
-
-**Context Relevance:** 1.00
-**Answer Relevance:** 0.60
-**Groundedness:** 0.80
-
-**Resposta:**
-
-Os tickets de suporte abertos por clientes do estado de Minas Gerais (MG) para o módulo de estoque são:
-
-1. Ticket TCK-1001 - Erro na sincronização de estoque entre matriz e filial Savassi. Cliente: Supermercado Boa Compra (CUST001). Prioridade: Alta. Status: Aberto.
-
-2. Ticket TCK-1006 - Alerta de estoque mínimo não envia notificação por e-mail. Cliente: Empório Gourmet Mineiro (CUST009). Prioridade: Média. Status: Aberto.
-
-**Chunks esperados:**
-
-nenhum
-
-**Chunks recuperados:**
-
-32646e92f3362ac3, df03107d0c720984
-
----
-
-### Q06 — Questão 6
-
-**Pergunta:** Quais chamados com prioridade 'Crítica' foram registrados no sistema e qual é o SLA de solução para esse nível?
-
-**Falhas:** resposta_incorreta
+**Falhas:** resposta_incorreta, groundedness
 
 **Context Relevance:** 1.00
 **Answer Relevance:** 1.00
-**Groundedness:** 1.00
+**Groundedness:** 0.00
 
 **Resposta:**
 
-O chamado com prioridade 'Crítica' registrado no sistema é o TCK-1005, relacionado à transação de TEF que não finalizava a venda no PDV, do cliente Auto Peças Central. O SLA de solução para prioridade 'Crítica' é de 2 horas, conforme a matriz de severidade e tempos de resposta.
+Com base nas evidências recuperadas: Chamado TCK-1001 - Erro na sincronização de estoque entre matriz e filial Savassi. Cliente: Supermercado Boa Compra (CUST001). Categoria: Sincronização / API. Prioridade: Alta. Status: Aberto. Descrição: As entradas de notas fiscais realizadas no VendeFácil Estoque na Matriz de BH não estão refletindo no saldo da filial Savassi. O saldo fica zerado até reinício do serviço.. Chamado TCK-1002 - Divergência na contagem de lote de medicamentos no inventário cego. Cliente: Drogaria Vida & Saúde (CUST002). Categoria: Inventário. Prioridade: Média. Status: Resolvido. Descrição: Ao exportar o arquivo do coletor de dados para o VendeFácil Estoque, os produtos com lote e validade não agrupam corretamente.. Resolução: Orientado cliente a atualizar o leiaute do arquivo CSV do coletor conforme documento interno de Sincronização e Inventário v2.1.. Chamado TCK-1004 - Lentidão ao importar XML de NF-e com mais de 200 itens. Cliente: Materiais de Construção Silva (CUST005). Categoria: Performance / XML. Prioridade: Alta. Status: Em Andamento. Descrição: A importação de NF-e da ArcelorMittal trava na tela de validação de impostos. Ocorre apenas em compras grandes.. Resolução: Analisando log de timeout na consulta de alíquotas de ICMS-ST no serviço de estoque.. Chamado TCK-1006 - Alerta de estoque mínimo não envia notificação por e-mail. Cliente: Empório Gourmet Mineiro (CUST009). Categoria: Notificações. Prioridade: Média. Status: Aberto. Descrição: Mesmo configurando o limite mínimo de queijos artesanais para 10 unidades, quando o saldo cai para 5 o sistema não dispara o e-mail para compras..
 
 **Chunks esperados:**
 
@@ -94,7 +66,7 @@ nenhum
 
 **Chunks recuperados:**
 
-98704c16fd1c6e50, 333ab6fe533eac24
+32646e92f3362ac3, 9e34e73171747c3d, 29d970120cd44191, df03107d0c720984
 
 ---
 
@@ -110,7 +82,7 @@ nenhum
 
 **Resposta:**
 
-Os logs de erro registrados para o cliente 'CUST008' (Auto Peças Central) no serviço de pagamento (pay) são: 1) Código de erro PAY-504, ocorrido em 2026-02-14 10:04:12, com a mensagem: "Timeout waiting response from Pinpad IP 192.168.1.105 on port 6090. Transaction aborted by local agent." 2) Código de erro PAY-502, ocorrido em 2026-02-14 10:04:15, com a mensagem: "Retry 1/3 failed. Connection refused by Windows Firewall host AutoPecas-Caixa01."
+Com base nas evidências recuperadas: timestamp: 2026-02-14 10:04:12. level: ERROR. service: vendefacil-pay. module: pay. customer id: CUST008. event: TEF_TIMEOUT. error code: PAY-504. message: Timeout waiting response from Pinpad IP 192.168.1.105 on port 6090. Transaction aborted by local agent. timestamp: 2026-02-14 10:04:15. level: WARN. service: vendefacil-pay. module: pay. customer id: CUST008. event: TEF_RETRY_FAILED. error code: PAY-502. message: Retry 1/3 failed. Connection refused by Windows Firewall host AutoPecas-Caixa01.
 
 **Chunks esperados:**
 
@@ -154,11 +126,35 @@ nenhum
 
 **Context Relevance:** 0.67
 **Answer Relevance:** 1.00
-**Groundedness:** 1.00
+**Groundedness:** N/A
 
 **Resposta:**
 
-Sim, a cliente Ótica Visão Clara tem direito ao reembolso integral de 100% do valor pago, pois solicitou o cancelamento 5 dias após a contratação do plano, dentro do prazo de 7 dias corridos previsto na cláusula de direito de arrependimento da política da VendeFácil.
+Com base nas evidências recuperadas: De: fi***@***.br
+Para: ca***@***.br
+Data: 20 de Janeiro de 2026 14:30
+Assunto: Solicitação de Cancelamento de Contrato e Dúvida sobre Reembolso - Ótica Visão Clara
+
+Prezado Atendimento VendeFácil,
+
+Gostaríamos de solicitar formalmente o cancelamento da nossa assinatura do VendeFácil PDV referente ao cliente Ótica Visão Clara (CUST0010 / RS).
+
+Como contratamos o plano há 5 dias (no dia 15 de Janeiro de 2026) e decidimos reestruturar nossas operações internas, gos POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS -
+VENDEFÁCIL
+POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS
+VendeFácil Tecnologia Ltda.
+Vigência: A partir de Janeiro de 2026
+1. Condições para Reembolso e Cancelamento de Planos SaaS
+1.1. O cliente pode solicitar o cancelamento do seu plano SaaS (Basic, Pro ou Enterprise) a qualquer momento através
+da Central de Ajuda ou e-mail `ca***@***.br`.
+1.2. Direito de Arrependimento (7 dias): Conforme o Código de Defesa do Consumidor ## 1. Condições para Reembolso e Cancelamento de Planos SaaS
+1.1. O cliente pode solicitar o cancelamento do seu plano SaaS (Basic, Pro ou Enterprise) a qualquer momento através da Central de Ajuda ou e-mail `ca***@***.br`.
+1.2. **Direito de Arrependimento (7 dias):** Conforme o Código de Defesa do Consumidor, novos assinantes têm direito ao reembolso integral de 100% dos valores pagos caso a solicitação seja efetuada em até 7 dias corridos após a contratação inicial.
+1.3. **Ca # POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS  
+**VendeFácil Tecnologia Ltda.**
+*Vigência: A partir de Janeiro de 2026* ## 2. Procedimento de Resposta a Incidentes de Segurança
+2.1. Havendo suspeita ou confirmação de vazamento de credenciais, chaves de API ou dados de clientes, o colaborador deve imediatamente acionar o DPO via e-mail `dp***@***.br` e abrir um chamado de emergência de segurança com prioridade Crítica.
+2.2. O comitê de segurança responderá em até 2 horas e notificará os afetados e a ANPD em até 48 horas se necessário.
 
 **Chunks esperados:**
 
@@ -166,7 +162,7 @@ nenhum
 
 **Chunks recuperados:**
 
-d360be10be162858, 3a594d5d4681efdf
+d360be10be162858, 3a594d5d4681efdf, b51c291009103278, b027f8162580e3f8, 2d9c5399d9f0a057
 
 ---
 
@@ -266,30 +262,6 @@ nenhum
 
 ---
 
-### Q17 — Questão 17
-
-**Pergunta:** Como o sistema VendeFácil trata dados pessoais de consumidores dos lojistas conforme a LGPD?
-
-**Falhas:** resposta_incorreta
-
-**Context Relevance:** 1.00
-**Answer Relevance:** 1.00
-**Groundedness:** 0.80
-
-**Resposta:**
-
-A VendeFácil Tecnologia atua como Operadora dos dados pessoais dos consumidores dos lojistas e como Controladora dos dados de seus próprios colaboradores e contratantes. O sistema proíbe estritamente o armazenamento de dados sensíveis, como biometria, dados de saúde, religião, e dados financeiros confidenciais, incluindo número completo de cartão de crédito, CVV e senhas, em logs de aplicação, tickets de suporte ou arquivos de texto simples. Em casos de incidentes ou solicitações relacionadas à LGPD, o contato do DPO Gabriel Ramos (dp***@***.br) é disponibilizado para atendimento e confirmação de exclusão ou anonimização dos dados pessoais conforme o Art. 18 da LGPD.
-
-**Chunks esperados:**
-
-nenhum
-
-**Chunks recuperados:**
-
-aa222e52c0a6e286, 2a8255ebfae2bcb0, 61932389d2b4c1f8, 6d1ae9264840ef12
-
----
-
 ### Q18 — Questão 18
 
 **Pergunta:** Qual é a regra de 'Safety Stock' (estoque de segurança) configurável no VendeFácil Loja?
@@ -297,12 +269,15 @@ aa222e52c0a6e286, 2a8255ebfae2bcb0, 61932389d2b4c1f8, 6d1ae9264840ef12
 **Falhas:** resposta_incorreta
 
 **Context Relevance:** 1.00
-**Answer Relevance:** 1.00
-**Groundedness:** 0.80
+**Answer Relevance:** N/A
+**Groundedness:** N/A
 
 **Resposta:**
 
-No VendeFácil Loja, a regra de 'Safety Stock' (estoque de segurança) configurável permite definir uma margem de segurança de estoque, por exemplo, manter 2 unidades reservadas apenas para a loja física, para evitar venda duplicada de itens com baixo giro.
+Com base nas evidências recuperadas: ## 1. Sincronização Omnichannel
+O **VendeFácil Loja** conecta o catálogo de produtos da loja física com canais de e-commerce e e-marketplaces (Mercado Livre, Shopee, WhatsApp Commerce).
+- **Reserva de Estoque:** Ao receber um pedido online, o saldo do item no VendeFácil Estoque é reservado em tempo real por até 2 horas até a aprovação do pagamento.
+- **Regra de Segurança de Estoque (Safety Stock):** É possível configurar uma margem de segurança de estoque (ex: manter 2 unidades reservadas apenas # Configuração de Frete e Entregas - VendeFácil Loja # Integração de Catálogo e Estoque - VendeFácil Loja Chamado TCK-1030 - Preço do produto na loja online divergente da loja física - Distribuidora Novais S.A.. Cliente: Distribuidora Novais S.A. (CUST072). Categoria: Sincronização. Prioridade: Alta. Status: Resolvido. Descrição: Promoção cadastrada no PDV não refletiu na loja virtual após sync. Ocorrendo no cliente Distribuidora Novais S.A. (Vitória/ES).. Resolução: Resetada a fila de mensagens do RabbitMQ do serviço vendefacil-loja-sync.. Chamado TCK-1013 - Erro 500 ao tentar finalizar compra via checkout com cartão de crédito - Centro de da Rocha Ltda. Cliente: Centro de da Rocha Ltda (CUST065). Categoria: Pagamento / API. Prioridade: Alta. Status: Resolvido. Descrição: Clientes do e-commerce recebem erro de comunicação com o gateway. Ocorrendo no cliente Centro de da Rocha Ltda (Rio Verde/GO).. Resolução: Atualizada a chave de API de produção do gateway de pagamento..
 
 **Chunks esperados:**
 
@@ -310,7 +285,7 @@ nenhum
 
 **Chunks recuperados:**
 
-d4b6ec4a383e7a5f
+d4b6ec4a383e7a5f, 4646ee02c85616dd, 08a5eb439e8e4aca, 0479a041f0d8063e, 1feb28da1a8300d7
 
 ---
 
@@ -321,8 +296,8 @@ d4b6ec4a383e7a5f
 **Falhas:** resposta_incorreta
 
 **Context Relevance:** 1.00
-**Answer Relevance:** 1.00
-**Groundedness:** 1.00
+**Answer Relevance:** N/A
+**Groundedness:** N/A
 
 **Resposta:**
 

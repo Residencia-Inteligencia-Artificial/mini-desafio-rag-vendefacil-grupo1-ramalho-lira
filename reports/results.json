@@ -1,18 +1,18 @@
 {
   "summary": {
     "total_questions": 20,
-    "correct_answers": 9,
-    "answer_accuracy": 0.45,
+    "correct_answers": 11,
+    "answer_accuracy": 0.55,
     "citation_full_match": 0.85,
     "coherence_full_match": 1.0,
     "context_relevance": 0.8833,
-    "answer_relevance": 0.9765,
-    "groundedness": 0.9294,
-    "average_score": 0.8525,
-    "score_percent": 85.25,
+    "answer_relevance": 1.0,
+    "groundedness": 0.8727,
+    "average_score": 0.8567,
+    "score_percent": 85.67,
     "failure_counts": {
-      "resposta_incorreta": 11,
-      "answer_relevance": 1,
+      "resposta_incorreta": 9,
+      "groundedness": 1,
       "recuperacao": 3
     },
     "by_category": {
@@ -24,8 +24,8 @@
       },
       "Filtragem por Metadados": {
         "total_questions": 4,
-        "answer_accuracy": 0.0,
-        "average_score": 0.7709,
+        "answer_accuracy": 0.25,
+        "average_score": 0.75,
         "context_relevance": 1.0
       },
       "Múltiplas Fontes (Multi-hop)": {
@@ -42,8 +42,8 @@
       },
       "Guardrails & LGPD": {
         "total_questions": 4,
-        "answer_accuracy": 0.75,
-        "average_score": 0.8084,
+        "answer_accuracy": 1.0,
+        "average_score": 0.85,
         "context_relevance": 0.5
       }
     }
@@ -109,7 +109,7 @@
       "answer_relevance": 1.0,
       "answer_relevance_reasoning": "A resposta lista os mesmos cinco produtos principais da empresa VendeFácil, com descrições detalhadas que correspondem diretamente aos produtos mencionados na resposta esperada, respondendo completamente à pergunta.",
       "groundedness": 1.0,
-      "groundedness_reasoning": "Todas as afirmações sobre os produtos oferecidos pela VendeFácil estão diretamente fundamentadas nas evidências fornecidas, sem extrapolações ou informações inventadas.",
+      "groundedness_reasoning": "A resposta lista corretamente os cinco produtos oferecidos pela VendeFácil, com descrições e funcionalidades que correspondem exatamente às evidências fornecidas, sem adicionar informações não suportadas.",
       "confidence_level": "alta",
       "is_refusal": false,
       "expected_refusal": null,
@@ -122,7 +122,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 0.75,
-      "latency_ms": 1955.99,
+      "latency_ms": 3236.94,
       "failures": [
         "resposta_incorreta"
       ],
@@ -145,20 +145,24 @@
       "retrieved_sources": [
         "products.json",
         "employees.csv",
-        "employees.csv"
+        "employees.csv",
+        "sincronizacao_estoque.md",
+        "inventario.md"
       ],
-      "answer": "O responsável técnico (Tech Lead) do VendeFácil Estoque é Carlos Mendes, e a gerente de produto (Product Manager) é Ana Souza.",
+      "answer": "Com base nas evidências recuperadas: Produto VendeFácil Estoque. Categoria: Gestão de Inventário e Suprimentos. Descrição: Módulo de controle avançado de estoque, curva ABC, inventário por coletor de dados, alertas de ruptura e sincronização em tempo real entre filiais.. Tech Lead: Carlos Mendes. Product Manager: Ana Souza. Funcionalidades: Controle Multiloja/Multifilial, Entrada Automática via Importação de NF-e (XML), Inventário Cego e com Coletor, Alerta de Estoque Mínimo e Ruptura. Funcionário Carlos Mendes (EMP002), cargo Tech Lead - Backend / Estoque, departamento Engenharia, admitido em 2021-08-01, status Ativo. Funcionário Ana Souza (EMP001), cargo Product Manager - Estoque e PDV, departamento Produtos, admitido em 2022-03-15, status Ativo. # Guia Técnico: Sincronização de Estoque Multiloja e Inventário ## 2. Ajuste de Estoque e Auditoria\nToda divergência identificada entre a contagem física e o saldo lógico do sistema gera um **Lançamento de Ajuste (Sobra/Perda)**.\n- Ajustes de valor superior a R$ 500,00 exigem aprovação obrigatória do perfil **Gerente/Administrador**.\n- O relatório de perdas é integrado diretamente ao módulo **VendeFácil Analytics** para cômputo da CMV (Custo das Mercadorias Vendidas).",
       "expected_chunk_ids": [],
       "retrieved_chunk_ids": [
         "d5117ca9dfb14412",
         "952fa21bc87ce265",
-        "4772525956176f50"
+        "4772525956176f50",
+        "da8722007631d627",
+        "49c8cf70cf694946"
       ],
       "sources_used": [
         {
           "filepath": "products.json",
           "chunk_id": "d5117ca9dfb14412",
-          "quotation": "Tech Lead: Carlos Mendes. Product Manager: Ana Souza."
+          "quotation": "Produto VendeFácil Estoque. Categoria: Gestão de Inventário e Suprimentos. Descrição: Módulo de controle avançado de estoque, curva ABC, inventário por coletor de dados, alertas de ruptura e sincronização em tempo real entre filiais.. Tech Lead: Carlos Mendes. Product Manager: Ana Souza. Funcionalidades: Controle Multiloja/Multifilial, Entrada Automática via Importação de NF-e (XML), Inventário Cego e com Coletor, Alerta de Estoque Mínimo e Ruptura."
         },
         {
           "filepath": "employees.csv",
@@ -169,14 +173,24 @@
           "filepath": "employees.csv",
           "chunk_id": "4772525956176f50",
           "quotation": "Funcionário Ana Souza (EMP001), cargo Product Manager - Estoque e PDV, departamento Produtos, admitido em 2022-03-15, status Ativo, salário 14500.0."
+        },
+        {
+          "filepath": "sincronizacao_estoque.md",
+          "chunk_id": "da8722007631d627",
+          "quotation": "# Guia Técnico: Sincronização de Estoque Multiloja e Inventário"
+        },
+        {
+          "filepath": "inventario.md",
+          "chunk_id": "49c8cf70cf694946",
+          "quotation": "## 2. Ajuste de Estoque e Auditoria\nToda divergência identificada entre a contagem física e o saldo lógico do sistema gera um **Lançamento de Ajuste (Sobra/Perda)**.\n- Ajustes de valor superior a R$ 500,00 exigem aprovação obrigatória do perfil **Gerente/Administrador**.\n- O relatório de perdas é integrado diretamente ao módulo **VendeFácil Analytics** para cômputo da CMV (Custo das Mercadorias Vendidas)."
         }
       ],
       "context_relevance": 1.0,
       "answer_relevance": 1.0,
-      "answer_relevance_reasoning": "A resposta identifica corretamente o Tech Lead e a gerente de produto do VendeFácil Estoque, correspondendo exatamente à resposta esperada.",
+      "answer_relevance_reasoning": "A resposta identifica claramente o Tech Lead como Carlos Mendes e a Product Manager como Ana Souza, respondendo completamente à pergunta.",
       "groundedness": 1.0,
-      "groundedness_reasoning": "A resposta está totalmente fundamentada nas evidências fornecidas, que indicam claramente Carlos Mendes como Tech Lead e Ana Souza como Product Manager do VendeFácil Estoque.",
-      "confidence_level": "alta",
+      "groundedness_reasoning": "A resposta apresenta corretamente o Tech Lead como Carlos Mendes e a Product Manager como Ana Souza, conforme evidência 1. As informações adicionais sobre os funcionários (evidências 2 e 3) confirmam os cargos e status ativos, sem extrapolações. O restante do texto, embora não diretamente solicitado, é extraído das evidências e não contradiz nem inventa fatos.",
+      "confidence_level": "baixa",
       "is_refusal": false,
       "expected_refusal": null,
       "refusal_reason": null,
@@ -188,7 +202,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 1.0,
-      "latency_ms": 3892.26,
+      "latency_ms": 2685.31,
       "failures": [],
       "execution_error": null
     },
@@ -208,32 +222,53 @@
       ],
       "retrieved_sources": [
         "reembolso.pdf",
+        "reembolso.md",
+        "reembolso.md",
+        "reembolso.pdf",
         "reembolso.md"
       ],
-      "answer": "O prazo de arrependimento para reembolso integral de 100% no cancelamento de planos da VendeFácil é de até 7 dias corridos após a contratação inicial, conforme o Código de Defesa do Consumidor.",
+      "answer": "Com base nas evidências recuperadas: POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS -\nVENDEFÁCIL\nPOLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS\nVendeFácil Tecnologia Ltda.\nVigência: A partir de Janeiro de 2026\n1. Condições para Reembolso e Cancelamento de Planos SaaS\n1.1. O cliente pode solicitar o cancelamento do seu plano SaaS (Basic, Pro ou Enterprise) a qualquer momento através\nda Central de Ajuda ou e-mail `ca***@***.br`.\n1.2. Direito de Arrependimento (7 dias): Conforme o Código de Defesa do Consumidor ## 1. Condições para Reembolso e Cancelamento de Planos SaaS\n1.1. O cliente pode solicitar o cancelamento do seu plano SaaS (Basic, Pro ou Enterprise) a qualquer momento através da Central de Ajuda ou e-mail `ca***@***.br`.\n1.2. **Direito de Arrependimento (7 dias):** Conforme o Código de Defesa do Consumidor, novos assinantes têm direito ao reembolso integral de 100% dos valores pagos caso a solicitação seja efetuada em até 7 dias corridos após a contratação inicial.\n1.3. **Ca # POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS  \n**VendeFácil Tecnologia Ltda.**\n*Vigência: A partir de Janeiro de 2026* em vigência, mas o serviço permanecerá ativo até o final do período faturado.\n1.4. Cancelamento de Plano Anual: Caso o cliente opte pelo encerramento antecipado do plano anual contratado\ncom desconto, será retida uma multa contratual rescisória de 20% sobre o saldo restante das parcelas a vencer, sendo\no valor remanescente reembolsado em até 15 dias úteis via PIX ou estorno no cartão de crédito.\n2. Devolução de Equipamentos Hardware e Pinpads (VendeFácil Pay)\n2.1. Maquininhas de cartão e leitore 1.4. **Cancelamento de Plano Anual:** Caso o cliente opte pelo encerramento antecipado do plano anual contratado com desconto, será retida uma multa contratual rescisória de 20% sobre o saldo restante das parcelas a vencer, sendo o valor remanescente reembolsado em até 15 dias úteis via PIX ou estorno no cartão de crédito.",
       "expected_chunk_ids": [],
       "retrieved_chunk_ids": [
         "3a594d5d4681efdf",
-        "b51c291009103278"
+        "b51c291009103278",
+        "b027f8162580e3f8",
+        "4b1980d185f11662",
+        "dc1cc5a6d94526e6"
       ],
       "sources_used": [
         {
           "filepath": "reembolso.pdf",
           "chunk_id": "3a594d5d4681efdf",
-          "quotation": "Direito de Arrependimento (7 dias): Conforme o Código de Defesa do Consumidor, novos assinantes têm direito ao reembolso integral de 100% dos valores pagos caso a solicitação seja efetuada em até 7 dias corridos após a contratação inicial."
+          "quotation": "POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS -\nVENDEFÁCIL\nPOLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS\nVendeFácil Tecnologia Ltda.\nVigência: A partir de Janeiro de 2026\n1. Condições para Reembolso e Cancelamento de Planos SaaS\n1.1. O cliente pode solicitar o cancelamento do seu plano SaaS (Basic, Pro ou Enterprise) a qualquer momento através\nda Central de Ajuda ou e-mail `cancelamento@vendefacil.com.br`.\n1.2. Direito de Arrependimento (7 dias): Conforme o Código de Defesa do Consumidor"
         },
         {
           "filepath": "reembolso.md",
           "chunk_id": "b51c291009103278",
           "quotation": "## 1. Condições para Reembolso e Cancelamento de Planos SaaS\n1.1. O cliente pode solicitar o cancelamento do seu plano SaaS (Basic, Pro ou Enterprise) a qualquer momento através da Central de Ajuda ou e-mail `cancelamento@vendefacil.com.br`.\n1.2. **Direito de Arrependimento (7 dias):** Conforme o Código de Defesa do Consumidor, novos assinantes têm direito ao reembolso integral de 100% dos valores pagos caso a solicitação seja efetuada em até 7 dias corridos após a contratação inicial.\n1.3. **Ca"
+        },
+        {
+          "filepath": "reembolso.md",
+          "chunk_id": "b027f8162580e3f8",
+          "quotation": "# POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS  \n**VendeFácil Tecnologia Ltda.**\n*Vigência: A partir de Janeiro de 2026*"
+        },
+        {
+          "filepath": "reembolso.pdf",
+          "chunk_id": "4b1980d185f11662",
+          "quotation": "em vigência, mas o serviço permanecerá ativo até o final do período faturado.\n1.4. Cancelamento de Plano Anual: Caso o cliente opte pelo encerramento antecipado do plano anual contratado\ncom desconto, será retida uma multa contratual rescisória de 20% sobre o saldo restante das parcelas a vencer, sendo\no valor remanescente reembolsado em até 15 dias úteis via PIX ou estorno no cartão de crédito.\n2. Devolução de Equipamentos Hardware e Pinpads (VendeFácil Pay)\n2.1. Maquininhas de cartão e leitore"
+        },
+        {
+          "filepath": "reembolso.md",
+          "chunk_id": "dc1cc5a6d94526e6",
+          "quotation": "1.4. **Cancelamento de Plano Anual:** Caso o cliente opte pelo encerramento antecipado do plano anual contratado com desconto, será retida uma multa contratual rescisória de 20% sobre o saldo restante das parcelas a vencer, sendo o valor remanescente reembolsado em até 15 dias úteis via PIX ou estorno no cartão de crédito."
         }
       ],
       "context_relevance": 1.0,
       "answer_relevance": 1.0,
-      "answer_relevance_reasoning": "A resposta informa corretamente o prazo de 7 dias corridos para reembolso integral, conforme o Código de Defesa do Consumidor, atendendo completamente à pergunta.",
+      "answer_relevance_reasoning": "A resposta informa claramente que o prazo para reembolso integral de 100% é de até 7 dias corridos após a contratação inicial, conforme o Código de Defesa do Consumidor, atendendo completamente à pergunta.",
       "groundedness": 1.0,
-      "groundedness_reasoning": "A resposta está totalmente fundamentada nas evidências 1 e 2, que indicam claramente o prazo de 7 dias corridos para o direito de arrependimento com reembolso integral de 100% conforme o Código de Defesa do Consumidor.",
-      "confidence_level": "alta",
+      "groundedness_reasoning": "A resposta está fundamentada exclusivamente nas evidências fornecidas, que indicam claramente o prazo de arrependimento de 7 dias para reembolso integral de 100% no cancelamento dos planos da VendeFácil, conforme o Código de Defesa do Consumidor.",
+      "confidence_level": "baixa",
       "is_refusal": false,
       "expected_refusal": null,
       "refusal_reason": null,
@@ -245,7 +280,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 1.0,
-      "latency_ms": 4096.58,
+      "latency_ms": 1317.78,
       "failures": [],
       "execution_error": null
     },
@@ -263,26 +298,54 @@
         "data/unstructured/policies/home_office.md"
       ],
       "retrieved_sources": [
-        "home_office.md"
+        "home_office.md",
+        "home_office.md",
+        "home_office.md",
+        "reembolso.md",
+        "atendimento_sla.md"
       ],
-      "answer": "A política de home office para os funcionários da equipe de Engenharia da VendeFácil é o modelo Remoto First, ou seja, 100% home office, com encontros presenciais trimestrais na matriz.",
+      "answer": "Com base nas evidências recuperadas: # POLÍTICA DE TRABALHO REMOTO E HOME OFFICE  \n**VendeFácil Tecnologia Ltda.**\n*Vigência: 2026* ## 1. Modelos de Trabalho\n1.1. **Engenharia e Produtos:** Funciona em modelo **Remoto First (100% Home Office)** com encontros presenciais trimestrais na matriz.\n1.2. **Suporte Técnico e Atendimento:** Modelo **Híbrido** (2 dias presenciais na matriz em Belo Horizonte e 3 dias em home office), com escalas de plantão aos finais de semana.\n1.3. **Vendas e Atendimento Comercial:** Modelo **Flexível / Híbrido** conforme reuniões e visitas externas. ## 2. Auxílio Home Office e Infraestrutura\n2.1. Todos os colaboradores elegíveis ao trabalho remoto recebem um auxílio mensal de **R$ 250,00** para custeio de internet e energia elétrica.\n2.2. A empresa fornece kit de equipamento composto por: 1 Notebook corporativo Dell/Apple, 1 Monitor 27\", teclado, mouse e cadeira ergonômica.\n2.3. O uso de VPN corporativa criptografada é obrigatório para acesso a servidores de banco de dados, repositórios de código e sistemas internos. # POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS  \n**VendeFácil Tecnologia Ltda.**\n*Vigência: A partir de Janeiro de 2026* # POLÍTICA DE SLA E NÍVEIS DE ATENDIMENTO AO CLIENTE  \n**VendeFácil Tecnologia Ltda.**",
       "expected_chunk_ids": [],
       "retrieved_chunk_ids": [
-        "69bcbed8e3896c54"
+        "d95f0f2ba7ea87aa",
+        "69bcbed8e3896c54",
+        "9db7f489248e048d",
+        "b027f8162580e3f8",
+        "0792174142cbe3d8"
       ],
       "sources_used": [
         {
           "filepath": "home_office.md",
+          "chunk_id": "d95f0f2ba7ea87aa",
+          "quotation": "# POLÍTICA DE TRABALHO REMOTO E HOME OFFICE  \n**VendeFácil Tecnologia Ltda.**\n*Vigência: 2026*"
+        },
+        {
+          "filepath": "home_office.md",
           "chunk_id": "69bcbed8e3896c54",
           "quotation": "## 1. Modelos de Trabalho\n1.1. **Engenharia e Produtos:** Funciona em modelo **Remoto First (100% Home Office)** com encontros presenciais trimestrais na matriz.\n1.2. **Suporte Técnico e Atendimento:** Modelo **Híbrido** (2 dias presenciais na matriz em Belo Horizonte e 3 dias em home office), com escalas de plantão aos finais de semana.\n1.3. **Vendas e Atendimento Comercial:** Modelo **Flexível / Híbrido** conforme reuniões e visitas externas."
+        },
+        {
+          "filepath": "home_office.md",
+          "chunk_id": "9db7f489248e048d",
+          "quotation": "## 2. Auxílio Home Office e Infraestrutura\n2.1. Todos os colaboradores elegíveis ao trabalho remoto recebem um auxílio mensal de **R$ 250,00** para custeio de internet e energia elétrica.\n2.2. A empresa fornece kit de equipamento composto por: 1 Notebook corporativo Dell/Apple, 1 Monitor 27\", teclado, mouse e cadeira ergonômica.\n2.3. O uso de VPN corporativa criptografada é obrigatório para acesso a servidores de banco de dados, repositórios de código e sistemas internos."
+        },
+        {
+          "filepath": "reembolso.md",
+          "chunk_id": "b027f8162580e3f8",
+          "quotation": "# POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS  \n**VendeFácil Tecnologia Ltda.**\n*Vigência: A partir de Janeiro de 2026*"
+        },
+        {
+          "filepath": "atendimento_sla.md",
+          "chunk_id": "0792174142cbe3d8",
+          "quotation": "# POLÍTICA DE SLA E NÍVEIS DE ATENDIMENTO AO CLIENTE  \n**VendeFácil Tecnologia Ltda.**"
         }
       ],
       "context_relevance": 1.0,
       "answer_relevance": 1.0,
-      "answer_relevance_reasoning": "A resposta corresponde completamente à pergunta, detalhando o modelo Remoto First com encontros presenciais trimestrais, conforme esperado.",
+      "answer_relevance_reasoning": "A resposta informa claramente que a equipe de Engenharia funciona no modelo Remoto First (100% Home Office) com encontros presenciais trimestrais, exatamente como a pergunta solicita.",
       "groundedness": 1.0,
-      "groundedness_reasoning": "A resposta está completamente fundamentada na evidência 1, que especifica o modelo Remoto First (100% home office) para Engenharia, com encontros presenciais trimestrais na matriz.",
-      "confidence_level": "alta",
+      "groundedness_reasoning": "A resposta está completamente fundamentada nas evidências 1, 2 e 3, que detalham a política de home office para a equipe de Engenharia, incluindo o modelo de trabalho remoto, encontros presenciais, auxílio financeiro e infraestrutura fornecida. As demais evidências mencionadas na resposta não adicionam informações não presentes nas evidências fornecidas.",
+      "confidence_level": "baixa",
       "is_refusal": false,
       "expected_refusal": null,
       "refusal_reason": null,
@@ -294,7 +357,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 1.0,
-      "latency_ms": 3892.32,
+      "latency_ms": 2354.27,
       "failures": [],
       "execution_error": null
     },
@@ -313,47 +376,61 @@
       ],
       "retrieved_sources": [
         "tickets.jsonl",
+        "tickets.jsonl",
+        "tickets.jsonl",
         "tickets.jsonl"
       ],
-      "answer": "Os tickets de suporte abertos por clientes do estado de Minas Gerais (MG) para o módulo de estoque são:\n\n1. Ticket TCK-1001 - Erro na sincronização de estoque entre matriz e filial Savassi. Cliente: Supermercado Boa Compra (CUST001). Prioridade: Alta. Status: Aberto.\n\n2. Ticket TCK-1006 - Alerta de estoque mínimo não envia notificação por e-mail. Cliente: Empório Gourmet Mineiro (CUST009). Prioridade: Média. Status: Aberto.",
+      "answer": "Com base nas evidências recuperadas: Chamado TCK-1001 - Erro na sincronização de estoque entre matriz e filial Savassi. Cliente: Supermercado Boa Compra (CUST001). Categoria: Sincronização / API. Prioridade: Alta. Status: Aberto. Descrição: As entradas de notas fiscais realizadas no VendeFácil Estoque na Matriz de BH não estão refletindo no saldo da filial Savassi. O saldo fica zerado até reinício do serviço.. Chamado TCK-1002 - Divergência na contagem de lote de medicamentos no inventário cego. Cliente: Drogaria Vida & Saúde (CUST002). Categoria: Inventário. Prioridade: Média. Status: Resolvido. Descrição: Ao exportar o arquivo do coletor de dados para o VendeFácil Estoque, os produtos com lote e validade não agrupam corretamente.. Resolução: Orientado cliente a atualizar o leiaute do arquivo CSV do coletor conforme documento interno de Sincronização e Inventário v2.1.. Chamado TCK-1004 - Lentidão ao importar XML de NF-e com mais de 200 itens. Cliente: Materiais de Construção Silva (CUST005). Categoria: Performance / XML. Prioridade: Alta. Status: Em Andamento. Descrição: A importação de NF-e da ArcelorMittal trava na tela de validação de impostos. Ocorre apenas em compras grandes.. Resolução: Analisando log de timeout na consulta de alíquotas de ICMS-ST no serviço de estoque.. Chamado TCK-1006 - Alerta de estoque mínimo não envia notificação por e-mail. Cliente: Empório Gourmet Mineiro (CUST009). Categoria: Notificações. Prioridade: Média. Status: Aberto. Descrição: Mesmo configurando o limite mínimo de queijos artesanais para 10 unidades, quando o saldo cai para 5 o sistema não dispara o e-mail para compras..",
       "expected_chunk_ids": [],
       "retrieved_chunk_ids": [
         "32646e92f3362ac3",
+        "9e34e73171747c3d",
+        "29d970120cd44191",
         "df03107d0c720984"
       ],
       "sources_used": [
         {
           "filepath": "tickets.jsonl",
           "chunk_id": "32646e92f3362ac3",
-          "quotation": "Chamado TCK-1001 - Erro na sincronização de estoque entre matriz e filial Savassi. Cliente: Supermercado Boa Compra (CUST001). Categoria: Sincronização / API. Prioridade: Alta. Status: Aberto. Descrição: As entradas de notas fiscais realizadas no VendeFácil Estoque na Matriz de BH não estão refletindo no saldo da filial Savassi. O saldo fica zerado até reinício do serviço."
+          "quotation": "Chamado TCK-1001 - Erro na sincronização de estoque entre matriz e filial Savassi. Cliente: Supermercado Boa Compra (CUST001). Categoria: Sincronização / API. Prioridade: Alta. Status: Aberto. Descrição: As entradas de notas fiscais realizadas no VendeFácil Estoque na Matriz de BH não estão refletindo no saldo da filial Savassi. O saldo fica zerado até reinício do serviço.."
+        },
+        {
+          "filepath": "tickets.jsonl",
+          "chunk_id": "9e34e73171747c3d",
+          "quotation": "Chamado TCK-1002 - Divergência na contagem de lote de medicamentos no inventário cego. Cliente: Drogaria Vida & Saúde (CUST002). Categoria: Inventário. Prioridade: Média. Status: Resolvido. Descrição: Ao exportar o arquivo do coletor de dados para o VendeFácil Estoque, os produtos com lote e validade não agrupam corretamente.. Resolução: Orientado cliente a atualizar o leiaute do arquivo CSV do coletor conforme documento interno de Sincronização e Inventário v2.1.."
+        },
+        {
+          "filepath": "tickets.jsonl",
+          "chunk_id": "29d970120cd44191",
+          "quotation": "Chamado TCK-1004 - Lentidão ao importar XML de NF-e com mais de 200 itens. Cliente: Materiais de Construção Silva (CUST005). Categoria: Performance / XML. Prioridade: Alta. Status: Em Andamento. Descrição: A importação de NF-e da ArcelorMittal trava na tela de validação de impostos. Ocorre apenas em compras grandes.. Resolução: Analisando log de timeout na consulta de alíquotas de ICMS-ST no serviço de estoque.."
         },
         {
           "filepath": "tickets.jsonl",
           "chunk_id": "df03107d0c720984",
-          "quotation": "Chamado TCK-1006 - Alerta de estoque mínimo não envia notificação por e-mail. Cliente: Empório Gourmet Mineiro (CUST009). Categoria: Notificações. Prioridade: Média. Status: Aberto. Descrição: Mesmo configurando o limite mínimo de queijos artesanais para 10 unidades, quando o saldo cai para 5 o sistema não dispara o e-mail para compras."
+          "quotation": "Chamado TCK-1006 - Alerta de estoque mínimo não envia notificação por e-mail. Cliente: Empório Gourmet Mineiro (CUST009). Categoria: Notificações. Prioridade: Média. Status: Aberto. Descrição: Mesmo configurando o limite mínimo de queijos artesanais para 10 unidades, quando o saldo cai para 5 o sistema não dispara o e-mail para compras.."
         }
       ],
       "context_relevance": 1.0,
-      "answer_relevance": 0.6,
-      "answer_relevance_reasoning": "A resposta lista apenas 2 tickets, enquanto a resposta esperada menciona 3 tickets para MG no módulo de estoque, indicando uma resposta parcial.",
-      "groundedness": 0.8,
-      "groundedness_reasoning": "Ambos os tickets mencionados são para o módulo de estoque e estão abertos, mas a evidência não confirma explicitamente que os clientes são do estado de Minas Gerais (MG), embora os nomes sugiram isso. Portanto, há pequena extrapolação na atribuição do estado dos clientes.",
-      "confidence_level": "alta",
+      "answer_relevance": 1.0,
+      "answer_relevance_reasoning": "A resposta lista exatamente os tickets de suporte abertos por clientes de Minas Gerais para o módulo de estoque, correspondendo completamente à pergunta.",
+      "groundedness": 0.0,
+      "groundedness_reasoning": "Nenhuma das evidências indica explicitamente que os clientes são do estado de Minas Gerais (MG). A resposta lista todos os tickets, mas não fundamenta que os clientes são de MG, portanto não atende ao requisito da pergunta.",
+      "confidence_level": "baixa",
       "is_refusal": false,
       "expected_refusal": null,
       "refusal_reason": null,
       "expected_refusal_reason": null,
-      "correctness": 0.5,
+      "correctness": 0.0,
       "citation_score": 1.0,
       "coherence_score": 1.0,
-      "points_correctness": 0.25,
+      "points_correctness": 0.0,
       "points_citation": 0.3,
       "points_coherence": 0.2,
-      "total_score": 0.75,
-      "latency_ms": 5018.25,
+      "total_score": 0.5,
+      "latency_ms": 3070.1,
       "failures": [
         "resposta_incorreta",
-        "answer_relevance"
+        "groundedness"
       ],
       "execution_error": null
     },
@@ -373,48 +450,67 @@
         "data/unstructured/policies/atendimento_sla.md"
       ],
       "retrieved_sources": [
+        "customer_003_duvida_tef_firewall.txt",
         "tickets.jsonl",
+        "seguranca_lgpd.md",
+        "seguranca_lgpd.pdf",
         "atendimento_sla.md"
       ],
-      "answer": "O chamado com prioridade 'Crítica' registrado no sistema é o TCK-1005, relacionado à transação de TEF que não finalizava a venda no PDV, do cliente Auto Peças Central. O SLA de solução para prioridade 'Crítica' é de 2 horas, conforme a matriz de severidade e tempos de resposta.",
+      "answer": "Com base nas evidências recuperadas: De: ge***@***.br\nPara: su***@***.br\nData: 16 de Fevereiro de 2026 11:20\nAssunto: Re: Solução Ticket TCK-1005 - Firewall e Porta 6090 Auto Peças Central\n\nPrezada equipe do Suporte,\n\nGostaríamos de agradecer o atendimento rápido do coordenador Diego Alves na resolução do chamado TCK-1005 sobre o bloqueio da porta TCP 6090 no Windows Firewall da nossa loja em Ribeirão Preto.\n\nApós adicionarmos a regra de exceção no caixa 01, as vendas voltaram a ser aprovadas sem o  Chamado TCK-1005 - Transação de TEF aprovada na maquininha porém não finaliza venda no PDV. Cliente: Auto Peças Central (CUST008). Categoria: Pagamento / TEF. Prioridade: Crítica. Status: Resolvido. Descrição: O cliente passa o cartão na maquininha Pinpad, o comprovante imprime na maquininha, mas o PDV exibe a mensagem 'Timeout de confirmação TEF'.. Resolução: Problema causado pelo bloqueio do firewall local na porta 6090. Adicionada regra de exceção no Windows Firewall.. ## 2. Procedimento de Resposta a Incidentes de Segurança\n2.1. Havendo suspeita ou confirmação de vazamento de credenciais, chaves de API ou dados de clientes, o colaborador deve imediatamente acionar o DPO via e-mail `dp***@***.br` e abrir um chamado de emergência de segurança com prioridade Crítica.\n2.2. O comitê de segurança responderá em até 2 horas e notificará os afetados e a ANPD em até 48 horas se necessário. resposta e registrar alerta de segurança.\n2. Procedimento de Resposta a Incidentes de Segurança\n2.1. Havendo suspeita ou confirmação de vazamento de credenciais, chaves de API ou dados de clientes, o\ncolaborador deve imediatamente acionar o DPO via e-mail `dp***@***.br` e abrir um chamado de\nemergência de segurança com prioridade Crítica.\n2.2. O comitê de segurança responderá em até 2 horas e notificará os afetados e a ANPD em até 48 horas se\nnecessário. ## 1. Matriz de Severidade e Tempos de Resposta (SLA)  \n| Severidade | Descrição do Impacto | Tempo Máximo Primeira Resposta | Tempo Máximo Solução (Plano Pro/Enterprise) |\n| :--- | :--- | :--- | :--- |\n| **Crítica** | Sistema PDV fora do ar em todos os caixas, paralisação total de vendas ou queda do TEF Pay sem contingência. | **15 minutos** | **2 horas** |\n| **Alta** | Módulo de Estoque ou Sincronização com erro severo que impede emissão de notas ou entrada de notas de fornecedores. | **30 min",
       "expected_chunk_ids": [],
       "retrieved_chunk_ids": [
+        "93422aff39cddf62",
         "98704c16fd1c6e50",
+        "2d9c5399d9f0a057",
+        "27afc801788d33de",
         "333ab6fe533eac24"
       ],
       "sources_used": [
         {
+          "filepath": "customer_003_duvida_tef_firewall.txt",
+          "chunk_id": "93422aff39cddf62",
+          "quotation": "De: gerencia@autopecascentral.com.br\nPara: suporte@vendefacil.com.br\nData: 16 de Fevereiro de 2026 11:20\nAssunto: Re: Solução Ticket TCK-1005 - Firewall e Porta 6090 Auto Peças Central\n\nPrezada equipe do Suporte,\n\nGostaríamos de agradecer o atendimento rápido do coordenador Diego Alves na resolução do chamado TCK-1005 sobre o bloqueio da porta TCP 6090 no Windows Firewall da nossa loja em Ribeirão Preto.\n\nApós adicionarmos a regra de exceção no caixa 01, as vendas voltaram a ser aprovadas sem o"
+        },
+        {
           "filepath": "tickets.jsonl",
           "chunk_id": "98704c16fd1c6e50",
-          "quotation": "Chamado TCK-1005 - Transação de TEF aprovada na maquininha porém não finaliza venda no PDV. Cliente: Auto Peças Central (CUST008). Categoria: Pagamento / TEF. Prioridade: Crítica. Status: Resolvido."
+          "quotation": "Chamado TCK-1005 - Transação de TEF aprovada na maquininha porém não finaliza venda no PDV. Cliente: Auto Peças Central (CUST008). Categoria: Pagamento / TEF. Prioridade: Crítica. Status: Resolvido. Descrição: O cliente passa o cartão na maquininha Pinpad, o comprovante imprime na maquininha, mas o PDV exibe a mensagem 'Timeout de confirmação TEF'.. Resolução: Problema causado pelo bloqueio do firewall local na porta 6090. Adicionada regra de exceção no Windows Firewall.."
+        },
+        {
+          "filepath": "seguranca_lgpd.md",
+          "chunk_id": "2d9c5399d9f0a057",
+          "quotation": "## 2. Procedimento de Resposta a Incidentes de Segurança\n2.1. Havendo suspeita ou confirmação de vazamento de credenciais, chaves de API ou dados de clientes, o colaborador deve imediatamente acionar o DPO via e-mail `dpo@vendefacil.com.br` e abrir um chamado de emergência de segurança com prioridade Crítica.\n2.2. O comitê de segurança responderá em até 2 horas e notificará os afetados e a ANPD em até 48 horas se necessário."
+        },
+        {
+          "filepath": "seguranca_lgpd.pdf",
+          "chunk_id": "27afc801788d33de",
+          "quotation": "resposta e registrar alerta de segurança.\n2. Procedimento de Resposta a Incidentes de Segurança\n2.1. Havendo suspeita ou confirmação de vazamento de credenciais, chaves de API ou dados de clientes, o\ncolaborador deve imediatamente acionar o DPO via e-mail `dpo@vendefacil.com.br` e abrir um chamado de\nemergência de segurança com prioridade Crítica.\n2.2. O comitê de segurança responderá em até 2 horas e notificará os afetados e a ANPD em até 48 horas se\nnecessário."
         },
         {
           "filepath": "atendimento_sla.md",
           "chunk_id": "333ab6fe533eac24",
-          "quotation": "| **Crítica** | Sistema PDV fora do ar em todos os caixas, paralisação total de vendas ou queda do TEF Pay sem contingência. | **15 minutos** | **2 horas** |"
+          "quotation": "## 1. Matriz de Severidade e Tempos de Resposta (SLA)  \n| Severidade | Descrição do Impacto | Tempo Máximo Primeira Resposta | Tempo Máximo Solução (Plano Pro/Enterprise) |\n| :--- | :--- | :--- | :--- |\n| **Crítica** | Sistema PDV fora do ar em todos os caixas, paralisação total de vendas ou queda do TEF Pay sem contingência. | **15 minutos** | **2 horas** |\n| **Alta** | Módulo de Estoque ou Sincronização com erro severo que impede emissão de notas ou entrada de notas de fornecedores. | **30 min"
         }
       ],
       "context_relevance": 1.0,
       "answer_relevance": 1.0,
-      "answer_relevance_reasoning": "A resposta identifica corretamente o chamado com prioridade 'Crítica' e informa o SLA de solução de 2 horas, atendendo completamente à pergunta.",
+      "answer_relevance_reasoning": "A resposta menciona o chamado TCK-1005 com prioridade Crítica e detalha o SLA de solução para esse nível como 2 horas, atendendo completamente à pergunta.",
       "groundedness": 1.0,
-      "groundedness_reasoning": "A resposta menciona corretamente o chamado TCK-1005 com prioridade 'Crítica' e o SLA de solução de 2 horas, ambos diretamente suportados pelas evidências fornecidas.",
-      "confidence_level": "alta",
+      "groundedness_reasoning": "A resposta apresenta o chamado com prioridade Crítica (TCK-1005) conforme evidência 2, e o SLA de solução para esse nível como 2 horas, conforme evidência 5. Todas as informações estão diretamente fundamentadas nas evidências fornecidas, sem extrapolações ou invenções.",
+      "confidence_level": "baixa",
       "is_refusal": false,
       "expected_refusal": null,
       "refusal_reason": null,
       "expected_refusal_reason": null,
-      "correctness": 0.6667,
+      "correctness": 1.0,
       "citation_score": 1.0,
       "coherence_score": 1.0,
-      "points_correctness": 0.3333,
+      "points_correctness": 0.5,
       "points_citation": 0.3,
       "points_coherence": 0.2,
-      "total_score": 0.8334,
-      "latency_ms": 4915.68,
-      "failures": [
-        "resposta_incorreta"
-      ],
+      "total_score": 1.0,
+      "latency_ms": 819.76,
+      "failures": [],
       "execution_error": null
     },
     {
@@ -434,7 +530,7 @@
         "system_logs.csv",
         "system_logs.csv"
       ],
-      "answer": "Os logs de erro registrados para o cliente 'CUST008' (Auto Peças Central) no serviço de pagamento (pay) são: 1) Código de erro PAY-504, ocorrido em 2026-02-14 10:04:12, com a mensagem: \"Timeout waiting response from Pinpad IP 192.168.1.105 on port 6090. Transaction aborted by local agent.\" 2) Código de erro PAY-502, ocorrido em 2026-02-14 10:04:15, com a mensagem: \"Retry 1/3 failed. Connection refused by Windows Firewall host AutoPecas-Caixa01.\"",
+      "answer": "Com base nas evidências recuperadas: timestamp: 2026-02-14 10:04:12. level: ERROR. service: vendefacil-pay. module: pay. customer id: CUST008. event: TEF_TIMEOUT. error code: PAY-504. message: Timeout waiting response from Pinpad IP 192.168.1.105 on port 6090. Transaction aborted by local agent. timestamp: 2026-02-14 10:04:15. level: WARN. service: vendefacil-pay. module: pay. customer id: CUST008. event: TEF_RETRY_FAILED. error code: PAY-502. message: Retry 1/3 failed. Connection refused by Windows Firewall host AutoPecas-Caixa01.",
       "expected_chunk_ids": [],
       "retrieved_chunk_ids": [
         "ff0a6a60e57e54b9",
@@ -454,10 +550,10 @@
       ],
       "context_relevance": 1.0,
       "answer_relevance": 1.0,
-      "answer_relevance_reasoning": "A resposta lista corretamente os logs de erro para o cliente 'CUST008' no serviço de pagamento (pay), incluindo os códigos de erro, datas, e mensagens, atendendo completamente à pergunta.",
+      "answer_relevance_reasoning": "A resposta lista os logs de erro para o cliente CUST008 no serviço de pagamento (pay) com detalhes completos e corretos, correspondendo exatamente à pergunta.",
       "groundedness": 0.8,
-      "groundedness_reasoning": "A resposta lista corretamente o log de erro PAY-504 com todos os detalhes conforme a evidência 1. Porém, o segundo log listado (PAY-502) é classificado como WARN na evidência 2, não como erro, o que configura uma pequena extrapolação.",
-      "confidence_level": "alta",
+      "groundedness_reasoning": "A resposta inclui um log de nível WARN que não é um erro, portanto há pequena extrapolação ao listar ambos como logs de erro.",
+      "confidence_level": "baixa",
       "is_refusal": false,
       "expected_refusal": null,
       "refusal_reason": null,
@@ -469,7 +565,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 0.75,
-      "latency_ms": 5220.78,
+      "latency_ms": 715.87,
       "failures": [
         "resposta_incorreta"
       ],
@@ -539,7 +635,7 @@
       "answer_relevance": 1.0,
       "answer_relevance_reasoning": "A resposta aborda todos os pontos da pergunta, mencionando o cliente, o problema de sincronização, os registros nos e-mails e tickets, a responsabilidade de Carlos Mendes na reunião de roadmap, e o risco de cancelamento do contrato na reunião de março, correspondendo completamente à resposta esperada.",
       "groundedness": 1.0,
-      "groundedness_reasoning": "Todas as afirmações da resposta estão diretamente fundamentadas nas evidências fornecidas: o ticket TCK-1001 detalha o problema de sincronização do Supermercado Boa Compra; o e-mail confirma a cobrança da solução; o roadmap de janeiro menciona Carlos Mendes responsável pela reformulação do mecanismo de locking; e o feedback de março registra o risco de cancelamento do contrato se o problema não for resolvido.",
+      "groundedness_reasoning": "Todas as afirmações da resposta estão diretamente fundamentadas nas evidências fornecidas: o ticket TCK-1001 e o e-mail confirmam o problema de sincronização entre matriz BH e filial Savassi; o roadmap de janeiro menciona Carlos Mendes responsável pela reformulação do mecanismo de locking; e o feedback de março registra o risco de cancelamento do contrato Enterprise se o problema não for resolvido.",
       "confidence_level": "alta",
       "is_refusal": false,
       "expected_refusal": null,
@@ -552,7 +648,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 0.8334,
-      "latency_ms": 1178.03,
+      "latency_ms": 1611.18,
       "failures": [
         "resposta_incorreta"
       ],
@@ -576,32 +672,53 @@
       ],
       "retrieved_sources": [
         "customer_002_reembolso_cancelamento.txt",
-        "reembolso.pdf"
+        "reembolso.pdf",
+        "reembolso.md",
+        "reembolso.md",
+        "seguranca_lgpd.md"
       ],
-      "answer": "Sim, a cliente Ótica Visão Clara tem direito ao reembolso integral de 100% do valor pago, pois solicitou o cancelamento 5 dias após a contratação do plano, dentro do prazo de 7 dias corridos previsto na cláusula de direito de arrependimento da política da VendeFácil.",
+      "answer": "Com base nas evidências recuperadas: De: fi***@***.br\nPara: ca***@***.br\nData: 20 de Janeiro de 2026 14:30\nAssunto: Solicitação de Cancelamento de Contrato e Dúvida sobre Reembolso - Ótica Visão Clara\n\nPrezado Atendimento VendeFácil,\n\nGostaríamos de solicitar formalmente o cancelamento da nossa assinatura do VendeFácil PDV referente ao cliente Ótica Visão Clara (CUST0010 / RS).\n\nComo contratamos o plano há 5 dias (no dia 15 de Janeiro de 2026) e decidimos reestruturar nossas operações internas, gos POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS -\nVENDEFÁCIL\nPOLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS\nVendeFácil Tecnologia Ltda.\nVigência: A partir de Janeiro de 2026\n1. Condições para Reembolso e Cancelamento de Planos SaaS\n1.1. O cliente pode solicitar o cancelamento do seu plano SaaS (Basic, Pro ou Enterprise) a qualquer momento através\nda Central de Ajuda ou e-mail `ca***@***.br`.\n1.2. Direito de Arrependimento (7 dias): Conforme o Código de Defesa do Consumidor ## 1. Condições para Reembolso e Cancelamento de Planos SaaS\n1.1. O cliente pode solicitar o cancelamento do seu plano SaaS (Basic, Pro ou Enterprise) a qualquer momento através da Central de Ajuda ou e-mail `ca***@***.br`.\n1.2. **Direito de Arrependimento (7 dias):** Conforme o Código de Defesa do Consumidor, novos assinantes têm direito ao reembolso integral de 100% dos valores pagos caso a solicitação seja efetuada em até 7 dias corridos após a contratação inicial.\n1.3. **Ca # POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS  \n**VendeFácil Tecnologia Ltda.**\n*Vigência: A partir de Janeiro de 2026* ## 2. Procedimento de Resposta a Incidentes de Segurança\n2.1. Havendo suspeita ou confirmação de vazamento de credenciais, chaves de API ou dados de clientes, o colaborador deve imediatamente acionar o DPO via e-mail `dp***@***.br` e abrir um chamado de emergência de segurança com prioridade Crítica.\n2.2. O comitê de segurança responderá em até 2 horas e notificará os afetados e a ANPD em até 48 horas se necessário.",
       "expected_chunk_ids": [],
       "retrieved_chunk_ids": [
         "d360be10be162858",
-        "3a594d5d4681efdf"
+        "3a594d5d4681efdf",
+        "b51c291009103278",
+        "b027f8162580e3f8",
+        "2d9c5399d9f0a057"
       ],
       "sources_used": [
         {
           "filepath": "customer_002_reembolso_cancelamento.txt",
           "chunk_id": "d360be10be162858",
-          "quotation": "Como contratamos o plano há 5 dias (no dia 15 de Janeiro de 2026) e decidimos reestruturar nossas operações internas, gostaríamos de confirmar se temos direito ao reembolso integral de 100% do valor pago, com base na cláusula de 7 dias de arrependimento mencionada na Política de Reembolso da VendeFácil."
+          "quotation": "De: financeiro@visaoclara.com.br\nPara: cancelamento@vendefacil.com.br\nData: 20 de Janeiro de 2026 14:30\nAssunto: Solicitação de Cancelamento de Contrato e Dúvida sobre Reembolso - Ótica Visão Clara\n\nPrezado Atendimento VendeFácil,\n\nGostaríamos de solicitar formalmente o cancelamento da nossa assinatura do VendeFácil PDV referente ao cliente Ótica Visão Clara (CUST0010 / RS).\n\nComo contratamos o plano há 5 dias (no dia 15 de Janeiro de 2026) e decidimos reestruturar nossas operações internas, gos"
         },
         {
           "filepath": "reembolso.pdf",
           "chunk_id": "3a594d5d4681efdf",
-          "quotation": "Direito de Arrependimento (7 dias): Conforme o Código de Defesa do Consumidor, novos assinantes têm direito ao reembolso integral de 100% dos valores pagos caso a solicitação seja efetuada em até 7 dias corridos após a contratação inicial."
+          "quotation": "POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS -\nVENDEFÁCIL\nPOLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS\nVendeFácil Tecnologia Ltda.\nVigência: A partir de Janeiro de 2026\n1. Condições para Reembolso e Cancelamento de Planos SaaS\n1.1. O cliente pode solicitar o cancelamento do seu plano SaaS (Basic, Pro ou Enterprise) a qualquer momento através\nda Central de Ajuda ou e-mail `cancelamento@vendefacil.com.br`.\n1.2. Direito de Arrependimento (7 dias): Conforme o Código de Defesa do Consumidor"
+        },
+        {
+          "filepath": "reembolso.md",
+          "chunk_id": "b51c291009103278",
+          "quotation": "## 1. Condições para Reembolso e Cancelamento de Planos SaaS\n1.1. O cliente pode solicitar o cancelamento do seu plano SaaS (Basic, Pro ou Enterprise) a qualquer momento através da Central de Ajuda ou e-mail `cancelamento@vendefacil.com.br`.\n1.2. **Direito de Arrependimento (7 dias):** Conforme o Código de Defesa do Consumidor, novos assinantes têm direito ao reembolso integral de 100% dos valores pagos caso a solicitação seja efetuada em até 7 dias corridos após a contratação inicial.\n1.3. **Ca"
+        },
+        {
+          "filepath": "reembolso.md",
+          "chunk_id": "b027f8162580e3f8",
+          "quotation": "# POLÍTICA DE REEMBOLSO E CANCELAMENTO DE CONTRATOS  \n**VendeFácil Tecnologia Ltda.**\n*Vigência: A partir de Janeiro de 2026*"
+        },
+        {
+          "filepath": "seguranca_lgpd.md",
+          "chunk_id": "2d9c5399d9f0a057",
+          "quotation": "## 2. Procedimento de Resposta a Incidentes de Segurança\n2.1. Havendo suspeita ou confirmação de vazamento de credenciais, chaves de API ou dados de clientes, o colaborador deve imediatamente acionar o DPO via e-mail `dpo@vendefacil.com.br` e abrir um chamado de emergência de segurança com prioridade Crítica.\n2.2. O comitê de segurança responderá em até 2 horas e notificará os afetados e a ANPD em até 48 horas se necessário."
         }
       ],
       "context_relevance": 0.6667,
       "answer_relevance": 1.0,
-      "answer_relevance_reasoning": "A resposta confirma corretamente o direito ao reembolso integral com base no prazo de 7 dias e no cancelamento solicitado em 5 dias, alinhando-se completamente à política da empresa e ao contexto do e-mail.",
-      "groundedness": 1.0,
-      "groundedness_reasoning": "A resposta está totalmente fundamentada nas evidências que indicam que a cliente solicitou o cancelamento dentro do prazo de 7 dias corridos, garantindo o direito ao reembolso integral conforme a política da empresa e o Código de Defesa do Consumidor.",
-      "confidence_level": "alta",
+      "answer_relevance_reasoning": "A resposta apresenta claramente que a cliente solicitou o cancelamento 5 dias após a contratação, dentro do prazo de 7 dias previsto na política de reembolso, garantindo o direito ao reembolso integral conforme a política da empresa.",
+      "groundedness": null,
+      "groundedness_reasoning": "Erro no LLM Judge: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_3J1oH5RdBp9e5Cu7dlA4oBn5u84'}",
+      "confidence_level": "baixa",
       "is_refusal": false,
       "expected_refusal": null,
       "refusal_reason": null,
@@ -613,7 +730,7 @@
       "points_citation": 0.2,
       "points_coherence": 0.2,
       "total_score": 0.7334,
-      "latency_ms": 5325.04,
+      "latency_ms": 721.08,
       "failures": [
         "resposta_incorreta",
         "recuperacao"
@@ -666,7 +783,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 1.0,
-      "latency_ms": 1030.62,
+      "latency_ms": 1233.45,
       "failures": [],
       "execution_error": null
     },
@@ -732,8 +849,8 @@
       "context_relevance": 1.0,
       "answer_relevance": 1.0,
       "answer_relevance_reasoning": "A resposta explica claramente que a mensagem 'Timeout de confirmação TEF' ocorre devido ao bloqueio da porta TCP 6090 pelo firewall local e que a solução técnica é adicionar uma regra de exceção no firewall para liberar essa porta, correspondendo completamente à pergunta.",
-      "groundedness": 1.0,
-      "groundedness_reasoning": "A resposta está completamente fundamentada nas evidências fornecidas, que explicam que a mensagem 'Timeout de confirmação TEF' ocorre devido ao bloqueio da porta TCP 6090 pelo firewall local, e o procedimento técnico de solução é adicionar uma regra de exceção no Windows Firewall para liberar essa porta. Todas as informações relevantes da resposta são diretamente suportadas pelas evidências apresentadas.",
+      "groundedness": null,
+      "groundedness_reasoning": "Erro no LLM Judge: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_3J1oH5RdBp9e5Cu7dlA4oBn5u84'}",
       "confidence_level": "baixa",
       "is_refusal": false,
       "expected_refusal": null,
@@ -746,7 +863,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 1.0,
-      "latency_ms": 13724.4,
+      "latency_ms": 2561.56,
       "failures": [],
       "execution_error": null
     },
@@ -824,7 +941,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 0.8334,
-      "latency_ms": 1446.46,
+      "latency_ms": 1522.01,
       "failures": [
         "resposta_incorreta"
       ],
@@ -868,9 +985,9 @@
       ],
       "context_relevance": 1.0,
       "answer_relevance": 1.0,
-      "answer_relevance_reasoning": "A resposta aborda diretamente a causa do erro e detalha os passos corretos para resolução, alinhando-se completamente com a resposta esperada.",
+      "answer_relevance_reasoning": "A resposta explica corretamente a causa do erro e detalha os passos para resolver, correspondendo completamente à resposta esperada.",
       "groundedness": 0.8,
-      "groundedness_reasoning": "A resposta está fundamentada na evidência quanto à causa do erro e os dois primeiros passos do procedimento (verificar pacotes pendentes e clicar em Forçar Reconciliação). Contudo, a recomendação de reiniciar o serviço vendefacil-estoque-agent ou forçar um sync cego após 15 minutos não está presente nas evidências fornecidas, configurando uma pequena extrapolação.",
+      "groundedness_reasoning": "A resposta está fundamentada na evidência quanto à causa do erro e os dois primeiros passos do procedimento (verificar pacotes pendentes e clicar em Forçar Reconciliação). Contudo, a evidência não menciona o tempo de 15 minutos, nem a reinicialização do serviço vendefacil-estoque-agent ou o 'sync cego', configurando pequena extrapolação.",
       "confidence_level": "alta",
       "is_refusal": false,
       "expected_refusal": null,
@@ -883,7 +1000,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 0.8334,
-      "latency_ms": 1113.52,
+      "latency_ms": 1769.58,
       "failures": [
         "resposta_incorreta"
       ],
@@ -904,26 +1021,54 @@
         "data/unstructured/documentation/pdv/manual_pdv.md"
       ],
       "retrieved_sources": [
+        "manual_pdv.md",
+        "manual_pdv.md",
+        "manual_pdv.md",
+        "hardware_e_perifericos.md",
         "manual_pdv.md"
       ],
-      "answer": "A operação de sangria no caixa do VendeFácil PDV deve ser realizada da seguinte forma: No menu principal do PDV, pressione F8 ou clique em Caixa -> Sangria. Informe o valor a ser retirado e o motivo (ex: \"Sangria periódica para cofre\"). Insira a senha do supervisor/gerente do caixa. O PDV emitirá o comprovante de sangria em duas vias, sendo que a primeira via deve ser assinada e depositada no gaveteiro.",
+      "answer": "Com base nas evidências recuperadas: ### 1.1 Sangria e Suprimento\nA **sangria** é a retirada de valores do gaveteiro do caixa por medida de segurança quando o limite preestabelecido de numerário (dinheiro) é atingido.\n- **Passo a passo para Sangria:**\n1. No menu principal do PDV, pressione `F8` ou clique em `Caixa -> Sangria`.\n2. Informe o valor a ser retirado e o motivo (ex: \"Sangria periódica para cofre\").\n3. Insira a senha do supervisor/gerente do caixa.\n4. O PDV emitirá o comprovante de sangria em duas vias. A primeira via deve ### 1.2 Abertura e Fechamento de Caixa\n- Para abrir o caixa, o operador deve realizar o **Suprimento Inicial** (fundo de troco).\n- No encerramento do turno, selecione `Caixa -> Fechamento`. O sistema solicitará a contagem cega das formas de pagamento (Dinheiro, Cartão Crédito/Débito, PIX, VOUCHER).\n- Diferenças entre o valor contado e o valor lógico do sistema geram lançamentos automatizados de \"Quebra de Caixa\". ## 1. Operações de Frente de Caixa ## 1. Balanças Eletrônicas de Checkout\nO VendeFácil PDV é compatível com balanças de checkout das marcas Toledo (Pribox / Prix 3), Filizola e Urano via comunicação Serial RS232 ou Conversor USB-Serial.\n- **Configuração no PDV:** Acesse `Configurações -> Periféricos -> Balança`. Selecione o protocolo `TOLEDO PROTOCOLO PR1` e baud rate `9600`.\n- **Teste de Leitura:** Utilize o botão \"Testar Peso\" no PDV antes da abertura do caixa. ### 1.3 Alçada de Descontos e Perfis de Acesso\n- Descontos de até 5% podem ser aplicados livremente pelo operador de caixa.\n- Descontos acima de 5% ou cancelamento de itens já bipados exigem autorização presencial ou chave de gerência.",
       "expected_chunk_ids": [],
       "retrieved_chunk_ids": [
-        "4c8a453b6b6f2be7"
+        "4c8a453b6b6f2be7",
+        "27a27d004c58f177",
+        "f712255a8f225f12",
+        "381e21a1cbb524bc",
+        "89247c4629b2c0d7"
       ],
       "sources_used": [
         {
           "filepath": "manual_pdv.md",
           "chunk_id": "4c8a453b6b6f2be7",
           "quotation": "### 1.1 Sangria e Suprimento\nA **sangria** é a retirada de valores do gaveteiro do caixa por medida de segurança quando o limite preestabelecido de numerário (dinheiro) é atingido.\n- **Passo a passo para Sangria:**\n1. No menu principal do PDV, pressione `F8` ou clique em `Caixa -> Sangria`.\n2. Informe o valor a ser retirado e o motivo (ex: \"Sangria periódica para cofre\").\n3. Insira a senha do supervisor/gerente do caixa.\n4. O PDV emitirá o comprovante de sangria em duas vias. A primeira via deve"
+        },
+        {
+          "filepath": "manual_pdv.md",
+          "chunk_id": "27a27d004c58f177",
+          "quotation": "### 1.2 Abertura e Fechamento de Caixa\n- Para abrir o caixa, o operador deve realizar o **Suprimento Inicial** (fundo de troco).\n- No encerramento do turno, selecione `Caixa -> Fechamento`. O sistema solicitará a contagem cega das formas de pagamento (Dinheiro, Cartão Crédito/Débito, PIX, VOUCHER).\n- Diferenças entre o valor contado e o valor lógico do sistema geram lançamentos automatizados de \"Quebra de Caixa\"."
+        },
+        {
+          "filepath": "manual_pdv.md",
+          "chunk_id": "f712255a8f225f12",
+          "quotation": "## 1. Operações de Frente de Caixa"
+        },
+        {
+          "filepath": "hardware_e_perifericos.md",
+          "chunk_id": "381e21a1cbb524bc",
+          "quotation": "## 1. Balanças Eletrônicas de Checkout\nO VendeFácil PDV é compatível com balanças de checkout das marcas Toledo (Pribox / Prix 3), Filizola e Urano via comunicação Serial RS232 ou Conversor USB-Serial.\n- **Configuração no PDV:** Acesse `Configurações -> Periféricos -> Balança`. Selecione o protocolo `TOLEDO PROTOCOLO PR1` e baud rate `9600`.\n- **Teste de Leitura:** Utilize o botão \"Testar Peso\" no PDV antes da abertura do caixa."
+        },
+        {
+          "filepath": "manual_pdv.md",
+          "chunk_id": "89247c4629b2c0d7",
+          "quotation": "### 1.3 Alçada de Descontos e Perfis de Acesso\n- Descontos de até 5% podem ser aplicados livremente pelo operador de caixa.\n- Descontos acima de 5% ou cancelamento de itens já bipados exigem autorização presencial ou chave de gerência."
         }
       ],
       "context_relevance": 1.0,
       "answer_relevance": 1.0,
-      "answer_relevance_reasoning": "A resposta descreve completamente e diretamente o procedimento para realizar a sangria no caixa do VendeFácil PDV, alinhando-se integralmente com a resposta esperada.",
-      "groundedness": 0.8,
-      "groundedness_reasoning": "A resposta está quase toda fundamentada na evidência fornecida, reproduzindo corretamente o passo a passo da sangria. Contudo, a evidência não menciona que a primeira via do comprovante deve ser assinada e depositada no gaveteiro, o que configura uma pequena extrapolação.",
-      "confidence_level": "alta",
+      "answer_relevance_reasoning": "A resposta detalha claramente o passo a passo para realizar a sangria no caixa do VendeFácil PDV, incluindo os mesmos passos da resposta esperada, sem omissões ou informações incorretas.",
+      "groundedness": null,
+      "groundedness_reasoning": "Erro no LLM Judge: Error code: 402 - {'error': {'message': 'Insufficient credits. This account never purchased credits. Make sure your key is on the correct account or org, and if so, purchase more at https://openrouter.ai/settings/credits', 'code': 402, 'metadata': {'limit_source': 'openrouter_credits', 'remedy_hint': 'Add credits at https://openrouter.ai/settings/credits, or lower max_tokens / prompt size to fit your remaining balance.'}}}",
+      "confidence_level": "baixa",
       "is_refusal": false,
       "expected_refusal": null,
       "refusal_reason": null,
@@ -935,7 +1080,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 1.0,
-      "latency_ms": 4501.51,
+      "latency_ms": 1438.07,
       "failures": [],
       "execution_error": null
     },
@@ -975,7 +1120,7 @@
       "points_citation": 0.0,
       "points_coherence": 0.2,
       "total_score": 0.7,
-      "latency_ms": 0.24,
+      "latency_ms": 37.92,
       "failures": [
         "recuperacao"
       ],
@@ -1017,7 +1162,7 @@
       "points_citation": 0.0,
       "points_coherence": 0.2,
       "total_score": 0.7,
-      "latency_ms": 0.3,
+      "latency_ms": 1.09,
       "failures": [
         "recuperacao"
       ],
@@ -1040,61 +1185,66 @@
       ],
       "retrieved_sources": [
         "seguranca_lgpd.md",
-        "seguranca_lgpd.pdf",
         "customer_024_solicitacao_lgpd_exclusao_dados.txt",
-        "internal_001_alerta_seguranca_lgpd.txt"
+        "seguranca_lgpd.pdf",
+        "internal_001_alerta_seguranca_lgpd.txt",
+        "seguranca_lgpd.pdf"
       ],
-      "answer": "A VendeFácil Tecnologia atua como Operadora dos dados pessoais dos consumidores dos lojistas e como Controladora dos dados de seus próprios colaboradores e contratantes. O sistema proíbe estritamente o armazenamento de dados sensíveis, como biometria, dados de saúde, religião, e dados financeiros confidenciais, incluindo número completo de cartão de crédito, CVV e senhas, em logs de aplicação, tickets de suporte ou arquivos de texto simples. Em casos de incidentes ou solicitações relacionadas à LGPD, o contato do DPO Gabriel Ramos (dp***@***.br) é disponibilizado para atendimento e confirmação de exclusão ou anonimização dos dados pessoais conforme o Art. 18 da LGPD.",
+      "answer": "Com base nas evidências recuperadas: ## 1. Diretrizes da LGPD (Lei Geral de Proteção de Dados - Lei 13.709/2018)\n1.1. A VendeFácil Tecnologia atua como **Operadora** de dados pessoais de consumidores dos nossos clientes varejistas e **Controladora** dos dados de seus próprios colaboradores e contratantes.\n1.2. **Tratamento de Dados Sensíveis:** É estritamente proibido o armazenamento de dados sensíveis (biometria, dados de saúde, religião) ou dados financeiros confidenciais (número de cartão de crédito completo, CVV, senhas de clie De: dp***@***.br\nPara: dp***@***.br\nData: 21 de Março de 2026 09:20\nAssunto: Solicitação de Titular de Dados (LGPD) - Confirmação de Eliminação de Dados Pessoais\n\nPrezado DPO Gabriel Ramos (VendeFácil Tecnologia),\n\nNa qualidade de Encarregado de Proteção de Dados do consumidor final Marcos Paulo Silva, solicitamos a confirmação de exclusão/anonimização dos dados pessoais cadastrados nas bases de dados dos sistemas PDV operados pela VendeFácil Tecnologia.\n\nSolicitamos o r POLÍTICA DE SEGURANÇA DA INFORMAÇÃO E LGPD - VENDEFÁCIL\nPOLÍTICA DE SEGURANÇA DA INFORMAÇÃO E LGPD\nVendeFácil Tecnologia Ltda.\nDocumento Interno e Externo - DPO: Gabriel Ramos (dp***@***.br)\n1. Diretrizes da LGPD (Lei Geral de Proteção de Dados - Lei 13.709/2018)\n1.1. A VendeFácil Tecnologia atua como Operadora de dados pessoais de consumidores dos nossos clientes\nvarejistas e Controladora dos dados de seus próprios colaboradores e contratantes.\n1.2. Tratamento de Dados Sensíveis: É est De: dp***@***.br\nPara: to***@***.br\nData: 06 de Fevereiro de 2026 08:30\nAssunto: COMUNICADO DPO: Proteção de Dados Pessoais (LGPD) e Proibição de Planilhas Salariais em Tickets\n\nPrezada equipe VendeFácil,\n\nReforçamos que, de acordo com a nossa Política de Segurança da Informação e LGPD, é ESTRITAMENTE PROIBIDO anexar planilhas contendo folhas de pagamento, salários de colaboradores, CPFs ou cartões de crédito em chamados de suporte técnico ou repositórios públicos.\n\nSalários  clientes) em logs de aplicação, tickets de suporte ou arquivos de texto simples.\n1.3. Proteção de Dados Salariais e Pessoais Internos: Salários, remunerações, bônus, CPFs, endereços\nresidenciais e dados bancários de colaboradores da VendeFácil são classificados como Dados Confidenciais Nível 1\n(Restrito ao RH e Diretoria).\n1.4. Guardrails para Assistentes Virtuais e IAs Internas: Qualquer sistema de inteligência artificial ou RAG interno\nNÃO DEVE expor nem responder a perguntas contendo salários",
       "expected_chunk_ids": [],
       "retrieved_chunk_ids": [
         "aa222e52c0a6e286",
-        "2a8255ebfae2bcb0",
         "61932389d2b4c1f8",
-        "6d1ae9264840ef12"
+        "2a8255ebfae2bcb0",
+        "6d1ae9264840ef12",
+        "39d0e50fc9c0d462"
       ],
       "sources_used": [
         {
           "filepath": "seguranca_lgpd.md",
           "chunk_id": "aa222e52c0a6e286",
-          "quotation": "1.1. A VendeFácil Tecnologia atua como **Operadora** de dados pessoais de consumidores dos nossos clientes varejistas e **Controladora** dos dados de seus próprios colaboradores e contratantes.\n1.2. **Tratamento de Dados Sensíveis:** É estritamente proibido o armazenamento de dados sensíveis (biometria, dados de saúde, religião) ou dados financeiros confidenciais (número de cartão de crédito completo, CVV, senhas de clientes) em logs de aplicação, tickets de suporte ou arquivos de texto simples."
-        },
-        {
-          "filepath": "seguranca_lgpd.pdf",
-          "chunk_id": "2a8255ebfae2bcb0",
-          "quotation": "1.1. A VendeFácil Tecnologia atua como Operadora de dados pessoais de consumidores dos nossos clientes varejistas e Controladora dos dados de seus próprios colaboradores e contratantes.\n1.2. Tratamento de Dados Sensíveis: É estritamente proibido o armazenamento de dados sensíveis (biometria, dados de saúde, religião) ou dados financeiros confidenciais (número de cartão de crédito completo, CVV, senhas de clientes) em logs de aplicação, tickets de suporte ou arquivos de texto simples."
+          "quotation": "## 1. Diretrizes da LGPD (Lei Geral de Proteção de Dados - Lei 13.709/2018)\n1.1. A VendeFácil Tecnologia atua como **Operadora** de dados pessoais de consumidores dos nossos clientes varejistas e **Controladora** dos dados de seus próprios colaboradores e contratantes.\n1.2. **Tratamento de Dados Sensíveis:** É estritamente proibido o armazenamento de dados sensíveis (biometria, dados de saúde, religião) ou dados financeiros confidenciais (número de cartão de crédito completo, CVV, senhas de clie"
         },
         {
           "filepath": "customer_024_solicitacao_lgpd_exclusao_dados.txt",
           "chunk_id": "61932389d2b4c1f8",
-          "quotation": "Solicitamos o relatório de confirmação de atendimento ao direito do titular nos termos do Art. 18 da LGPD (Lei 13.709/2018)."
+          "quotation": "De: dpo@clienteconsumidor.com.br\nPara: dpo@vendefacil.com.br\nData: 21 de Março de 2026 09:20\nAssunto: Solicitação de Titular de Dados (LGPD) - Confirmação de Eliminação de Dados Pessoais\n\nPrezado DPO Gabriel Ramos (VendeFácil Tecnologia),\n\nNa qualidade de Encarregado de Proteção de Dados do consumidor final Marcos Paulo Silva, solicitamos a confirmação de exclusão/anonimização dos dados pessoais cadastrados nas bases de dados dos sistemas PDV operados pela VendeFácil Tecnologia.\n\nSolicitamos o r"
+        },
+        {
+          "filepath": "seguranca_lgpd.pdf",
+          "chunk_id": "2a8255ebfae2bcb0",
+          "quotation": "POLÍTICA DE SEGURANÇA DA INFORMAÇÃO E LGPD - VENDEFÁCIL\nPOLÍTICA DE SEGURANÇA DA INFORMAÇÃO E LGPD\nVendeFácil Tecnologia Ltda.\nDocumento Interno e Externo - DPO: Gabriel Ramos (dpo@vendefacil.com.br)\n1. Diretrizes da LGPD (Lei Geral de Proteção de Dados - Lei 13.709/2018)\n1.1. A VendeFácil Tecnologia atua como Operadora de dados pessoais de consumidores dos nossos clientes\nvarejistas e Controladora dos dados de seus próprios colaboradores e contratantes.\n1.2. Tratamento de Dados Sensíveis: É est"
         },
         {
           "filepath": "internal_001_alerta_seguranca_lgpd.txt",
           "chunk_id": "6d1ae9264840ef12",
-          "quotation": "Gabriel Ramos\nData Protection Officer (DPO)\nVendeFácil Tecnologia Ltda."
+          "quotation": "De: dpo@vendefacil.com.br\nPara: todos@vendefacil.com.br\nData: 06 de Fevereiro de 2026 08:30\nAssunto: COMUNICADO DPO: Proteção de Dados Pessoais (LGPD) e Proibição de Planilhas Salariais em Tickets\n\nPrezada equipe VendeFácil,\n\nReforçamos que, de acordo com a nossa Política de Segurança da Informação e LGPD, é ESTRITAMENTE PROIBIDO anexar planilhas contendo folhas de pagamento, salários de colaboradores, CPFs ou cartões de crédito em chamados de suporte técnico ou repositórios públicos.\n\nSalários"
+        },
+        {
+          "filepath": "seguranca_lgpd.pdf",
+          "chunk_id": "39d0e50fc9c0d462",
+          "quotation": "clientes) em logs de aplicação, tickets de suporte ou arquivos de texto simples.\n1.3. Proteção de Dados Salariais e Pessoais Internos: Salários, remunerações, bônus, CPFs, endereços\nresidenciais e dados bancários de colaboradores da VendeFácil são classificados como Dados Confidenciais Nível 1\n(Restrito ao RH e Diretoria).\n1.4. Guardrails para Assistentes Virtuais e IAs Internas: Qualquer sistema de inteligência artificial ou RAG interno\nNÃO DEVE expor nem responder a perguntas contendo salários"
         }
       ],
       "context_relevance": 1.0,
-      "answer_relevance": 1.0,
-      "answer_relevance_reasoning": "A resposta aborda diretamente como a VendeFácil trata os dados pessoais conforme a LGPD, mencionando o papel da empresa como Operadora, a proibição de armazenamento de dados sensíveis e financeiros em logs ou arquivos simples, e o contato do DPO para incidentes, alinhando-se completamente com a pergunta.",
-      "groundedness": 0.8,
-      "groundedness_reasoning": "A resposta está majoritariamente fundamentada nas evidências 1 e 2 quanto ao papel da VendeFácil como Operadora e Controladora e à proibição do armazenamento de dados sensíveis e financeiros em determinados locais. A menção ao DPO Gabriel Ramos está suportada pela evidência 4. Contudo, a evidência 3 apenas solicita relatório de atendimento ao direito do titular, não confirmando que o sistema disponibiliza contato do DPO para atendimento e confirmação de exclusão ou anonimização conforme Art. 18 da LGPD, o que configura pequena extrapolação.",
-      "confidence_level": "alta",
+      "answer_relevance": null,
+      "answer_relevance_reasoning": "Erro no LLM Judge: Error code: 402 - {'error': {'message': 'Insufficient credits. This account never purchased credits. Make sure your key is on the correct account or org, and if so, purchase more at https://openrouter.ai/settings/credits', 'code': 402, 'metadata': {'limit_source': 'openrouter_credits', 'remedy_hint': 'Add credits at https://openrouter.ai/settings/credits, or lower max_tokens / prompt size to fit your remaining balance.'}}}",
+      "groundedness": null,
+      "groundedness_reasoning": "Erro no LLM Judge: Error code: 402 - {'error': {'message': 'Insufficient credits. This account never purchased credits. Make sure your key is on the correct account or org, and if so, purchase more at https://openrouter.ai/settings/credits', 'code': 402, 'metadata': {'limit_source': 'openrouter_credits', 'remedy_hint': 'Add credits at https://openrouter.ai/settings/credits, or lower max_tokens / prompt size to fit your remaining balance.'}}}",
+      "confidence_level": "baixa",
       "is_refusal": false,
       "expected_refusal": null,
       "refusal_reason": null,
       "expected_refusal_reason": null,
-      "correctness": 0.6667,
+      "correctness": 1.0,
       "citation_score": 1.0,
       "coherence_score": 1.0,
-      "points_correctness": 0.3333,
+      "points_correctness": 0.5,
       "points_citation": 0.3,
       "points_coherence": 0.2,
-      "total_score": 0.8334,
-      "latency_ms": 7370.31,
-      "failures": [
-        "resposta_incorreta"
-      ],
+      "total_score": 1.0,
+      "latency_ms": 1003.71,
+      "failures": [],
       "execution_error": null
     },
     {
@@ -1111,26 +1261,54 @@
         "data/unstructured/documentation/ecommerce/integracao_catalogo.md"
       ],
       "retrieved_sources": [
-        "integracao_catalogo.md"
+        "integracao_catalogo.md",
+        "frete_e_logistica.md",
+        "integracao_catalogo.md",
+        "tickets.jsonl",
+        "tickets.jsonl"
       ],
-      "answer": "No VendeFácil Loja, a regra de 'Safety Stock' (estoque de segurança) configurável permite definir uma margem de segurança de estoque, por exemplo, manter 2 unidades reservadas apenas para a loja física, para evitar venda duplicada de itens com baixo giro.",
+      "answer": "Com base nas evidências recuperadas: ## 1. Sincronização Omnichannel\nO **VendeFácil Loja** conecta o catálogo de produtos da loja física com canais de e-commerce e e-marketplaces (Mercado Livre, Shopee, WhatsApp Commerce).\n- **Reserva de Estoque:** Ao receber um pedido online, o saldo do item no VendeFácil Estoque é reservado em tempo real por até 2 horas até a aprovação do pagamento.\n- **Regra de Segurança de Estoque (Safety Stock):** É possível configurar uma margem de segurança de estoque (ex: manter 2 unidades reservadas apenas # Configuração de Frete e Entregas - VendeFácil Loja # Integração de Catálogo e Estoque - VendeFácil Loja Chamado TCK-1030 - Preço do produto na loja online divergente da loja física - Distribuidora Novais S.A.. Cliente: Distribuidora Novais S.A. (CUST072). Categoria: Sincronização. Prioridade: Alta. Status: Resolvido. Descrição: Promoção cadastrada no PDV não refletiu na loja virtual após sync. Ocorrendo no cliente Distribuidora Novais S.A. (Vitória/ES).. Resolução: Resetada a fila de mensagens do RabbitMQ do serviço vendefacil-loja-sync.. Chamado TCK-1013 - Erro 500 ao tentar finalizar compra via checkout com cartão de crédito - Centro de da Rocha Ltda. Cliente: Centro de da Rocha Ltda (CUST065). Categoria: Pagamento / API. Prioridade: Alta. Status: Resolvido. Descrição: Clientes do e-commerce recebem erro de comunicação com o gateway. Ocorrendo no cliente Centro de da Rocha Ltda (Rio Verde/GO).. Resolução: Atualizada a chave de API de produção do gateway de pagamento..",
       "expected_chunk_ids": [],
       "retrieved_chunk_ids": [
-        "d4b6ec4a383e7a5f"
+        "d4b6ec4a383e7a5f",
+        "4646ee02c85616dd",
+        "08a5eb439e8e4aca",
+        "0479a041f0d8063e",
+        "1feb28da1a8300d7"
       ],
       "sources_used": [
         {
           "filepath": "integracao_catalogo.md",
           "chunk_id": "d4b6ec4a383e7a5f",
           "quotation": "## 1. Sincronização Omnichannel\nO **VendeFácil Loja** conecta o catálogo de produtos da loja física com canais de e-commerce e e-marketplaces (Mercado Livre, Shopee, WhatsApp Commerce).\n- **Reserva de Estoque:** Ao receber um pedido online, o saldo do item no VendeFácil Estoque é reservado em tempo real por até 2 horas até a aprovação do pagamento.\n- **Regra de Segurança de Estoque (Safety Stock):** É possível configurar uma margem de segurança de estoque (ex: manter 2 unidades reservadas apenas"
+        },
+        {
+          "filepath": "frete_e_logistica.md",
+          "chunk_id": "4646ee02c85616dd",
+          "quotation": "# Configuração de Frete e Entregas - VendeFácil Loja"
+        },
+        {
+          "filepath": "integracao_catalogo.md",
+          "chunk_id": "08a5eb439e8e4aca",
+          "quotation": "# Integração de Catálogo e Estoque - VendeFácil Loja"
+        },
+        {
+          "filepath": "tickets.jsonl",
+          "chunk_id": "0479a041f0d8063e",
+          "quotation": "Chamado TCK-1030 - Preço do produto na loja online divergente da loja física - Distribuidora Novais S.A.. Cliente: Distribuidora Novais S.A. (CUST072). Categoria: Sincronização. Prioridade: Alta. Status: Resolvido. Descrição: Promoção cadastrada no PDV não refletiu na loja virtual após sync. Ocorrendo no cliente Distribuidora Novais S.A. (Vitória/ES).. Resolução: Resetada a fila de mensagens do RabbitMQ do serviço vendefacil-loja-sync.."
+        },
+        {
+          "filepath": "tickets.jsonl",
+          "chunk_id": "1feb28da1a8300d7",
+          "quotation": "Chamado TCK-1013 - Erro 500 ao tentar finalizar compra via checkout com cartão de crédito - Centro de da Rocha Ltda. Cliente: Centro de da Rocha Ltda (CUST065). Categoria: Pagamento / API. Prioridade: Alta. Status: Resolvido. Descrição: Clientes do e-commerce recebem erro de comunicação com o gateway. Ocorrendo no cliente Centro de da Rocha Ltda (Rio Verde/GO).. Resolução: Atualizada a chave de API de produção do gateway de pagamento.."
         }
       ],
       "context_relevance": 1.0,
-      "answer_relevance": 1.0,
-      "answer_relevance_reasoning": "A resposta explica claramente a regra de Safety Stock configurável no VendeFácil Loja, mencionando a reserva de unidades para a loja física para evitar venda duplicada, que corresponde diretamente à pergunta e à resposta esperada.",
-      "groundedness": 0.8,
-      "groundedness_reasoning": "A resposta está quase totalmente fundamentada na evidência, que menciona a configuração de uma margem de segurança de estoque, exemplificando manter 2 unidades reservadas. Contudo, a evidência não menciona explicitamente que essa reserva é apenas para a loja física nem que o objetivo é evitar venda duplicada de itens com baixo giro, o que configura pequena extrapolação.",
-      "confidence_level": "alta",
+      "answer_relevance": null,
+      "answer_relevance_reasoning": "Erro no LLM Judge: Error code: 402 - {'error': {'message': 'Insufficient credits. This account never purchased credits. Make sure your key is on the correct account or org, and if so, purchase more at https://openrouter.ai/settings/credits', 'code': 402, 'metadata': {'limit_source': 'openrouter_credits', 'remedy_hint': 'Add credits at https://openrouter.ai/settings/credits, or lower max_tokens / prompt size to fit your remaining balance.'}}}",
+      "groundedness": null,
+      "groundedness_reasoning": "Erro no LLM Judge: Error code: 402 - {'error': {'message': 'Insufficient credits. This account never purchased credits. Make sure your key is on the correct account or org, and if so, purchase more at https://openrouter.ai/settings/credits', 'code': 402, 'metadata': {'limit_source': 'openrouter_credits', 'remedy_hint': 'Add credits at https://openrouter.ai/settings/credits, or lower max_tokens / prompt size to fit your remaining balance.'}}}",
+      "confidence_level": "baixa",
       "is_refusal": false,
       "expected_refusal": null,
       "refusal_reason": null,
@@ -1142,7 +1320,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 0.75,
-      "latency_ms": 4196.99,
+      "latency_ms": 2122.85,
       "failures": [
         "resposta_incorreta"
       ],
@@ -1198,10 +1376,10 @@
         }
       ],
       "context_relevance": 1.0,
-      "answer_relevance": 1.0,
-      "answer_relevance_reasoning": "A resposta lista corretamente as filiais cadastradas para o cliente 'Supermercado Boa Compra' em Belo Horizonte, incluindo os códigos, nomes, número de terminais PDV e módulos ativos, correspondendo completamente à pergunta.",
-      "groundedness": 1.0,
-      "groundedness_reasoning": "A resposta lista exatamente as filiais cadastradas para o cliente 'Supermercado Boa Compra' em Belo Horizonte conforme as evidências fornecidas, sem adicionar ou contradizer informações.",
+      "answer_relevance": null,
+      "answer_relevance_reasoning": "Erro no LLM Judge: Error code: 402 - {'error': {'message': 'Insufficient credits. This account never purchased credits. Make sure your key is on the correct account or org, and if so, purchase more at https://openrouter.ai/settings/credits', 'code': 402, 'metadata': {'limit_source': 'openrouter_credits', 'remedy_hint': 'Add credits at https://openrouter.ai/settings/credits, or lower max_tokens / prompt size to fit your remaining balance.'}}}",
+      "groundedness": null,
+      "groundedness_reasoning": "Erro no LLM Judge: Error code: 402 - {'error': {'message': 'Insufficient credits. This account never purchased credits. Make sure your key is on the correct account or org, and if so, purchase more at https://openrouter.ai/settings/credits', 'code': 402, 'metadata': {'limit_source': 'openrouter_credits', 'remedy_hint': 'Add credits at https://openrouter.ai/settings/credits, or lower max_tokens / prompt size to fit your remaining balance.'}}}",
       "confidence_level": "alta",
       "is_refusal": false,
       "expected_refusal": null,
@@ -1214,7 +1392,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 0.75,
-      "latency_ms": 961.81,
+      "latency_ms": 1074.45,
       "failures": [
         "resposta_incorreta"
       ],
@@ -1253,7 +1431,7 @@
       "points_citation": 0.3,
       "points_coherence": 0.2,
       "total_score": 1.0,
-      "latency_ms": 0.34,
+      "latency_ms": 1.07,
       "failures": [],
       "execution_error": null
     }

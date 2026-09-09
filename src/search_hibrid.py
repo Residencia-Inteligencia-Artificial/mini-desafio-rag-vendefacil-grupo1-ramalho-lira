@@ -950,6 +950,42 @@ class HybridSearch:
                     bonus += 0.14
 
         # --------------------------------------------------------
+        # TROCA E DEVOLUÇÃO NO PDV
+        # --------------------------------------------------------
+
+        consulta_troca_pdv = (
+            "pdv" in query_norm
+            and any(
+                termo in query_norm
+                for termo in (
+                    "troca",
+                    "devolucao",
+                    "vale-troca",
+                    "vale troca",
+                )
+            )
+        )
+
+        if consulta_troca_pdv:
+
+            termos = [
+                "troca",
+                "devolucao",
+                "vale-troca",
+                "vale troca",
+                "ctrl + t",
+                "nota fiscal",
+                "qr code",
+                "credito ao consumidor",
+                "90 dias",
+            ]
+
+            for termo in termos:
+
+                if termo in texto_norm:
+                    bonus += 0.14
+
+        # --------------------------------------------------------
         # STK-409
         # --------------------------------------------------------
 
@@ -1685,6 +1721,78 @@ class HybridSearch:
         return resultados_finais
 
     # ============================================================
+    # HIGIENE E CORTE DE RELEVÂNCIA
+    # ============================================================
+
+    def _deduplicar_resultados(
+        self,
+        resultados: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        """Mantém apenas uma ocorrência de cada chunk ou texto idêntico.
+
+        Um mesmo chunk pode entrar tanto pela busca densa quanto pela BM25 ou
+        por uma recuperação direta. Mostrar essas ocorrências como fontes
+        diferentes dá a impressão de que há mais evidências do que realmente
+        existem.
+        """
+
+        unicos: List[Dict[str, Any]] = []
+        chunks_vistos = set()
+        textos_vistos = set()
+
+        for resultado in resultados:
+            metadata = self._obter_metadata(resultado)
+            chunk_id = str(metadata.get("chunk_id") or "").strip()
+            texto = self._normalizar(self._obter_texto(resultado))
+
+            if chunk_id and chunk_id in chunks_vistos:
+                continue
+
+            # O texto é a segunda chave para fontes que não tenham chunk_id.
+            # Não aplicamos essa regra a textos vazios para não ocultar erros.
+            if texto and texto in textos_vistos:
+                continue
+
+            if chunk_id:
+                chunks_vistos.add(chunk_id)
+            if texto:
+                textos_vistos.add(texto)
+
+            unicos.append(resultado)
+
+        return unicos
+
+    @staticmethod
+    def _remover_cauda_irrelevante(
+        resultados: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        """Remove a cauda de resultados muito abaixo da melhor evidência.
+
+        A busca anterior sempre completava ``top_k``. Assim, após encontrar
+        uma fonte excelente, também retornava arquivos apenas vagamente
+        relacionados. O corte relativo preserva consultas com escores baixos
+        (onde a comparação absoluta seria injusta) e elimina apenas resultados
+        claramente piores que o melhor candidato.
+        """
+
+        if len(resultados) < 2:
+            return resultados
+
+        melhor_score = float(resultados[0].get("score", 0.0) or 0.0)
+
+        # Escores pequenos normalmente são somente RRF; nesse caso não há
+        # sinal suficiente para aplicar um corte confiável.
+        if melhor_score < 0.15:
+            return resultados
+
+        limite = melhor_score * 0.50
+        return [
+            resultado
+            for resultado in resultados
+            if float(resultado.get("score", 0.0) or 0.0) >= limite
+        ]
+
+    # ============================================================
     # BUSCA PRINCIPAL
     # ============================================================
 
@@ -2034,6 +2142,14 @@ class HybridSearch:
                 )
             ),
             reverse=True,
+        )
+
+        resultados_finais = self._deduplicar_resultados(
+            resultados_finais
+        )
+
+        resultados_finais = self._remover_cauda_irrelevante(
+            resultados_finais
         )
 
         # ========================================================

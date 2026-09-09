@@ -486,8 +486,9 @@ class RAGGenerator:
     ) -> list[SourceEvidence]:
 
         fontes = []
+        evidencias_vistas = set()
 
-        for resultado in resultados[:5]:
+        for resultado in resultados:
 
             filepath = self._get_filepath(
                 resultado
@@ -504,6 +505,15 @@ class RAGGenerator:
                 )
             )
 
+            # A mesma evidência pode ser adicionada por caminhos diferentes
+            # da busca (ou repetida em respostas determinísticas). Não a
+            # exibimos duas vezes na interface.
+            chave = (filepath, chunk_id)
+            if chave in evidencias_vistas:
+                continue
+
+            evidencias_vistas.add(chave)
+
             fontes.append(
                 SourceEvidence(
                     filepath=filepath,
@@ -511,6 +521,9 @@ class RAGGenerator:
                     quotation=texto[:500]
                 )
             )
+
+            if len(fontes) >= 5:
+                break
 
         return fontes
 

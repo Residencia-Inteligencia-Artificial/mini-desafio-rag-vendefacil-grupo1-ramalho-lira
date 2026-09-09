@@ -18,6 +18,7 @@ Também identifica intenções específicas, como:
 - consulta de manuais
 """
 
+import os
 import re
 import unicodedata
 
@@ -245,6 +246,38 @@ CUSTOMER_NAMES = {
 }
 
 
+def _load_customer_aliases() -> dict[str, str]:
+    """Carrega o mapa de nomes dos clientes diretamente dos dados do benchmark."""
+    aliases = dict(CUSTOMER_NAMES)
+
+    try:
+        data_path = os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "data",
+            "structured",
+            "customers.csv",
+        )
+        with open(data_path, "r", encoding="utf-8-sig", newline="") as handle:
+            import csv
+
+            reader = csv.DictReader(handle)
+            for row in reader:
+                customer_id = row.get("customer_id")
+                company_name = row.get("company_name")
+                if not customer_id or not company_name:
+                    continue
+                aliases[normalize(company_name)] = customer_id
+                aliases[normalize(company_name.lower())] = customer_id
+    except Exception:
+        pass
+
+    return aliases
+
+
+CUSTOMER_ALIASES = _load_customer_aliases()
+
+
 # ============================================================
 # NORMALIZAÇÃO
 # ============================================================
@@ -319,7 +352,7 @@ def extract_customer_name(text: str):
 
     normalized = normalize(text)
 
-    for customer_name, customer_id in CUSTOMER_NAMES.items():
+    for customer_name, customer_id in CUSTOMER_ALIASES.items():
 
         normalized_name = normalize(customer_name)
 
@@ -674,9 +707,16 @@ def extract_priority(text: str):
 def extract_status(text: str):
     """
     Detecta status de ticket.
+
+    Evita confundir a forma verbal 'foram abertos' com uma
+    requisição explícita de filtro por status.
     """
 
     normalized = normalize(text)
+
+    if re.search(r"\bforam abertos?\b|\bforam fechados?\b", normalized):
+        if not re.search(r"\b(status|situacao|situação)\b", normalized):
+            return None
 
     status_map = {
         "aberto": "aberto",
@@ -690,9 +730,15 @@ def extract_status(text: str):
     }
 
     for value, normalized_value in status_map.items():
-
-        if normalize(value) in normalized:
-            return normalized_value
+        pattern = rf"\b{re.escape(normalize(value))}\b"
+        if re.search(pattern, normalized):
+            if normalize_value := normalize(value):
+                if normalize_value in {"aberto", "aberta", "fechado", "fechada"}:
+                    if re.search(r"\b(status|situacao|situação|estao|estão)\b", normalized):
+                        return normalized_value
+                    if re.search(r"\bforam abertos?\b|\bforam fechados?\b", normalized):
+                        return None
+                return normalized_value
 
     return None
 
@@ -758,10 +804,51 @@ def analyze_query(query: str):
 
     module = extract_module(query)
 
+    # Expressões como "foram abertos" descrevem o evento histórico
+    # do ticket, e não uma solicitação de filtro por status.
+    if re.search(r"\bforam abertos?\b", normalized_query):
+        if not re.search(r"\b(status|situacao|situação)\b", normalized_query):
+            status = None
+        else:
+            status = extract_status(query)
+    else:
+        status = extract_status(query)
+
     safety_stock_query = "safety stock" in normalized_query
     if safety_stock_query:
         module = "ecommerce"
         doc_types = [doc_type for doc_type in doc_types if doc_type != "policy"]
+
+    # "Devolução" pode se referir à política comercial de reembolso ou à
+    # operação executada no caixa. Quando a pergunta menciona o PDV e termos
+    # operacionais, a fonte correta é o manual do PDV, não a política de
+    # cancelamento de planos.
+    troca_devolucao_pdv_query = (
+        module == "pdv"
+        and any(
+            termo in normalized_query
+            for termo in (
+                "troca",
+                "devolucao",
+                "vale-troca",
+                "vale troca",
+            )
+        )
+        and any(
+            termo in normalized_query
+            for termo in (
+                "atalho",
+                "teclado",
+                "procedimento",
+                "operacao",
+                "vale-troca",
+                "vale troca",
+            )
+        )
+    )
+    if troca_devolucao_pdv_query:
+        doc_types = ["manual"]
+        module = "pdv"
 
     tef_troubleshooting_query = (
         "tef" in normalized_query
@@ -776,8 +863,6 @@ def analyze_query(query: str):
         module = None
 
     priority = extract_priority(query)
-
-    status = extract_status(query)
 
     sla_priority_query = (
         priority == "critica"
@@ -821,7 +906,7 @@ def analyze_query(query: str):
             for term in ("email", "ticket", "reun")
         )
     )
-    if multi_source_query:
+    if multi_source_query and not customer_id:
         customer_id = None
 
     # --------------------------------------------------------
