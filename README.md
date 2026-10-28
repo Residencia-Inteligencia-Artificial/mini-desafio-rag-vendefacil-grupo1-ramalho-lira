@@ -22,7 +22,7 @@ A solução explora técnicas de embeddings, busca híbrida, indexação vetoria
 
 O projeto foi desenvolvido por Janice Lira e Emilly Ramalho.
 
-Minha contribuição incluiu atividades de ingestão e organização de dados, revisão do tratamento de informações sensíveis, documentação técnica e versionamento dos entregáveis no GitHub.
+Contribuições de Janice Lira: ingestão e organização de dados, revisão do tratamento de informações sensíveis, documentação técnica e versionamento dos entregáveis no GitHub.
 
 O desenvolvimento proporcionou experiência prática com recuperação de informações, integração de componentes de IA e avaliação de respostas.
 Mini Desafio RAG - VendeFácil Knowledge Base
@@ -65,7 +65,6 @@ mini-desafio/
 │   ├── structured/                       # CSV e JSON (employees, customers, products, stores)
 │   ├── semi_structured/                  # JSONL e CSV (tickets.jsonl, system_logs.csv)
 │   └── unstructured/                     # Documentação (.md), Políticas (.pdf/.md), Reuniões (.md), E-mails (.txt)
-esperadas
 ├── starter/                              # Código de partida para os alunos
 │   ├── requirements.txt                  # Dependências Python recomendadas
 │   ├── schema.py                         # Estrutura Pydantic exigida para as respostas
