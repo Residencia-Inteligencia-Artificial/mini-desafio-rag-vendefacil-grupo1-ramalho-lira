@@ -1,4 +1,4 @@
-# Mini Desafio — Assistente RAG Corporativo VendeFácil
+--- Mini Desafio — Assistente RAG Corporativo VendeFácil
 
 ## Sobre o projeto
 
