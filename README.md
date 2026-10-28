@@ -1,4 +1,31 @@
-# Mini Desafio RAG - VendeFácil Knowledge Base
+# Mini Desafio — Assistente RAG Corporativo VendeFácil
+
+## Sobre o projeto
+
+Projeto desenvolvido em dupla durante a Residência em Inteligência Artificial do programa TIC em Trilhas, em parceria com o Instituto ECOA da PUC-Rio.
+
+O objetivo foi desenvolver um assistente corporativo baseado em Inteligência Artificial Generativa e RAG (Retrieval-Augmented Generation), utilizando diferentes fontes de conhecimento para recuperar informações e produzir respostas fundamentadas.
+
+A solução explora técnicas de embeddings, busca híbrida, indexação vetorial, geração de respostas e avaliação de resultados.
+
+## Tecnologias utilizadas
+
+- Python
+- Inteligência Artificial Generativa
+- Retrieval-Augmented Generation (RAG)
+- FAISS
+- BM25
+- Modelos de Linguagem (LLMs)
+- Streamlit
+
+## Desenvolvimento colaborativo
+
+O projeto foi desenvolvido por Janice Lira e Emilly Ramalho.
+
+Minha contribuição incluiu atividades de ingestão e organização de dados, revisão do tratamento de informações sensíveis, documentação técnica e versionamento dos entregáveis no GitHub.
+
+O desenvolvimento proporcionou experiência prática com recuperação de informações, integração de componentes de IA e avaliação de respostas.
+Mini Desafio RAG - VendeFácil Knowledge Base
 
 Bem-vindo ao **Mini Desafio RAG (Retrieval-Augmented Generation)** baseado no ecossistema da empresa fictícia **VendeFácil Tecnologia Ltda.**!
 
