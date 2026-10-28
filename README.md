@@ -27,7 +27,31 @@ Contribuições de Janice Lira: ingestão e organização de dados, revisão do 
 O desenvolvimento proporcionou experiência prática com recuperação de informações, integração de componentes de IA e avaliação de respostas.
 
 ---
+## Resultados e Avaliação do RAG
 
+O assistente RAG corporativo VendeFácil foi submetido a um benchmark composto por 20 perguntas, com o objetivo de avaliar a recuperação de informações, a qualidade das respostas e sua fundamentação nas fontes consultadas.
+
+### Métricas registradas
+
+| Indicador | Resultado |
+|---|---|
+| Perguntas avaliadas | 20 |
+| Taxa de acertos | 55% |
+| Relevância do contexto | 0,88 |
+| Relevância da resposta | 1,00 |
+| Fundamentação das respostas (Groundedness) | 0,87 |
+
+### Principais aprendizados
+
+A avaliação permitiu identificar oportunidades de melhoria na recuperação de informações, na filtragem por metadados e no tratamento de perguntas que exigem a combinação de múltiplas fontes.
+
+O projeto também contemplou mecanismos de proteção de informações sensíveis, considerando princípios de Segurança da Informação e LGPD.
+
+Os resultados demonstram a importância da avaliação contínua de aplicações RAG, especialmente quanto à precisão, à rastreabilidade das respostas e à segurança dos dados.
+
+**Relatório técnico completo:** [RELATORIO.md](RELATORIO.md)
+
+**Análise das falhas identificadas:** [failure_report.md](reports/failure_report.md)
 ## Mini Desafio RAG — VendeFácil Knowledge Base
 
 Bem-vindo ao **Mini Desafio RAG (Retrieval-Augmented Generation)** baseado no ecossistema da empresa fictícia **VendeFácil Tecnologia Ltda.**!
