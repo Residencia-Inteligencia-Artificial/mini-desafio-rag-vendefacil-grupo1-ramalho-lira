@@ -1,4 +1,4 @@
---- Mini Desafio — Assistente RAG Corporativo VendeFácil
+# Mini Desafio — Assistente RAG Corporativo VendeFácil
 
 ## Sobre o projeto
 
@@ -25,7 +25,10 @@ O projeto foi desenvolvido por Janice Lira e Emilly Ramalho.
 Contribuições de Janice Lira: ingestão e organização de dados, revisão do tratamento de informações sensíveis, documentação técnica e versionamento dos entregáveis no GitHub.
 
 O desenvolvimento proporcionou experiência prática com recuperação de informações, integração de componentes de IA e avaliação de respostas.
-Mini Desafio RAG - VendeFácil Knowledge Base
+
+---
+
+## Mini Desafio RAG — VendeFácil Knowledge Base
 
 Bem-vindo ao **Mini Desafio RAG (Retrieval-Augmented Generation)** baseado no ecossistema da empresa fictícia **VendeFácil Tecnologia Ltda.**!
 
