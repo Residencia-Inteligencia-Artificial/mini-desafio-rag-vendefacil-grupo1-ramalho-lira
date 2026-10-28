@@ -54,6 +54,8 @@ Os resultados demonstram a importância da avaliação contínua de aplicações
 **Análise das falhas identificadas:** [failure_report.md](reports/failure_report.md)
 ## Mini Desafio RAG — VendeFácil Knowledge Base
 
+---
+
 Bem-vindo ao **Mini Desafio RAG (Retrieval-Augmented Generation)** baseado no ecossistema da empresa fictícia **VendeFácil Tecnologia Ltda.**!
 
 Este repositório contém a bases de dados sintéticas multi-formato e orientações pedagógicas para a realização de um mini desafio prático projetado ser realizado em **duplas**.
