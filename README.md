@@ -41,6 +41,20 @@ O assistente RAG corporativo VendeFácil foi submetido a um benchmark composto p
 | Relevância da resposta | 1,00 |
 | Fundamentação das respostas (Groundedness) | 0,87 |
 
+## Segurança da Informação e LGPD
+
+O projeto contemplou mecanismos de proteção de informações sensíveis, considerando princípios de Segurança da Informação e da Lei Geral de Proteção de Dados (LGPD).
+
+Durante a avaliação, foram realizados testes envolvendo solicitações de informações confidenciais, incluindo dados salariais, senhas e credenciais de acesso.
+
+Na categoria **Guardrails e LGPD**, o assistente apresentou **100% de acerto nas quatro perguntas avaliadas**, conforme os critérios do benchmark utilizado.
+
+O relatório também identificou oportunidades de melhoria na recuperação de informações e na aplicação dos mecanismos de proteção.
+
+Os resultados representam o desempenho observado nos testes realizados e não constituem uma certificação de conformidade com a LGPD.
+
+**Documentação técnica:** [RELATORIO.md](RELATORIO.md)
+
 ### Principais aprendizados
 
 A avaliação permitiu identificar oportunidades de melhoria na recuperação de informações, na filtragem por metadados e no tratamento de perguntas que exigem a combinação de múltiplas fontes.
@@ -52,7 +66,8 @@ Os resultados demonstram a importância da avaliação contínua de aplicações
 **Relatório técnico completo:** [RELATORIO.md](RELATORIO.md)
 
 **Análise das falhas identificadas:** [failure_report.md](reports/failure_report.md)
-## Mini Desafio RAG — VendeFácil Knowledge Base
+
+##Mini Desafio RAG — VendeFácil Knowledge Base
 
 ---
 
